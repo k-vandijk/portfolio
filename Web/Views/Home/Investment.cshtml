@@ -2,6 +2,24 @@
     ViewData["Title"] = "Investment";
 }
 
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1rem;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+        .dashboard-grid > div {
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+            min-height: 0;
+        }
+</style>
+
 <div class="dashboard-grid">
     <div>
     </div>

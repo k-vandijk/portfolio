@@ -4,10 +4,10 @@
     --accent-3: #9B9ECE;
     --accent-4: #ACADBC;
 
-    --accent-1-light: #d5d1fa;  /* stronger lavender */
-    --accent-2-light: #c7c6f0;  /* mid periwinkle */
-    --accent-3-light: #dcddea;  /* soft gray-blue */
-    --accent-4-light: #ececf3;  /* light neutral */
+    --accent-1-light: #d5d1fa;
+    --accent-2-light: #c7c6f0;
+    --accent-3-light: #dcddea;
+    --accent-4-light: #ececf3;
 
     --card-color: #ffffff;
     --card-radius: 16px;
@@ -15,21 +15,27 @@
     --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
+/* Verzorgt de font en dat de pagina niet scrollable is */
 html, body {
     font-family: 'Roboto', sans-serif;
+    height: 100%;
+    overflow: hidden;
 }
 
+/* Verzorgt de background gradient */
 body {
     background: linear-gradient(135deg, var(--accent-4-light), var(--accent-1-light));
     background-blend-mode: lighten;
 }
 
+/* Zorgt dat alle 'hr's' in de kleur van accent-1 en meer dikgedrukt zijn. */
 hr {
     border: none;
     border-top: 3px solid var(--accent-1);
     margin: 1rem 0;
 }
 
+/* Default styling voor cards */
 .card {
     background-color: var(--card-color);
     border-radius: var(--card-radius);
@@ -38,7 +44,32 @@ hr {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+    /* Hover styling voor cards; Lichtelijk vergroten */
     .card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-hover);
     }
+
+/* Zorgen dat cards de maximale grootte in gebruik nemen */
+.card {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+}
+
+.card-header {
+    flex: 0 0 auto;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1rem;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
