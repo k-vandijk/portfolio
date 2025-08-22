@@ -13,6 +13,42 @@
             new LineChartDataPoint { Label = "May", Value = 600 },
         ]
     };
+
+    var tableViewModel = new TableViewModel
+    {
+        Title = "Portfolio",
+        Columns =
+        [
+            new TableColumn { Header = "Datum", Key = "Date" },
+            new TableColumn { Header = "Bedrag", Key = "Amount" },
+            new TableColumn { Header = "Type", Key = "Type" },
+            new TableColumn { Header = "Omschrijving", Key = "Description" }
+        ],
+        Rows =
+        [
+            new Dictionary<string, object>
+            {
+                { "Date", "2023-01-01" },
+                { "Amount", 1000 },
+                { "Type", "Inleg" },
+                { "Description", "Initiële investering" }
+            }!,
+            new Dictionary<string, object>
+            {
+                { "Date", "2023-02-15" },
+                { "Amount", -200 },
+                { "Type", "Uitgave" },
+                { "Description", "Aankoop aandelen" }
+            }!,
+            new Dictionary<string, object>
+            {
+                { "Date", "2023-03-10" },
+                { "Amount", 300 },
+                { "Type", "Inleg" },
+                { "Description", "Extra inleg" }
+            }!
+        ]
+    };
 }
 
 <div class="row mb-3">
@@ -20,7 +56,7 @@
 
     </div>
     <div class="col-md-8">
-        <partial name="Components/_Table" />
+        <partial name="Components/_Table" model="@tableViewModel" />
     </div>
 </div>
 

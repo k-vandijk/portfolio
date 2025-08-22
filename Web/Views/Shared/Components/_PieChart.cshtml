@@ -16,7 +16,7 @@
         if (!element) return;
 
         // Chart data serializeren
-        const chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        const chartData = @Html.Raw(JsonSerializer.Serialize(new {
             labels = Model.Data.Select(dp => dp.Label),
             datasets = new[] {
                 new {

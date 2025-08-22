@@ -1,35 +1,38 @@
-﻿<div class="card">
-    <div class="card-header">Recent Transactions</div>
+﻿@model TableViewModel
+
+<div class="card">
+    <div class="card-header">@Model.Title</div>
     <div class="card-body">
         <table class="table table-hover table-sm mb-0">
             <thead class="table-light">
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount</th>
-            </tr>
+            @foreach (var column in Model.Columns)
+            {
+                <th>@column.Header</th>
+            }
             </thead>
             <tbody>
+            @if (!Model.Rows.Any())
+            {
                 <tr>
-                    <td>2025-08-15</td>
-                    <td>Buy - ETF</td>
-                    <td class="text-danger">- € 1,000</td>
+                    <td class="text-muted text-center py-4" colspan="@Model.Columns.Count">
+                        @Model.EmptyText
+                    </td>
                 </tr>
-                <tr>
-                    <td>2025-08-10</td>
-                    <td>Dividend</td>
-                    <td class="text-success">+ € 250</td>
-                </tr>
-                <tr>
-                    <td>2025-08-01</td>
-                    <td>Buy - Stock</td>
-                    <td class="text-danger">- € 500</td>
-                </tr>
-                <tr>
-                    <td>2025-07-28</td>
-                    <td>Sell - Bond</td>
-                    <td class="text-success">+ € 1,200</td>
-                </tr>
+            }
+            else
+            {
+                foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        @foreach (var column in Model.Columns)
+                        {
+                            row.TryGetValue(column.Key, out var raw);
+                            var text = raw?.ToString() ?? string.Empty;
+                            <td>@text</td>
+                        }
+                    </tr>
+                }
+            }
             </tbody>
         </table>
     </div>
