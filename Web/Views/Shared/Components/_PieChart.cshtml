@@ -1,4 +1,5 @@
-﻿@{
+﻿@model PieChartViewModel
+@{
     var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
 }
 
@@ -14,16 +15,24 @@
         var element = document.getElementById('@chartId');
         if (!element) return;
 
+        // Chart data serializeren
+        const chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+            labels = Model.Data.Select(dp => dp.Label),
+            datasets = new[] {
+                new {
+                    data = Model.Data.Select(dp => dp.Value),
+                    borderWidth = 3
+                }
+            }
+        }));
+
+        // Css variables ophalen
+        chartData.datasets[0].backgroundColor = accentColors;
+
+        // Chart initialiseren
         new Chart(element, {
             type: 'pie',
-            data: {
-                labels: ['Stocks', 'Bonds', 'Crypto', 'Cash'],
-                datasets: [{
-                    data: [50, 25, 15, 10],
-                    backgroundColor: accentColors,
-                    borderWidth: 3
-                }]
-            },
+            data: chartData,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,

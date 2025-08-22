@@ -3,7 +3,7 @@
 
     var lineChartViewModel = new LineChartViewModel
     {
-        Title = "Portfolio Growth",
+        Title = "Marktwaarde",
         DataPoints =
         [
             new LineChartDataPoint { Label = "Jan", Value = 100 },
@@ -22,13 +22,13 @@
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Metric", Value = "€ 100.000,00" }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Huidige prijs", Value = "€ 99.600,73" }' />
             </div>
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Metric", Value = "€ 100.000,00" }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Rendement €", Value = "€ 9.330,84" }' />
             </div>
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Metric", Value = "€ 100.000,00" }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Rendement %", Value = "10,34%" }' />
             </div>
         </div>
     </div>
