@@ -3,7 +3,7 @@
 
     var lineChartViewModel = new LineChartViewModel
     {
-        Title = "Portfolio Growth",
+        Title = "Investering (cumulatief) per maand",
         DataPoints =
         [
             new LineChartDataPoint { Label = "Jan", Value = 100 },
@@ -11,6 +11,16 @@
             new LineChartDataPoint { Label = "Mar", Value = 400 },
             new LineChartDataPoint { Label = "Apr", Value = 300 },
             new LineChartDataPoint { Label = "May", Value = 600 },
+        ]
+    };
+
+    var pieChartViewModel = new PieChartViewModel
+    {
+        Data =
+        [
+            new PieChartData { Label = "Stocks", Value = 50 },
+            new PieChartData { Label = "Bonds", Value = 30 },
+            new PieChartData { Label = "Real Estate", Value = 20 },
         ]
     };
 }
@@ -37,7 +47,7 @@
     <div>
     </div>
     <div>
-        <partial name="Components/_PieChart"/>
+        <partial name="Components/_PieChart" model="pieChartViewModel" />
     </div>
     <div>
         <partial name="Components/_LineChart" model="lineChartViewModel"/>
