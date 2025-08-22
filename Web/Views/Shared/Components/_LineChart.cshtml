@@ -1,9 +1,11 @@
-﻿@{
+﻿@using System.Text.Json
+@model LineChartViewModel
+@{
     var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
 }
 
 <div class="card">
-    <div class="card-header">Portfolio Growth</div>
+    <div class="card-header">@Model.Title</div>
     <div class="card-body">
         <canvas id="@chartId" class="chart-canvas"></canvas>
     </div>
@@ -14,19 +16,27 @@
         var element = document.getElementById('@chartId');
         if (!element) return;
 
+        // Chart data serializeren
+        const chartData = @Html.Raw(JsonSerializer.Serialize(new {
+            labels   = Model.DataPoints.Select(dp => dp.Label),
+            datasets = new[] {
+                new {
+                    label = Model.Title,
+                    data = Model.DataPoints.Select(dp => dp.Value),
+                    tension = 0.3,
+                    fill = true
+                }
+            }
+        })); 
+
+        // Css variables ophalen
+        chartData.datasets[0].borderColor = accentColors[0];
+        chartData.datasets[0].backgroundColor = accentColors[0] + "33";
+
+        // Chart initialiseren
         new Chart(element, {
             type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Growth',
-                    data: [100, 120, 140, 160, 180, 210],
-                    borderColor: accentColors[0],
-                    backgroundColor: accentColors[0] + '33',
-                    tension: 0.3,
-                    fill: true  
-                }]
-            },
+            data: chartData,    
             options: {
                 responsive: true,
                 maintainAspectRatio: false,

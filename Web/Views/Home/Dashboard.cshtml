@@ -1,5 +1,18 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
+
+    var lineChartViewModel = new LineChartViewModel
+    {
+        Title = "Portfolio Growth",
+        DataPoints =
+        [
+            new LineChartDataPoint { Label = "Jan", Value = 100 },
+            new LineChartDataPoint { Label = "Feb", Value = 200 },
+            new LineChartDataPoint { Label = "Mar", Value = 400 },
+            new LineChartDataPoint { Label = "Apr", Value = 300 },
+            new LineChartDataPoint { Label = "May", Value = 600 },
+        ]
+    };
 }
 
 <div class="row mb-3">
@@ -13,6 +26,6 @@
 
 <div class="row mb-3">
     <div class="col-md-12">
-        <partial name="Components/_LineChart"/>
+        <partial name="Components/_LineChart" model="@lineChartViewModel" />
     </div>
 </div>
