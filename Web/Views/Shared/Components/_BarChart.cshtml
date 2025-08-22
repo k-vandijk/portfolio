@@ -1,4 +1,6 @@
-﻿@{
+﻿@using System.Text.Json
+@model BarChartViewModel
+@{
     var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
 }
 
@@ -14,16 +16,24 @@
         var element = document.getElementById('@chartId');
         if (!element) return;
     
+        // Chart data serializeren
+        const chartData = @Html.Raw(JsonSerializer.Serialize(new {
+            labels   = Model.DataPoints.Select(dp => dp.Label),
+            datasets = new[] {
+                new { 
+                    label = Model.Title,
+                    data = Model.DataPoints.Select(dp => dp.Value),
+                }
+            }
+        })); 
+
+        // Css variables ophalen
+        chartData.datasets[0].backgroundColor = accentColors[0];
+
+        // Chart initialiseren
         new Chart(element, {
             type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Investment',
-                    data: [2000, 1800, 2500, 2200, 2700, 3000],
-                    backgroundColor: accentColors[0]
-                }]
-            },
+            data: chartData,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,

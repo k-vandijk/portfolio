@@ -1,12 +1,12 @@
 ﻿namespace Web.ViewModels;
 
-public class PieChartViewModel
+public class BarChartViewModel
 {
     public string Title { get; set; } = string.Empty;
-    public List<PieChartDataPoint> Data { get; set; } = new();
+    public List<BarChartDataPoint> DataPoints { get; set; } = new ();
 }
 
-public class PieChartDataPoint
+public class BarChartDataPoint
 {
     public string Label { get; set; } = string.Empty;
     public decimal Value { get; set; } = 0;

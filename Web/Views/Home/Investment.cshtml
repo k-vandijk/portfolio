@@ -18,9 +18,20 @@
     {
         Data =
         [
-            new PieChartData { Label = "Stocks", Value = 50 },
-            new PieChartData { Label = "Bonds", Value = 30 },
-            new PieChartData { Label = "Real Estate", Value = 20 },
+            new PieChartDataPoint { Label = "Stocks", Value = 50 },
+            new PieChartDataPoint { Label = "Bonds", Value = 30 },
+            new PieChartDataPoint { Label = "Real Estate", Value = 20 },
+        ]
+    };
+
+    var barChartViewModel = new BarChartViewModel
+    {
+        Title = "Investment by Category",
+        DataPoints =
+        [
+            new BarChartDataPoint { Label = "Stocks", Value = 50 },
+            new BarChartDataPoint { Label = "Bonds", Value = 30 },
+            new BarChartDataPoint { Label = "Real Estate", Value = 20 },
         ]
     };
 }
@@ -53,6 +64,6 @@
         <partial name="Components/_LineChart" model="lineChartViewModel"/>
     </div>
     <div>
-        <partial name="Components/_BarChart"/>
+        <partial name="Components/_BarChart" model="barChartViewModel" />
     </div>
 </div>
