@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Kevin van Dijk</title>
+    <partial name="_Styles" />
+</head>
+<body>
+
+    <div class="d-flex" style="min-height: 100vh;">
+        <partial name="_Sidebar" />
+
+        <main class="flex-grow-1 p-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <partial name="_Scripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

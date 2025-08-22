@@ -1,0 +1,44 @@
+﻿@{
+    var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
+}
+
+<div class="card">
+    <div class="card-header">Monthly Investment</div>
+    <div class="card-body">
+        <canvas id="@chartId"></canvas>
+    </div>
+</div>
+
+<script>
+    function init() {
+        var element = document.getElementById('@chartId');
+        if (!element) return;
+    
+        new Chart(element, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Investment',
+                    data: [2000, 1800, 2500, 2200, 2700, 3000],
+                    backgroundColor: accentColors[0]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+</script>

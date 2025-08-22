@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <partial name="Components/_Metric" />
+        </div>
+        <div class="col-md-3">
+            <partial name="Components/_Metric" />
+        </div>
+        <div class="col-md-3">
+            <partial name="Components/_Metric" />
+        </div>
+        <div class="col-md-3">
+            <partial name="Components/_Metric" />
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <partial name="Components/_LineChart" />
+        </div>
+        <div class="col-md-6">
+            <partial name="Components/_BarChart" />
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <partial name="Components/_PieChart" />
+        </div>
+        <div class="col-md-6">
+            <partial name="Components/_Table" />
+        </div>
+    </div>
+</div>

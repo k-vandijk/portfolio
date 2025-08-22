@@ -1,0 +1,44 @@
+:root {
+    --accent-1: #473BF0;
+    --accent-2: #6665DD;
+    --accent-3: #9B9ECE;
+    --accent-4: #ACADBC;
+
+    --accent-1-light: #d5d1fa;  /* stronger lavender */
+    --accent-2-light: #c7c6f0;  /* mid periwinkle */
+    --accent-3-light: #dcddea;  /* soft gray-blue */
+    --accent-4-light: #ececf3;  /* light neutral */
+
+    --card-color: #ffffff;
+    --card-radius: 16px;
+    --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+html, body {
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, var(--accent-4-light), var(--accent-1-light));
+    background-blend-mode: lighten;
+}
+
+hr {
+    border: none;
+    border-top: 3px solid var(--accent-1);
+    margin: 1rem 0;
+}
+
+.card {
+    background-color: var(--card-color);
+    border-radius: var(--card-radius);
+    border: none;
+    box-shadow: var(--shadow-default);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }

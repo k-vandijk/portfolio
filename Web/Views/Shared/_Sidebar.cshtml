@@ -1,0 +1,39 @@
+﻿<style>
+    aside {
+        background-color: var(--card-color);
+        box-shadow: var(--shadow-default);
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-1);
+        color: #fff !important;
+    }
+
+    .nav-pills .nav-link.active {
+        border-radius: 8px;
+    }
+</style>
+
+<aside class="px-3 py-3 flex-shrink-0" style="width:250px; height:100vh;">
+    <a asp-controller="Home" asp-action="Dashboard" class="d-flex align-items-center mb-3 text-decoration-none fw-bold fs-5" style="color: var(--accent-1);">
+        Kevin van Dijk
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item mb-2">
+            <a asp-controller="Home" asp-action="Dashboard" class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a asp-controller="Home" asp-action="Investment" class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "Investment" ? "active" : "")">
+                <i class="fas fa-chart-line me-2"></i> Investment
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-controller="Home" asp-action="MarketHistory" class="nav-link text-dark @(ViewContext.RouteData.Values["action"]?.ToString() == "MarketHistory" ? "active" : "")">
+                <i class="fas fa-clock-rotate-left me-2"></i> Market History
+            </a>
+        </li>
+    </ul>
+</aside>

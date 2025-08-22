@@ -1,0 +1,40 @@
+﻿@{
+    var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
+}
+
+<div class="card">
+    <div class="card-header">Investment Split</div>
+    <div class="card-body">
+        <canvas id="@chartId"></canvas>
+    </div>
+</div>
+
+<script>
+    function init() {
+        var element = document.getElementById('@chartId');
+        if (!element) return;
+
+        new Chart(element, {
+            type: 'pie',
+            data: {
+                labels: ['Stocks', 'Bonds', 'Crypto', 'Cash'],
+                datasets: [{
+                    data: [50, 25, 15, 10],
+                    backgroundColor: accentColors,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+</script>
