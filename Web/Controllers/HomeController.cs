@@ -74,8 +74,8 @@ public class HomeController : Controller
         if (marketHistory is not null)
         {
             var options = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
-                .SetSlidingExpiration(TimeSpan.FromMinutes(3));
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(60)) // TODO Set to appropriate duration
+                .SetSlidingExpiration(TimeSpan.FromMinutes(60)); // TODO Set to appropriate duration
 
             _cache.Set(cacheKey, marketHistory, options);
         }
