@@ -1,11 +1,19 @@
+using Microsoft.Extensions.Caching.Memory;
+using Web.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<HttpClient>();
-
 builder.Services.AddMemoryCache();
+
+builder.Services.AddHttpClient("cached-http-client")
+    .AddHttpMessageHandler(sp =>
+        new HttpGetCachingHandler(
+            sp.GetRequiredService<IMemoryCache>(),
+            absoluteTtl: TimeSpan.FromMinutes(60),
+            slidingTtl: TimeSpan.FromMinutes(30)));
 
 var app = builder.Build();
 

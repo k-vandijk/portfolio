@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using System.Diagnostics;
 using System.Text.Json;
 using Web.Responses;
@@ -11,13 +10,11 @@ public class HomeController : Controller
 {
     private readonly HttpClient _http;
     private readonly IConfiguration _config;
-    private readonly IMemoryCache _cache;
 
-    public HomeController(HttpClient http, IConfiguration config, IMemoryCache cache)
+    public HomeController(IHttpClientFactory httpFactory, IConfiguration config)
     {
-        _http = http;
+        _http = httpFactory.CreateClient("cached-http-client");
         _config = config;
-        _cache = cache;
     }
 
     [HttpGet("/dashboard")]
@@ -52,12 +49,6 @@ public class HomeController : Controller
         string? period = "1y", 
         string? interval = "1d")
     {
-        var cacheKey = $"market-history:{ticker}:{period}:{interval}";
-        if (_cache.TryGetValue(cacheKey, out MarketHistoryResponse cached))
-        {
-            return cached;
-        }
-
         var tickerApiUrl = _config["ticker-api-url"] ?? throw new InvalidOperationException("ticker-api-url is not configured.");
         var tickerApiCode = _config["ticker-api-code"] ?? throw new InvalidOperationException("ticker-api-code is not configured.");
         var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
@@ -70,15 +61,6 @@ public class HomeController : Controller
         {
             PropertyNameCaseInsensitive = true
         });
-
-        if (marketHistory is not null)
-        {
-            var options = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(60)) // TODO Set to appropriate duration
-                .SetSlidingExpiration(TimeSpan.FromMinutes(60)); // TODO Set to appropriate duration
-
-            _cache.Set(cacheKey, marketHistory, options);
-        }
 
         return marketHistory;
     }
