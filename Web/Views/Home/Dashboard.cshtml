@@ -3,7 +3,7 @@
 
     var lineChartViewModel = new LineChartViewModel
     {
-        Title = "Portfoliowaarde",
+        Title = "Portfolio value €",
         DataPoints =
         [
             new LineChartDataPoint { Label = "Jan", Value = 100 },
@@ -19,12 +19,12 @@
         Columns =
         [
             new TableColumn { Header = "Ticker", Key = "Ticker" },
-            new TableColumn { Header = "Portfoliogedeelte", Key = "PortfolioPercentage" },
-            new TableColumn { Header = "Aantal", Key = "Amount" },
-            new TableColumn { Header = "Totale investering", Key = "TotalInvestment" },
-            new TableColumn { Header = "Waarde", Key = "Worth" },
-            new TableColumn { Header = "Winst €", Key = "ProfitAmount" },
-            new TableColumn { Header = "Winst %", Key = "ProfitPercentage" }
+            new TableColumn { Header = "Portfolio %", Key = "PortfolioPercentage" },
+            new TableColumn { Header = "Amount", Key = "Amount" },
+            new TableColumn { Header = "Total investment", Key = "TotalInvestment" },
+            new TableColumn { Header = "Worth", Key = "Worth" },
+            new TableColumn { Header = "Profit €", Key = "ProfitAmount" },
+            new TableColumn { Header = "Profit %", Key = "ProfitPercentage" }
         ],
         Rows =
         [
@@ -62,14 +62,14 @@
     };
 }
 
-<div class="row mb-3 gx-0" style="height: 30vh; overflow: hidden;">
+<div class="row mb-3" style="height: 35vh;">
     <div class="col-md-4"></div>
     <div class="col-md-8">
         <partial name="Components/_Table" model="@tableViewModel" />
     </div>
 </div>
 
-<div class="row mb-3 gx-0" style="height: 60vh; overflow: hidden;">
+<div class="row mb-3" style="height: 60vh;">
     <div class="col-md-12">
         <partial name="Components/_LineChart" model="@lineChartViewModel" />
     </div>

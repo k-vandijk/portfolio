@@ -3,7 +3,7 @@
 
     var lineChartViewModel = new LineChartViewModel
     {
-        Title = "Marktwaarde",
+        Title = "Market value €",
         DataPoints =
         [
             new LineChartDataPoint { Label = "Jan", Value = 100 },
@@ -15,26 +15,26 @@
     };
 }
 
-<div class="row mb-3" style="height: 30vh; overflow: hidden;">
+<div class="row mb-3" style="height: 35vh;">
     <div class="col-md-4">
 
     </div>
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Huidige prijs", Value = "€ 99.600,73" }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Current price", Value = "€ 99.600,73" }' />
             </div>
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Rendement €", Value = "€ 9.330,84" }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest €", Value = "€ 9.330,84" }' />
             </div>
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Rendement %", Value = "10,34%" }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest %", Value = "10,34%" }' />
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mb-3" style="height: 60vh; overflow: hidden;">
+<div class="row mb-3" style="height: 60vh;">
     <div class="col-md-12">
         <partial name="Components/_LineChart" model="lineChartViewModel" />
     </div>

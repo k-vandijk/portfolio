@@ -3,7 +3,7 @@
 
     var lineChartViewModel = new LineChartViewModel
     {
-        Title = "Investering (cumulatief) per maand",
+        Title = "Investment (cumulative) per month",
         DataPoints =
         [
             new LineChartDataPoint { Label = "Jan", Value = 100 },
@@ -16,7 +16,7 @@
 
     var pieChartViewModel = new PieChartViewModel
     {
-        Title = "Investering per Ticker",
+        Title = "Investment per ticker",
         Data =
         [
             new PieChartDataPoint { Label = "Stocks", Value = 50 },
@@ -27,7 +27,7 @@
 
     var barChartViewModel = new BarChartViewModel
     {
-        Title = "Investering per Maand",
+        Title = "Investment per month",
         DataPoints =
         [
             new BarChartDataPoint { Label = "Stocks", Value = 50 },
@@ -37,7 +37,7 @@
     };
 }
 
-<div class="row mb-3" style="height: 45vh; overflow: hidden;">
+<div class="row mb-3" style="height: 47vh;">
     <div class="col-md-6">
     </div>
     <div class="col-md-6">
@@ -45,7 +45,7 @@
     </div>
 </div>
 
-<div class="row mb-3" style="height: 45vh; overflow: hidden;">
+<div class="row mb-3" style="height: 48vh;">
     <div class="col-md-6">
         <partial name="Components/_LineChart" model="lineChartViewModel" />
     </div>
