@@ -25,8 +25,11 @@
                 new {
                     label = Model.Title,
                     data = Model.DataPoints.Select(dp => dp.Value),
-                    tension = 0.3,
-                    fill = true
+                    tension = 0.45,
+                    fill = true,
+                    pointRadius = 0,
+                    pointHoverRadius = 3,
+                    hitRadius = 8
                 }
             }
         })); 
@@ -35,6 +38,18 @@
         chartData.datasets[0].borderColor = accentColors[0];
         chartData.datasets[0].backgroundColor = accentColors[0] + "33";
 
+        // Formatting from ViewModel
+        const yFormat = @Html.Raw(JsonSerializer.Serialize(Model.Format)); // "currency" | "percentage" | "number"
+
+        const fmtCurrency = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmtNumber = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 });
+
+        function formatY(v) {
+            if (yFormat === 'currency') return fmtCurrency.format(v);
+            if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
+            return fmtNumber.format(v);
+        }
+
         // Chart initialiseren
         new Chart(element, {
             type: 'line',
@@ -42,10 +57,23 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => formatY(ctx.parsed.y)
+                        }
+                    }
+                },
                 scales: {
-                    x: { grid: { display: false } },
-                    y: { grid: { display: false } }
+                    x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+                    y: { 
+                        grid: { display: false }, 
+                        ticks: { 
+                            maxTicksLimit: 6,
+                            callback: (value) => formatY(value)
+                        } 
+                    }
                 }
             }
         });

@@ -4,6 +4,7 @@ public class LineChartViewModel
 {
     public string Title { get; set; } = string.Empty;
     public List<LineChartDataPoint> DataPoints { get; set; } = new ();
+    public string Format { get; set; } = "currency"; // "currency" | "percentage" | "number"
 }
 
 public class LineChartDataPoint
