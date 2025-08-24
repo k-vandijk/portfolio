@@ -1,20 +1,9 @@
-﻿@model LineChartViewModel
+﻿@model MarketHistoryViewModel
 @{
     ViewData["Title"] = "Market history";
 
-    LineChartDataPoint first = Model.DataPoints.First();
-    LineChartDataPoint last = Model.DataPoints.Last();
-
-    decimal currentPrice = last.Value;
-    string currentPriceString = currentPrice.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"));
-
-    decimal interest = last.Value - first.Value;
-    string interestString = interest.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"));
-
-    decimal interestPercentage = interest / first.Value * 100;
-    string interestPercentageString = interestPercentage.ToString("F2") + "%";
-
     var tickers = new[] { "SXRV.DE", "BTC-EUR", "IS3N.DE" };
+
     var currentTicker = Context.Request.Query["ticker"].ToString();
 }
 
@@ -38,13 +27,13 @@
     <div class="col-md-8 d-flex">
         <div class="row flex-fill">
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Current price", Value = currentPriceString }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Current price", Value = Model.CurrentPriceString }' />
             </div>
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest €", Value = interestString }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest €", Value = Model.InterestString }' />
             </div>
             <div class="col-md-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest %", Value = interestPercentageString }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest %", Value = Model.InterestPercentageString }' />
             </div>
         </div>
     </div>
@@ -53,6 +42,6 @@
 
 <div class="row mb-3" style="height: 80vh;">
     <div class="col-md-12">
-        <partial name="Components/_LineChart" model="Model" />
+        <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
 </div>

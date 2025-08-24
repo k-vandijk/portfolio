@@ -1,76 +1,17 @@
-﻿@{
+﻿@model DashboardViewModel
+@{
     ViewData["Title"] = "Dashboard";
-
-    var lineChartViewModel = new LineChartViewModel
-    {
-        Title = "Portfolio value €",
-        DataPoints =
-        [
-            new LineChartDataPoint { Label = "Jan", Value = 100 },
-            new LineChartDataPoint { Label = "Feb", Value = 200 },
-            new LineChartDataPoint { Label = "Mar", Value = 400 },
-            new LineChartDataPoint { Label = "Apr", Value = 300 },
-            new LineChartDataPoint { Label = "May", Value = 600 },
-        ]
-    };
-
-    var tableViewModel = new TableViewModel
-    {
-        Columns =
-        [
-            new TableColumn { Header = "Ticker", Key = "Ticker" },
-            new TableColumn { Header = "Portfolio %", Key = "PortfolioPercentage" },
-            new TableColumn { Header = "Amount", Key = "Amount" },
-            new TableColumn { Header = "Total investment", Key = "TotalInvestment" },
-            new TableColumn { Header = "Worth", Key = "Worth" },
-            new TableColumn { Header = "Profit €", Key = "ProfitAmount" },
-            new TableColumn { Header = "Profit %", Key = "ProfitPercentage" }
-        ],
-        Rows =
-        [
-            new Dictionary<string, object>
-            {
-                { "Ticker", "SXRV.DE" },
-                { "PortfolioPercentage", "72,81%" },
-                { "Amount", "7,81206400" },
-                { "TotalInvestment", "€ 8.055,07" },
-                { "Worth", "€ 9.005,75" },
-                { "ProfitAmount", "€ 950,68" },
-                { "ProfitPercentage", "11,80%" },
-            }!,
-            new Dictionary<string, object>
-            {
-                { "Ticker", "SXRV.DE" },
-                { "PortfolioPercentage", "72,81%" },
-                { "Amount", "7,81206400" },
-                { "TotalInvestment", "€ 8.055,07" },
-                { "Worth", "€ 9.005,75" },
-                { "ProfitAmount", "€ 950,68" },
-                { "ProfitPercentage", "11,80%" },
-            }!,
-            new Dictionary<string, object>
-            {
-                { "Ticker", "SXRV.DE" },
-                { "PortfolioPercentage", "72,81%" },
-                { "Amount", "7,81206400" },
-                { "TotalInvestment", "€ 8.055,07" },
-                { "Worth", "€ 9.005,75" },
-                { "ProfitAmount", "€ 950,68" },
-                { "ProfitPercentage", "11,80%" },
-            }!,
-        ]
-    };
 }
 
 <div class="row mb-3" style="height: 35vh;">
     <div class="col-md-4"></div>
     <div class="col-md-8">
-        <partial name="Components/_Table" model="@tableViewModel" />
+        <partial name="Components/_Table" model="Model.Table" />
     </div>
 </div>
 
 <div class="row mb-3" style="height: 60vh;">
     <div class="col-md-12">
-        <partial name="Components/_LineChart" model="@lineChartViewModel" />
+        <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
 </div>

@@ -5,7 +5,12 @@ using Web.Models;
 
 namespace Web.Services;
 
-public class AzureTableService
+public interface IAzureTableService
+{
+    List<Transaction> GetTransactions();
+}
+
+public class AzureTableService : IAzureTableService
 {
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;

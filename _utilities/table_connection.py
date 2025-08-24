@@ -23,11 +23,10 @@ with open('./_assets/financien_cleaned.csv', 'r') as f:
 # Create entities
 for line in csv_content.splitlines()[1:]:
     date, ticker, amount, purchase_price, transaction_costs, total_costs = line.split(';')
-    formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}" # Format date from 'YYYYMMDD' to 'YYYY-MM-DD' for .NET DateOnly parsin
     entity = {
         "PartitionKey": "transactions",
         "RowKey": next_row_key,
-        "Date": formatted_date,
+        "Date": date,
         "Ticker": ticker,
         "Amount": amount,
         "PurchasePrice": purchase_price,

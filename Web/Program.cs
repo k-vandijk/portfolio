@@ -20,7 +20,8 @@ builder.Services.AddHttpClient("cached-http-client")
 builder.Services.AddAutoMapper(cfg => 
     cfg.AddProfile<TransactionProfile>());
 
-builder.Services.AddScoped<AzureTableService>();
+builder.Services.AddScoped<IAzureTableService, AzureTableService>();
+builder.Services.AddScoped<ITickerApiService, TickerApiService>();
 
 var app = builder.Build();
 

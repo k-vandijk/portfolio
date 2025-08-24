@@ -7,18 +7,18 @@ namespace Web.Controllers;
 
 public class InvestmentController : Controller
 {
-    private readonly AzureTableService _service;
+    private readonly IAzureTableService _service;
 
-    public InvestmentController(AzureTableService service)
+    public InvestmentController(IAzureTableService service)
     {
         _service = service;
     }
 
     [HttpGet("/investment")]
-    public IActionResult Investment([FromQuery] string? tickers, [FromQuery] string? dateRange)
+    public IActionResult Investment([FromQuery] string? tickers, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
     {
         var transactions = _service.GetTransactions();
-        var filteredTransactions = FilterTransactions(transactions, tickers, dateRange);
+        var filteredTransactions = FilterTransactions(transactions, tickers, startDate, endDate);
 
         var pieChartViewModel = GetPieChartViewModel(filteredTransactions);
         var barChartViewModel = GetBarChartViewModel(filteredTransactions);
@@ -34,36 +34,25 @@ public class InvestmentController : Controller
         return View(viewModel);
     }
 
-    private List<Transaction> FilterTransactions(List<Transaction> transactions, string? tickers, string? dateRange)
+    private List<Transaction> FilterTransactions(List<Transaction> transactions, string? tickers, DateOnly? startDate, DateOnly? endDate)
     {
-        // Filter by multiple tickers (e.g. "sxrv.de,btceur")
         if (!string.IsNullOrWhiteSpace(tickers))
         {
-            var tickerList = tickers
+            var set = tickers
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Select(t => t.ToUpperInvariant())
-                .ToList();
+                .ToHashSet();
 
             transactions = transactions
-                .Where(t => !string.IsNullOrWhiteSpace(t.Ticker) && tickerList.Contains(t.Ticker.ToUpperInvariant()))
+                .Where(t => !string.IsNullOrWhiteSpace(t.Ticker) && set.Contains(t.Ticker.ToUpperInvariant()))
                 .ToList();
         }
 
-        // Filter by date range (e.g. "2024-06-06,2025-06-06")
-        if (!string.IsNullOrWhiteSpace(dateRange))
-        {
-            var dates = dateRange
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (startDate.HasValue)
+            transactions = transactions.Where(t => t.Date >= startDate.Value).ToList();
 
-            if (dates.Length == 2 &&
-                DateOnly.TryParse(dates[0], out var startDate) &&
-                DateOnly.TryParse(dates[1], out var endDate))
-            {
-                transactions = transactions
-                    .Where(t => t.Date >= startDate && t.Date <= endDate)
-                    .ToList();
-            }
-        }
+        if (endDate.HasValue)
+            transactions = transactions.Where(t => t.Date <= endDate.Value).ToList();
 
         return transactions;
     }

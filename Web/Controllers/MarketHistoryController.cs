@@ -1,54 +1,51 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using Web.Models;
+using Web.Services;
 using Web.ViewModels;
 
 namespace Web.Controllers;
 
 public class MarketHistoryController : Controller
 {
-    private readonly HttpClient _http;
-    private readonly IConfiguration _config;
+    private readonly ITickerApiService _service;
 
-    public MarketHistoryController(IHttpClientFactory httpFactory, IConfiguration config)
+    public MarketHistoryController(ITickerApiService service)
     {
-        _http = httpFactory.CreateClient("cached-http-client");
-        _config = config;
+        _service = service;
     }
 
     [HttpGet("/market-history")]
     public async Task<IActionResult> MarketHistory([FromQuery] string? ticker = "SXRV.DE")
     {
-        var marketHistoryData = await GetMarketHistoryResponseAsync(ticker);
+        var marketHistoryData = await _service.GetMarketHistoryResponseAsync(ticker);
         if (marketHistoryData == null)
         {
             return NotFound();
         }
 
-        var viewModel = GetMarketHistoryViewModel(marketHistoryData);
+        var lineChartViewModel = GetMarketHistoryViewModel(marketHistoryData);
+
+        LineChartDataPoint first = lineChartViewModel.DataPoints.First();
+        LineChartDataPoint last = lineChartViewModel.DataPoints.Last();
+
+        decimal currentPrice = last.Value;
+        string currentPriceString = currentPrice.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"));
+
+        decimal interest = last.Value - first.Value;
+        string interestString = interest.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"));
+
+        decimal interestPercentage = interest / first.Value * 100;
+        string interestPercentageString = interestPercentage.ToString("F2") + "%";
+
+        var viewModel = new MarketHistoryViewModel
+        {
+            LineChart = lineChartViewModel,
+            CurrentPriceString = currentPriceString,
+            InterestString = interestString,
+            InterestPercentageString = interestPercentageString
+        };
 
         return View(viewModel);
-    }
-
-    private async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(
-        string ticker, 
-        string? period = "1y", 
-        string? interval = "1d")
-    {
-        var tickerApiUrl = _config["ticker-api-url"] ?? throw new InvalidOperationException("ticker-api-url is not configured.");
-        var tickerApiCode = _config["ticker-api-code"] ?? throw new InvalidOperationException("ticker-api-code is not configured.");
-        var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
-
-        var response = await _http.GetAsync(requestUrl);
-        response.EnsureSuccessStatusCode();
-
-        var responseContent = await response.Content.ReadAsStringAsync();
-        var marketHistory = JsonSerializer.Deserialize<MarketHistoryResponse>(responseContent, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
-
-        return marketHistory;
     }
 
     private LineChartViewModel GetMarketHistoryViewModel(MarketHistoryResponse marketHistory)
@@ -60,7 +57,7 @@ public class MarketHistoryController : Controller
                 .OrderBy(h => h.Date) // Order so that we can find the latest value easily
                 .Select(h => new LineChartDataPoint
                 {
-                    Label = h.Date.ToString("dd.MM.yyyy"),
+                    Label = h.Date.ToString("dd-MM-yyyy"),
                     Value = h.Close
                 }).ToList()
         };

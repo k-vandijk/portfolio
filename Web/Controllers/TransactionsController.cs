@@ -5,9 +5,9 @@ namespace Web.Controllers;
 
 public class TransactionsController : Controller
 {
-    private readonly AzureTableService _service;
+    private readonly IAzureTableService _service;
 
-    public TransactionsController(AzureTableService service)
+    public TransactionsController(IAzureTableService service)
     {
         _service = service;
     }

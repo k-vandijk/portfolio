@@ -11,6 +11,8 @@ public class MarketHistoryResponse
 
 public class MarketHistoryDataPoint
 {
+    public string? Ticker { get; set; } // To join different tickers if needed
+
     public DateOnly Date { get; set; }
     public decimal Open { get; set; }
     public decimal High { get; set; }
