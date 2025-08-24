@@ -1,1 +1,1 @@
-![alt text](assets/preview.png)
+![alt text](_assets/preview.png)

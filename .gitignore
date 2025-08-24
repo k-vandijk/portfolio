@@ -3,7 +3,8 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
-appsettings.json
+financien*.csv
+venv/
 
 # dotenv files
 .env

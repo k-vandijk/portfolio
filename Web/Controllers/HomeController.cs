@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
-using Web.Responses;
+using Web.Models;
 using Web.ViewModels;
 
 namespace Web.Controllers;
@@ -43,7 +43,6 @@ public class HomeController : Controller
         return View(viewModel);
     }
 
-    // TODO Seperate caching logic from this method
     private async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(
         string ticker, 
         string? period = "1y", 
