@@ -1,1 +1,57 @@
-﻿
+﻿@model List<Transaction>
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="row mb-3" style="height: 95vh;">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive h-100">
+                    <table id="transactionsTable" class="table table-hover table-sm mb-0 w-100">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Ticker</th>
+                            <th>Amount</th>
+                            <th>PurchasePrice</th>
+                            <th>TransactionCosts</th>
+                            <th>TotalCosts</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@Model[i].Date.ToString("yyyy-MM-dd")</td>
+                                <td>@Model[i].Ticker</td>
+                                <td>@Model[i].Amount</td>
+                                <td>@Model[i].PurchasePrice.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                <td>@Model[i].TransactionCosts.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                <td>@Model[i].TotalCosts.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#transactionsTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "pageLength": 15,
+                "lengthChange": false,
+                "order": [[0, 'asc']]
+            });
+        });
+    </script>
+}
