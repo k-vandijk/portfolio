@@ -1,32 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using System.Text.Json;
 using Web.Models;
 using Web.ViewModels;
 
 namespace Web.Controllers;
 
-public class HomeController : Controller
+public class MarketHistoryController : Controller
 {
     private readonly HttpClient _http;
     private readonly IConfiguration _config;
 
-    public HomeController(IHttpClientFactory httpFactory, IConfiguration config)
+    public MarketHistoryController(IHttpClientFactory httpFactory, IConfiguration config)
     {
         _http = httpFactory.CreateClient("cached-http-client");
         _config = config;
-    }
-
-    [HttpGet("/dashboard")]
-    public IActionResult Dashboard()
-    {
-        return View();
-    }
-
-    [HttpGet("/investment")]
-    public IActionResult Investment()
-    {
-        return View();
     }
 
     [HttpGet("/market-history")]
@@ -79,11 +66,5 @@ public class HomeController : Controller
         };
 
         return viewModel;
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

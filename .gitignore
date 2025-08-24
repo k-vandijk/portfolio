@@ -5,6 +5,8 @@
 
 financien*.csv
 venv/
+_venv/
+settings.json
 
 # dotenv files
 .env

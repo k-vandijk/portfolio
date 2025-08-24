@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Web.MappingProfiles;
 using Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,12 @@ builder.Services.AddHttpClient("cached-http-client")
             absoluteTtl: TimeSpan.FromMinutes(60),
             slidingTtl: TimeSpan.FromMinutes(30)));
 
+builder.Services.AddAutoMapper(cfg => 
+    cfg.AddProfile<TransactionProfile>());
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

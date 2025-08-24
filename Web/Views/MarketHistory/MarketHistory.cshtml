@@ -26,7 +26,7 @@
                 <div class="btn-group w-100" role="group">
                     @foreach (var t in tickers)
                     {
-                        <a asp-controller="Home" asp-action="MarketHistory" asp-route-ticker="@t"
+                        <a asp-controller="MarketHistory" asp-action="MarketHistory" asp-route-ticker="@t"
                            class="btn btn-ticker px-3 py-2 @(t == currentTicker ? "active" : "")">
                             @t
                         </a>
