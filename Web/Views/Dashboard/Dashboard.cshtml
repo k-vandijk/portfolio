@@ -3,14 +3,55 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="row mb-3" style="height: 35vh;">
+<div class="row mb-3" style="height: 25vh;">
     <div class="col-md-4"></div>
     <div class="col-md-8">
-        <partial name="Components/_Table" model="Model.Table" />
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive h-100">
+                    <table class="table table-hover table-sm mb-0 w-100">
+                        <thead class="table-light">
+                            <th>Ticker</th>
+                            <th>Portfolio %</th>
+                            <th>Amount</th>
+                            <th>Total investment</th>
+                            <th>Worth</th>
+                            <th>Profit €</th>
+                            <th>Profit %</th>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
+                            {
+                                <tr>
+                                    <td>@row.Ticker</td>
+                                    <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
+                                    <td>@row.Amount.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                    <td>@row.TotalInvestment.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                    <td>@row.Worth.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                    <td>@row.Profit.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                    <td>@((row.ProfitPercentage * 100).ToString("F2") + "%")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th></th>
+                            <th></th>
+                            <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</th>
+                            <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</th>
+                            <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</th>
+                            <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row mb-3" style="height: 60vh;">
+<div class="row mb-3" style="height: 70vh;">
     <div class="col-md-12">
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
