@@ -17,6 +17,7 @@ public class TransactionsController : Controller
         _mapper = mapper;
     }
 
+    [HttpGet("/transactions")]
     public IActionResult Transactions()
     {
         var transactions = GetTransactions();
