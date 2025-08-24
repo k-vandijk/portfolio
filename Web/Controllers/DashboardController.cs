@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using Web.Models;
 using Web.Services;
 using Web.ViewModels;
@@ -34,23 +33,20 @@ public class DashboardController : Controller
 
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tickers);
 
-        var tableViewModel = GetTableViewModel(tickers, transactions, marketHistoryDataPoints);
+        var tableViewModel = GetDashboardTableRows(tickers, transactions, marketHistoryDataPoints);
         var lineChartViewModel = GetPortfolioWorthLineChart(transactions, marketHistoryDataPoints);
 
         var viewModel = new DashboardViewModel
         {
-            Table = tableViewModel,
+            TableRows = tableViewModel,
             LineChart = lineChartViewModel
         };
 
         return View(viewModel);
     }
 
-    private TableViewModel GetTableViewModel(List<string> tickers, List<Transaction> transactions, List<MarketHistoryDataPoint> marketHistoryDataPoints)
+    private List<DashboardTableRowViewModel> GetDashboardTableRows(List<string> tickers, List<Transaction> transactions, List<MarketHistoryDataPoint> marketHistoryDataPoints)
     {
-        var ci = CultureInfo.GetCultureInfo("nl-NL");
-
-        // Latest close per ticker
         var latestClose = marketHistoryDataPoints
             .GroupBy(p => p.Ticker.ToUpperInvariant())
             .ToDictionary(
@@ -58,139 +54,107 @@ public class DashboardController : Controller
                 g => g.OrderByDescending(x => x.Date).First().Close
             );
 
-        // Aggregate per ticker
         var aggregates = tickers.Select(ticker =>
         {
-            var txs = transactions.Where(tr => string.Equals(tr.Ticker, ticker, StringComparison.OrdinalIgnoreCase));
-            var amount = txs.Sum(tr => tr.Amount);
-            var totalInvestment = txs.Sum(tr => tr.TotalCosts);
+            var transactionsByTicker = transactions
+                .Where(tr => string.Equals(tr.Ticker, ticker, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var amount = transactionsByTicker.Sum(tr => tr.Amount);
+            var investment = transactionsByTicker.Sum(tr => tr.TotalCosts);
             var currentPrice = latestClose.TryGetValue(ticker.ToUpperInvariant(), out var p) ? p : 0m;
             var worth = currentPrice * amount;
-            var profitEur = worth - totalInvestment;
-            var profitPct = totalInvestment > 0 ? profitEur / totalInvestment : 0m;
+            var profit = worth - investment;
+            var profitPercentage = investment > 0 ? profit / investment : 0m;
 
             return new
             {
                 Ticker = ticker,
                 Amount = amount,
-                TotalInvestment = totalInvestment,
+                Investment = investment,
                 Worth = worth,
-                ProfitEur = profitEur,
-                ProfitPct = profitPct
+                Profit = profit,
+                ProfitPercentage = profitPercentage
             };
         }).ToList();
 
         var totalWorth = aggregates.Sum(a => a.Worth);
-        // Build rows (formatted strings for display)
+
         var rows = aggregates.Select(a =>
         {
-            var portfolioPct = totalWorth > 0 ? a.Worth / totalWorth : 0m;
+            var portfolioPercentage = totalWorth > 0 ? a.Worth / totalWorth : 0m;
 
-            return new Dictionary<string, object?>
+            return new DashboardTableRowViewModel
             {
-                ["Ticker"] = a.Ticker,
-                ["Portfolio %"] = portfolioPct.ToString("P2", ci),
-                ["Amount"] = a.Amount.ToString("N8", ci),
-                ["Total investment"] = a.TotalInvestment.ToString("C2", ci),
-                ["Worth"] = a.Worth.ToString("C2", ci),
-                ["Profit €"] = a.ProfitEur.ToString("C2", ci),
-                ["Profit %"] = a.ProfitPct.ToString("P2", ci),
+                Ticker = a.Ticker,
+                PortfolioPercentage = portfolioPercentage,
+                Amount = a.Amount,
+                TotalInvestment = a.Investment,
+                Worth = a.Worth,
+                Profit = a.Profit,
+                ProfitPercentage = a.ProfitPercentage,
             };
-        }).Cast<IDictionary<string, object?>>().ToList();
+        }).ToList();
 
-        return new TableViewModel
-        {
-            Columns = new List<TableColumn>
-            {
-                new() { Header = "Ticker", Key = "Ticker" },
-                new() { Header = "Portfolio %", Key = "Portfolio %" },
-                new() { Header = "Amount", Key = "Amount" },
-                new() { Header = "Total investment", Key = "Total investment" },
-                new() { Header = "Worth", Key = "Worth" },
-                new() { Header = "Profit €", Key = "Profit €" },
-                new() { Header = "Profit %", Key = "Profit %" },
-            },
-            Rows = rows,
-            EmptyText = "No data"
-        };
+        return rows;
     }
 
     private LineChartViewModel GetPortfolioWorthLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio value €")
     {
-        var ci = CultureInfo.GetCultureInfo("nl-NL");
-
-        // Group inputs
-        var transByTicker = transactions
+        var transactionsByTicker = transactions
             .Where(t => !string.IsNullOrWhiteSpace(t.Ticker))
             .GroupBy(t => t.Ticker.ToUpperInvariant())
             .ToDictionary(g => g.Key, g => g.OrderBy(t => t.Date).ToList());
 
-        var histByTicker = history
+        var historyByTicker = history
             .Where(h => !string.IsNullOrWhiteSpace(h.Ticker))
             .GroupBy(h => h.Ticker.ToUpperInvariant())
             .ToDictionary(g => g.Key, g => g.OrderBy(h => h.Date).ToList());
 
-        // All dates we have prices for (union across tickers)
-        var allDates = histByTicker.Values
+        var allDates = historyByTicker.Values
             .SelectMany(g => g.Select(x => x.Date))
             .Distinct()
             .OrderBy(d => d)
             .ToList();
 
-        var tickers = transByTicker.Keys
-            .Union(histByTicker.Keys)
-            .ToHashSet();
+        var tickers = transactionsByTicker.Keys.Union(historyByTicker.Keys).ToHashSet();
 
-        // Per-ticker rolling state
-        var pos = tickers.ToDictionary(t => t, _ => 0m);                       // cumulative Amount
-        var txIdx = tickers.ToDictionary(t => t, _ => 0);                       // pointer into transactions
-        var lastPrice = tickers.ToDictionary(t => t, _ => (decimal?)null);      // forward-filled price
-        var priceAtDate = histByTicker.ToDictionary(
+        var positions = tickers.ToDictionary(t => t, _ => 0m);
+        var txIndex = tickers.ToDictionary(t => t, _ => 0);
+        var lastPrices = tickers.ToDictionary(t => t, _ => (decimal?)null);
+
+        var priceMap = historyByTicker.ToDictionary(
             kvp => kvp.Key,
-            kvp => kvp.Value.ToDictionary(x => x.Date, x => x.Close)            // exact-date lookup
+            kvp => kvp.Value.ToDictionary(x => x.Date, x => x.Close)
         );
 
         var points = new List<LineChartDataPoint>(capacity: allDates.Count);
 
         foreach (var date in allDates)
         {
-            // 1) Apply all transactions up to and including 'date'
             foreach (var t in tickers)
             {
-                if (!transByTicker.TryGetValue(t, out var txList)) continue;
+                if (!transactionsByTicker.TryGetValue(t, out var txs)) continue;
 
-                var i = txIdx[t];
-                while (i < txList.Count && txList[i].Date <= date)
-                {
-                    // Amount can be negative for sells; this will reduce the position
-                    pos[t] += txList[i].Amount;
-                    i++;
-                }
-                txIdx[t] = i;
+                while (txIndex[t] < txs.Count && txs[txIndex[t]].Date <= date)
+                    positions[t] += txs[txIndex[t]++].Amount;
             }
 
-            // 2) Refresh last known price for this date (forward-fill)
             foreach (var t in tickers)
             {
-                if (priceAtDate.TryGetValue(t, out var map) && map.TryGetValue(date, out var close))
+                if (priceMap.TryGetValue(t, out var pricePerDate) &&
+                    pricePerDate.TryGetValue(date, out var price))
                 {
-                    lastPrice[t] = close;
+                    lastPrices[t] = price;
                 }
             }
 
-            // 3) Compute portfolio worth = Σ (position * lastPrice) across tickers
-            decimal worth = 0m;
-            foreach (var t in tickers)
-            {
-                var p = lastPrice[t];
-                if (p.HasValue && pos[t] != 0m)
-                    worth += pos[t] * p.Value;
-            }
+            decimal totalWorth = tickers.Sum(t => lastPrices[t] is decimal price && positions[t] != 0m ? positions[t] * price : 0m);
 
             points.Add(new LineChartDataPoint
             {
-                Label = date.ToString("yyyy-MM-dd", ci),
-                Value = worth
+                Label = date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.GetCultureInfo("nl-NL")),
+                Value = totalWorth
             });
         }
 
