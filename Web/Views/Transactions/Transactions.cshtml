@@ -2,8 +2,6 @@
 @{
     ViewData["Title"] = "Transactions";
 
-    string todayString = DateTime.Today.ToString("yyyy-MM-dd");
-
     var uniqueTickers = Model
         .Select(t => t.Ticker.Trim())
         .Where(t => !string.IsNullOrWhiteSpace(t))
@@ -39,7 +37,7 @@
                         <tbody>
                         <tr>
                             <td></td>
-                            <td><input class="form-control" id="dateInput" value="@todayString" /></td>
+                            <td><input class="form-control" id="dateInput" /></td>
                             <td><input class="form-control" id="tickerInput" list="tickerList" autocomplete="off" /></td>
                             <td><input class="form-control" id="amountInput" /></td>
                             <td><input class="form-control" id="purchasePriceInput" /></td>
@@ -132,8 +130,6 @@
         function clearInputs() {
             ['dateInput','tickerInput','amountInput','purchasePriceInput','transactionCostsInput','totalCostsInput']
                 .forEach(id => document.getElementById(id).value = '');
-
-            document.getElementById('dateInput').value = '@todayString';
         }
     </script>
 }
