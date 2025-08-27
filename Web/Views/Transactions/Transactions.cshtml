@@ -1,8 +1,23 @@
 ﻿@model List<Transaction>
 @{
     ViewData["Title"] = "Transactions";
+
     string todayString = DateTime.Today.ToString("yyyy-MM-dd");
+
+    var uniqueTickers = Model
+        .Select(t => t.Ticker.Trim())
+        .Where(t => !string.IsNullOrWhiteSpace(t))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(t => t)
+        .ToList();
 }
+
+<datalist id="tickerList">
+    @foreach (var t in uniqueTickers)
+    {
+        <option value="@t"></option>
+    }
+</datalist>
 
 <div class="row mb-3" style="height: 95vh;">
     <div class="col-md-12">
@@ -10,7 +25,7 @@
             <div class="card-body">
                 <div class="table-responsive h-100">
                     <table id="transactionsTable" class="table table-hover table-sm mb-0 w-100">
-                        <thead class="table-light">
+                        <thead>
                         <tr>
                             <th>#</th>
                             <th>Date</th>
@@ -25,10 +40,10 @@
                         <tr>
                             <td></td>
                             <td><input class="form-control" id="dateInput" value="@todayString" /></td>
-                            <td><input class="form-control" id="tickerInput" /></td>
-                            <td><input class="form-control" id="amountInput" type="text" /></td>
-                            <td><input class="form-control" id="purchasePriceInput" type="text" /></td>
-                            <td><input class="form-control" id="transactionCostsInput" type="text" /></td>
+                            <td><input class="form-control" id="tickerInput" list="tickerList" autocomplete="off" /></td>
+                            <td><input class="form-control" id="amountInput" /></td>
+                            <td><input class="form-control" id="purchasePriceInput" /></td>
+                            <td><input class="form-control" id="transactionCostsInput" /></td>
                             <td><input class="form-control" id="totalCostsInput" readonly /></td>
                         </tr>
                         @for (int i = Model.Count - 1; i >= 0; i--)
@@ -54,24 +69,25 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+
+            // Initialize the datatable
             $('#transactionsTable').DataTable({
                 "paging": true,
-                "searching": true,
+                "searching": false,
                 "ordering": false,
-                "pageLength": 15,
+                "pageLength": 16,
                 "lengthChange": false,
                 "order": [[0, 'desc']]
             });
 
+            // Set event listeners on the number inputs to update the totals
             ['amountInput', 'purchasePriceInput', 'transactionCostsInput'].forEach(id => {
                 const input = document.getElementById(id);
-                input.addEventListener('input', calcTotal);
-                input.addEventListener('change', calcTotal);
-                input.addEventListener('blur', calcTotal);
                 input.addEventListener('keyup', calcTotal);
             });
 
-            ['dateInput','tickerInput','amountInput','purchasePriceInput','transactionCostsInput','totalCostsInput']
+            // Set event listeners on all inputs (except the totalCostsInput) to listen for 'enter' to post the data
+            ['dateInput','tickerInput','amountInput','purchasePriceInput','transactionCostsInput']
                 .forEach(id => {
                     document.getElementById(id).addEventListener('keydown', function (e) {
                         if (e.key === 'Enter') {
@@ -81,7 +97,7 @@
                             console.log('Transaction entity:', entity);
 
                             clearInputs();
-                            document.getElementById('dateInput').focus();x
+                            document.getElementById('dateInput').focus();
                         }
                     });
                 });
@@ -117,7 +133,7 @@
             ['dateInput','tickerInput','amountInput','purchasePriceInput','transactionCostsInput','totalCostsInput']
                 .forEach(id => document.getElementById(id).value = '');
 
-            // TODO set date to todayString
+            document.getElementById('dateInput').value = '@todayString';
         }
     </script>
 }

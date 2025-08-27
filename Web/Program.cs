@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Web.MappingProfiles;
 using Web.Middleware;
 using Web.Services;
 
@@ -34,9 +33,6 @@ builder.Services.AddHttpClient("cached-http-client")
             sp.GetRequiredService<IMemoryCache>(), 
             absoluteTtl: TimeSpan.FromMinutes(60),
             slidingTtl: TimeSpan.FromMinutes(30)));
-
-builder.Services.AddAutoMapper(cfg => 
-    cfg.AddProfile<TransactionProfile>());
 
 builder.Services.AddScoped<IAzureTableService, AzureTableService>();
 builder.Services.AddScoped<ITickerApiService, TickerApiService>();
