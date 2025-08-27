@@ -24,8 +24,8 @@ public class TickerApiService : ITickerApiService
         string? period = "1y",
         string? interval = "1d")
     {
-        var tickerApiUrl = _config["ticker-api-url"] ?? throw new InvalidOperationException("ticker-api-url is not configured.");
-        var tickerApiCode = _config["ticker-api-code"] ?? throw new InvalidOperationException("ticker-api-code is not configured.");
+        var tickerApiUrl = _config["Secrets:TickerApiUrl"] ?? throw new InvalidOperationException("Secrets:TickerApiUrl is not configured.");
+        var tickerApiCode = _config["Secrets:TickerApiCode"] ?? throw new InvalidOperationException("Secrets:TickerApiCode is not configured.");
         var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
 
         var response = await _http.GetAsync(requestUrl);

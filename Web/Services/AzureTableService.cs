@@ -23,7 +23,7 @@ public class AzureTableService : IAzureTableService
 
     public List<Transaction> GetTransactions()
     {
-        string connectionString = _configuration["transactions-table-connection-string"] ?? throw new InvalidOperationException("transactions-table-connection-string is not configured.");
+        string connectionString = _configuration["Secrets:TransactionsTableConnectionString"] ?? throw new InvalidOperationException("Secrets:TransactionsTableConnectionString is not configured.");
 
         var serviceClient = new TableServiceClient(connectionString);
         var tableClient = serviceClient.GetTableClient("transactions");
