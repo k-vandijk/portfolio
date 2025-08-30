@@ -15,7 +15,10 @@ public class InvestmentController : Controller
     }
 
     [HttpGet("/investment")]
-    public IActionResult Investment([FromQuery] string? tickers, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
+    public IActionResult Investment(
+        [FromQuery] string? tickers, 
+        [FromQuery] DateOnly? startDate, 
+        [FromQuery] DateOnly? endDate)
     {
         var transactions = _service.GetTransactions();
         var filteredTransactions = FilterTransactions(transactions, tickers, startDate, endDate);
