@@ -9,7 +9,7 @@ public interface IAzureTableService
 {
     List<Transaction> GetTransactions();
     Task AddTransactionAsync(Transaction transaction);
-    Task DeleteTransactionAsync(Transaction transaction);
+    Task DeleteTransactionAsync(string rowKey);
 }
 
 public class AzureTableService : IAzureTableService
@@ -32,7 +32,7 @@ public class AzureTableService : IAzureTableService
             filter: "PartitionKey eq 'transactions'"
         );
 
-        return transactions.Select(ToModel).ToList();
+        return transactions.Select(ToModel).OrderBy(t => t.Date).ToList();
     }
 
     public async Task AddTransactionAsync(Transaction transaction)
@@ -48,16 +48,16 @@ public class AzureTableService : IAzureTableService
         transaction.RowKey = entity.RowKey;
     }
 
-    public async Task DeleteTransactionAsync(Transaction transaction)
+    public async Task DeleteTransactionAsync(string rowKey)
     {
-        if (string.IsNullOrWhiteSpace(transaction.RowKey))
-            throw new ArgumentException("Transaction.RowKey is required to delete.", nameof(transaction));
+        if (string.IsNullOrWhiteSpace(rowKey))
+            throw new ArgumentException("rowKey is required to delete.");
 
         var table = GetTableClient();
 
         // ETag.All = skip concurrency check; if you want optimistic concurrency,
         // fetch entity first and pass its ETag instead.
-        await table.DeleteEntityAsync(Partition, transaction.RowKey, ETag.All);
+        await table.DeleteEntityAsync(Partition, rowKey, ETag.All);
     }
 
     private TableClient GetTableClient()
@@ -103,14 +103,17 @@ public class AzureTableService : IAzureTableService
         if (string.IsNullOrWhiteSpace(input))
             return 0m;
 
-        if (decimal.TryParse(input, NumberStyles.Any, CultureInfo.GetCultureInfo("nl-NL"), out var result))
-            return result;
+        // We slaan op met InvariantCulture, dus eerst (en eigenlijk: uitsluitend) zo parsen
+        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
+                             CultureInfo.InvariantCulture, out var inv))
+            return inv;
 
-        // fallback to InvariantCulture (e.g. dot decimals)
-        if (decimal.TryParse(input, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
-            return result;
+        // Optionele fallback naar nl-NL voor oude/handmatig ingevoerde data met komma
+        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign,
+                             CultureInfo.GetCultureInfo("nl-NL"), out var nl))
+            return nl;
 
-        return 0m; // or throw new FormatException($"Invalid decimal: {input}");
+        return 0m;
     }
 
     private static DateOnly ParseDateOnly(string? input)

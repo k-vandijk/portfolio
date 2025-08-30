@@ -32,6 +32,7 @@
                             <th>PurchasePrice</th>
                             <th>TransactionCosts</th>
                             <th>TotalCosts</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -43,6 +44,7 @@
                             <td><input class="form-control" id="purchasePriceInput" /></td>
                             <td><input class="form-control" id="transactionCostsInput" /></td>
                             <td><input class="form-control" id="totalCostsInput" readonly /></td>
+                            <td></td>
                         </tr>
                         @for (int i = Model.Count - 1; i >= 0; i--)
                         {
@@ -54,6 +56,9 @@
                                 <td>@Model[i].PurchasePrice.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
                                 <td>@Model[i].TransactionCosts.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
                                 <td>@Model[i].TotalCosts.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="postDeleteTransaction('@Model[i].RowKey')">Delete</button>
+                                </td>
                             </tr>
                         }
                         </tbody>
@@ -85,26 +90,23 @@
             });
 
             // Set event listeners on all inputs (except the totalCostsInput) to listen for 'enter' to post the data
-            ['dateInput','tickerInput','amountInput','purchasePriceInput','transactionCostsInput']
+            ['dateInput', 'tickerInput', 'amountInput', 'purchasePriceInput', 'transactionCostsInput', 'totalCostsInput']
                 .forEach(id => {
                     document.getElementById(id).addEventListener('keydown', function (e) {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             const entity = buildEntity();
 
-                            console.log('Transaction entity:', entity);
-
-                            clearInputs();
-                            document.getElementById('dateInput').focus();
+                            postAddTransaction(entity);
                         }
                     });
                 });
         });
 
         function calcTotal() {
-            const amount = parseFloat(document.getElementById('amountInput').value.replace(',', '.')) || 0;
-            const price = parseFloat(document.getElementById('purchasePriceInput').value.replace(',', '.')) || 0;
-            const costs = parseFloat(document.getElementById('transactionCostsInput').value.replace(',', '.')) || 0;
+            const amount = parseDecimal(document.getElementById('amountInput').value) || 0;
+            const price = parseDecimal(document.getElementById('purchasePriceInput').value) || 0;
+            const costs = parseDecimal(document.getElementById('transactionCostsInput').value) || 0;
 
             const total = amount * price + costs;
             document.getElementById('totalCostsInput').value = total.toLocaleString('nl-NL', {
@@ -118,10 +120,9 @@
             const entity = {
                 Date: document.getElementById('dateInput').value || null,
                 Ticker: (document.getElementById('tickerInput').value || '').trim() || null,
-                Amount: document.getElementById('amountInput').value || '0',
-                PurchasePrice: document.getElementById('purchasePriceInput').value || '0',
-                TransactionCosts: document.getElementById('transactionCostsInput').value || '0',
-                TotalCosts: document.getElementById('totalCostsInput').value || '0'
+                Amount: parseDecimal(document.getElementById('amountInput').value) || 0,
+                PurchasePrice: parseDecimal(document.getElementById('purchasePriceInput').value) || 0,
+                TransactionCosts: parseDecimal(document.getElementById('transactionCostsInput').value) || 0,
             };
 
             return entity;
@@ -130,6 +131,51 @@
         function clearInputs() {
             ['dateInput','tickerInput','amountInput','purchasePriceInput','transactionCostsInput','totalCostsInput']
                 .forEach(id => document.getElementById(id).value = '');
+        }
+
+        function parseDecimal(value) {
+            return parseFloat(value.replace(',', '.'));
+        }
+
+        function postAddTransaction(transaction) {
+            fetch('/Transactions/AddTransaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(transaction)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                clearInputs();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error adding transaction:', error);
+            });
+        }
+
+        function postDeleteTransaction(rowKey) {
+            if (!confirm("Are you sure you want to delete this transaction?")) {
+                return;
+            }
+
+            fetch('/Transactions/DeleteTransaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rowKey)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error deleting transaction:', error);
+            });
         }
     </script>
 }
