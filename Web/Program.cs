@@ -32,7 +32,9 @@ builder.Services.AddHttpClient("cached-http-client")
         new HttpGetCachingHandler(
             sp.GetRequiredService<IMemoryCache>(), 
             absoluteTtl: TimeSpan.FromMinutes(10),
-            slidingTtl: TimeSpan.FromMinutes(5)));
+            slidingTtl: TimeSpan.FromMinutes(5)
+        )
+    );
 
 builder.Services.AddScoped<IAzureTableService, AzureTableService>();
 builder.Services.AddScoped<ITickerApiService, TickerApiService>();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using Web.Helpers;
 using Web.Models;
 using Web.Services;
 using Web.ViewModels;
@@ -19,8 +20,7 @@ public class DashboardController : Controller
         _logger = logger;
     }
 
-    // TODO Add filters for tickers
-    // TODO Add filters for dates
+    // TODO Fix line charts when filtered by ticker (and test filtered date range)
     [HttpGet("/dashboard")]
     public async Task<IActionResult> Dashboard(
         [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
@@ -29,9 +29,10 @@ public class DashboardController : Controller
         [FromQuery] DateOnly? endDate = null)
     {
         var transactions = _azureTableService.GetTransactions();
+        var filteredTransactions = TransactionsFilter.FilterTransactions(transactions, tickers, startDate, endDate);
 
         // Named tx because tickers it already used as parameter name
-        var tx = transactions
+        var tx = filteredTransactions
             .Select(t => t.Ticker.ToUpperInvariant())
             .Distinct()
             .ToList();
@@ -85,6 +86,28 @@ public class DashboardController : Controller
             .ToList();
 
         return allDataPoints;
+    }
+
+    private async Task<(string Ticker, MarketHistoryResponse? Data, Exception? Error)> GetMarketHistoryForTickerAsync(string ticker)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var api = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
+
+        using (_logger.BeginScope(new Dictionary<string, object> { ["Ticker"] = ticker }))
+        {
+            try
+            {
+                _logger.LogInformation("Fetching market history...");
+                var data = await api.GetMarketHistoryResponseAsync(ticker);
+                _logger.LogInformation("Fetched market history: {HasData}", data != null);
+                return (ticker, data, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch market history");
+                return (ticker, null, ex);
+            }
+        }
     }
 
     private List<DashboardTableRowViewModel> GetDashboardTableRows(List<string> tickers, List<Transaction> transactions, List<MarketHistoryDataPoint> marketHistoryDataPoints)
@@ -226,27 +249,5 @@ public class DashboardController : Controller
             DataPoints = points,
             Format = format
         };
-    }
-
-    private async Task<(string Ticker, MarketHistoryResponse? Data, Exception? Error)> GetMarketHistoryForTickerAsync(string ticker)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        var api = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
-
-        using (_logger.BeginScope(new Dictionary<string, object> { ["Ticker"] = ticker }))
-        {
-            try
-            {
-                _logger.LogInformation("Fetching market history...");
-                var data = await api.GetMarketHistoryResponseAsync(ticker);
-                _logger.LogInformation("Fetched market history: {HasData}", data != null);
-                return (ticker, data, null);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to fetch market history");
-                return (ticker, null, ex);
-            }
-        }
     }
 }
