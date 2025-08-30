@@ -23,19 +23,32 @@ public class DashboardController : Controller
     // TODO Add switch for profit %
 
     [HttpGet("/dashboard")]
-    public async Task<IActionResult> Dashboard()
+    public async Task<IActionResult> Dashboard(
+        [FromQuery] string? mode = "value", // mode = value | profit | profit-percentage
+        [FromQuery] string? tickers = null,
+        [FromQuery] DateOnly? startDate = null,
+        [FromQuery] DateOnly? endDate = null)
     {
         var transactions = _azureTableService.GetTransactions();
-        var tickers = transactions
+
+        // Named tx because tickers it already used as parameter name
+        var tx = transactions
             .Select(t => t.Ticker.ToUpperInvariant())
             .Distinct()
             .ToList();
 
-        var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tickers);
+        var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx);
 
-        var tableViewModel = GetDashboardTableRows(tickers, transactions, marketHistoryDataPoints);
-        var lineChartViewModel = GetPortfolioWorthLineChart(transactions, marketHistoryDataPoints);
+        var tableViewModel = GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
 
+        LineChartViewModel lineChartViewModel = mode switch
+        {
+            "value" => GetPortfolioWorthLineChart(transactions, marketHistoryDataPoints),
+            "profit" => GetPortfolioProfitLineChart(transactions, marketHistoryDataPoints),
+            "profit-percentage" => GetPortfolioProfitPercentageLineChart(transactions, marketHistoryDataPoints),
+            _ => throw new ArgumentException($"Unknown mode: {mode}", nameof(mode))
+        };
+        
         var viewModel = new DashboardViewModel
         {
             TableRows = tableViewModel,
@@ -164,6 +177,16 @@ public class DashboardController : Controller
             DataPoints = points,
             Format = "currency"
         };
+    }
+
+    private LineChartViewModel GetPortfolioProfitLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit €")
+    {
+        throw new NotImplementedException();
+    }
+
+    private LineChartViewModel GetPortfolioProfitPercentageLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit %")
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)

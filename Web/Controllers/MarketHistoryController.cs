@@ -15,7 +15,10 @@ public class MarketHistoryController : Controller
     }
 
     [HttpGet("/market-history")]
-    public async Task<IActionResult> MarketHistory([FromQuery] string? ticker = "SXRV.DE")
+    public async Task<IActionResult> MarketHistory(
+        [FromQuery] string? ticker = "SXRV.DE",
+        [FromQuery] DateOnly? startDate = null,
+        [FromQuery] DateOnly? endDate = null)
     {
         var marketHistoryData = await _service.GetMarketHistoryResponseAsync(ticker);
         if (marketHistoryData == null)
