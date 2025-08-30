@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using Web.Models;
 using Web.Services;
 using Web.ViewModels;
@@ -20,11 +21,9 @@ public class DashboardController : Controller
 
     // TODO Add filters for tickers
     // TODO Add filters for dates
-    // TODO Add switch for profit %
-
     [HttpGet("/dashboard")]
     public async Task<IActionResult> Dashboard(
-        [FromQuery] string? mode = "value", // mode = value | profit | profit-percentage
+        [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
         [FromQuery] string? tickers = null,
         [FromQuery] DateOnly? startDate = null,
         [FromQuery] DateOnly? endDate = null)
@@ -46,7 +45,7 @@ public class DashboardController : Controller
             "value" => GetPortfolioWorthLineChart(transactions, marketHistoryDataPoints),
             "profit" => GetPortfolioProfitLineChart(transactions, marketHistoryDataPoints),
             "profit-percentage" => GetPortfolioProfitPercentageLineChart(transactions, marketHistoryDataPoints),
-            _ => throw new ArgumentException($"Unknown mode: {mode}", nameof(mode))
+            _ => GetPortfolioProfitLineChart(transactions, marketHistoryDataPoints), // Default to 'profit'
         };
         
         var viewModel = new DashboardViewModel
@@ -56,6 +55,36 @@ public class DashboardController : Controller
         };
 
         return View(viewModel);
+    }
+
+    private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)
+    {
+        // Kick off all requests concurrently
+        var fetchTasks = tickers.Select(GetMarketHistoryForTickerAsync).ToArray();
+        var results = await Task.WhenAll(fetchTasks);
+
+        // Log failures (if any)
+        // TODO display this in ui
+        var failed = results.Where(r => r.Error is not null).ToList();
+        if (failed.Count > 0)
+        {
+            _logger.LogWarning("Some tickers failed: {Tickers}", string.Join(", ", failed.Select(f => f.Ticker)));
+        }
+
+        var allDataPoints = results
+            .Where(r => r.Data is not null && r.Data.History.Any())
+            .SelectMany(r =>
+            {
+                foreach (var point in r.Data!.History)
+                {
+                    point.Ticker = r.Ticker;
+                }
+
+                return r.Data!.History;
+            })
+            .ToList();
+
+        return allDataPoints;
     }
 
     private List<DashboardTableRowViewModel> GetDashboardTableRows(List<string> tickers, List<Transaction> transactions, List<MarketHistoryDataPoint> marketHistoryDataPoints)
@@ -112,7 +141,16 @@ public class DashboardController : Controller
         return rows;
     }
 
-    private LineChartViewModel GetPortfolioWorthLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio value €")
+    private LineChartViewModel GetPortfolioWorthLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio value €") =>
+        GetPortfolioLineChart(transactions, history, title, "currency", (worth, invested) => worth);
+
+    private LineChartViewModel GetPortfolioProfitLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit €") =>
+        GetPortfolioLineChart(transactions, history, title, "currency", (worth, invested) => worth - invested);
+
+    private LineChartViewModel GetPortfolioProfitPercentageLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit %") =>
+        GetPortfolioLineChart(transactions, history, title, "percentage", (worth, invested) => invested != 0m ? (worth - invested) / invested * 100m : 0m);
+
+    private LineChartViewModel GetPortfolioLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title, string format, Func<decimal, decimal, decimal> selector)
     {
         var transactionsByTicker = transactions
             .Where(t => !string.IsNullOrWhiteSpace(t.Ticker))
@@ -131,7 +169,6 @@ public class DashboardController : Controller
             .ToList();
 
         var tickers = transactionsByTicker.Keys.Union(historyByTicker.Keys).ToHashSet();
-
         var positions = tickers.ToDictionary(t => t, _ => 0m);
         var txIndex = tickers.ToDictionary(t => t, _ => 0);
         var lastPrices = tickers.ToDictionary(t => t, _ => (decimal?)null);
@@ -141,18 +178,25 @@ public class DashboardController : Controller
             kvp => kvp.Value.ToDictionary(x => x.Date, x => x.Close)
         );
 
-        var points = new List<LineChartDataPoint>(capacity: allDates.Count);
+        decimal netInvested = 0m;
+        var points = new List<LineChartDataPoint>(allDates.Count);
 
         foreach (var date in allDates)
         {
+            // transacties t/m datum verwerken
             foreach (var t in tickers)
             {
                 if (!transactionsByTicker.TryGetValue(t, out var txs)) continue;
 
                 while (txIndex[t] < txs.Count && txs[txIndex[t]].Date <= date)
-                    positions[t] += txs[txIndex[t]++].Amount;
+                {
+                    var tx = txs[txIndex[t]++];
+                    positions[t] += tx.Amount;
+                    netInvested += (tx.Amount * tx.PurchasePrice) + tx.TransactionCosts;
+                }
             }
 
+            // laatste bekende prijzen bijwerken
             foreach (var t in tickers)
             {
                 if (priceMap.TryGetValue(t, out var pricePerDate) &&
@@ -162,12 +206,17 @@ public class DashboardController : Controller
                 }
             }
 
-            decimal totalWorth = tickers.Sum(t => lastPrices[t] is decimal price && positions[t] != 0m ? positions[t] * price : 0m);
+            // totale marktwaarde
+            decimal totalWorth = tickers.Sum(t =>
+                lastPrices[t] is decimal p && positions[t] != 0m ? positions[t] * p : 0m);
+
+            // projectie via selector
+            decimal y = selector(totalWorth, netInvested);
 
             points.Add(new LineChartDataPoint
             {
-                Label = date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.GetCultureInfo("nl-NL")),
-                Value = totalWorth
+                Label = date.ToString("yyyy-MM-dd", CultureInfo.GetCultureInfo("nl-NL")),
+                Value = y
             });
         }
 
@@ -175,48 +224,8 @@ public class DashboardController : Controller
         {
             Title = title,
             DataPoints = points,
-            Format = "currency"
+            Format = format
         };
-    }
-
-    private LineChartViewModel GetPortfolioProfitLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit €")
-    {
-        throw new NotImplementedException();
-    }
-
-    private LineChartViewModel GetPortfolioProfitPercentageLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit %")
-    {
-        throw new NotImplementedException();
-    }
-
-    private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)
-    {
-        // Kick off all requests concurrently
-        var fetchTasks = tickers.Select(GetMarketHistoryForTickerAsync).ToArray();
-        var results = await Task.WhenAll(fetchTasks);
-
-        // Log failures (if any)
-        // TODO display this in ui
-        var failed = results.Where(r => r.Error is not null).ToList();
-        if (failed.Count > 0)
-        {
-            _logger.LogWarning("Some tickers failed: {Tickers}", string.Join(", ", failed.Select(f => f.Ticker)));
-        }
-
-        var allDataPoints = results
-            .Where(r => r.Data is not null && r.Data.History.Any())
-            .SelectMany(r =>
-            {
-                foreach (var point in r.Data!.History)
-                {
-                    point.Ticker = r.Ticker;
-                }
-
-                return r.Data!.History;
-            })
-            .ToList();
-
-        return allDataPoints;
     }
 
     private async Task<(string Ticker, MarketHistoryResponse? Data, Exception? Error)> GetMarketHistoryForTickerAsync(string ticker)
