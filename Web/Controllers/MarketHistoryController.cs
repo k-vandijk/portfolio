@@ -32,10 +32,10 @@ public class MarketHistoryController : Controller
         LineChartDataPoint last = lineChartViewModel.DataPoints.Last();
 
         decimal currentPrice = last.Value;
-        string currentPriceString = currentPrice.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"));
+        string currentPriceString = currentPrice.ToString("C2");
 
         decimal interest = last.Value - first.Value;
-        string interestString = interest.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"));
+        string interestString = interest.ToString("C2");
 
         decimal interestPercentage = interest / first.Value * 100;
         string interestPercentageString = interestPercentage.ToString("F2") + "%";

@@ -25,10 +25,10 @@
                                 <tr>
                                     <td>@row.Ticker</td>
                                     <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
-                                    <td>@row.Amount.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
-                                    <td>@row.TotalInvestment.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
-                                    <td>@row.Worth.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
-                                    <td>@row.Profit.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                    <td>@row.Amount</td>
+                                    <td>@row.TotalInvestment.ToString("C2")</td>
+                                    <td>@row.Worth.ToString("C2")</td>
+                                    <td>@row.Profit.ToString("C2")</td>
                                     <td>@((row.ProfitPercentage * 100).ToString("F2") + "%")</td>
                                 </tr>
                             }
@@ -38,9 +38,9 @@
                             <th>Total</th>
                             <th></th>
                             <th></th>
-                            <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</th>
-                            <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</th>
-                            <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</th>
+                            <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
+                            <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2")</th>
+                            <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
                             <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
                         </tr>
                         </tfoot>

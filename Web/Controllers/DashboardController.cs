@@ -238,7 +238,7 @@ public class DashboardController : Controller
 
             points.Add(new LineChartDataPoint
             {
-                Label = date.ToString("yyyy-MM-dd", CultureInfo.GetCultureInfo("nl-NL")),
+                Label = date.ToString("yyyy-MM-dd"),
                 Value = y
             });
         }

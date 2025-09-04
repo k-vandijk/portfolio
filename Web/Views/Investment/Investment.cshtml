@@ -9,29 +9,6 @@
 
 <div class="row mb-3" style="height: 47vh;">
     <div class="col-md-6">
-        @* <div class="card">
-            <div class="card-header">Tickers</div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="btn-group w-100" role="group">
-                        @foreach (var t in tickers)
-                        {
-                            <a asp-controller="Investment" asp-action="Investment" asp-route-tickers="@t"
-                               class="btn btn-ticker px-3 py-2 @(currentTickers.Contains(t.ToLower()) ? "active" : "")">
-                                @t
-                            </a>
-                        }
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="d-flex gap-3">
-                        <input class="form-control" placeholder="Start" />
-                        <input class="form-control" placeholder="End" />
-                    </div>
-                </div>
-            </div>
-        </div> *@
     </div>
     <div class="col-md-6">
         <partial name="Components/_PieChart" model="Model.PieChart"/>
