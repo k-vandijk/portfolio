@@ -41,6 +41,10 @@ builder.Services.AddScoped<ITickerApiService, TickerApiService>();
 
 var app = builder.Build();
 
+var culture = new System.Globalization.CultureInfo("nl-NL");
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

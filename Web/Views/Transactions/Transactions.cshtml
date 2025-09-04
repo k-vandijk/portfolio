@@ -53,9 +53,9 @@
                                 <td>@Model[i].Date.ToString("yyyy-MM-dd")</td>
                                 <td>@Model[i].Ticker</td>
                                 <td>@Model[i].Amount</td>
-                                <td>@Model[i].PurchasePrice.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
-                                <td>@Model[i].TransactionCosts.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
-                                <td>@Model[i].TotalCosts.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("nl-NL"))</td>
+                                <td>@Model[i].PurchasePrice.ToString("C2")</td>
+                                <td>@Model[i].TransactionCosts.ToString("C2")</td>
+                                <td>@Model[i].TotalCosts.ToString("C2")</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" onclick="postDeleteTransaction('@Model[i].RowKey')">Delete</button>
                                 </td>
