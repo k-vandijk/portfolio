@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --accent-1: #473BF0;
     --accent-2: #6665DD;
     --accent-3: #9B9ECE;
@@ -41,7 +41,7 @@ hr {
     border-radius: var(--card-radius);
     border: none;
     box-shadow: var(--shadow-default);
-    height: 100%; /* Zorgt dat de card alle verticale ruimte gebruikt */
+    height: 100%;
 }
 
 .card-header {

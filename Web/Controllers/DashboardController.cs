@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using Web.Helpers;
 using Web.Models;
 using Web.Services;
@@ -20,16 +19,14 @@ public class DashboardController : Controller
         _logger = logger;
     }
 
-    // TODO Fix line charts when filtered by ticker (and test filtered date range)
     [HttpGet("/dashboard")]
     public async Task<IActionResult> Dashboard(
         [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
         [FromQuery] string? tickers = null,
-        [FromQuery] DateOnly? startDate = null,
-        [FromQuery] DateOnly? endDate = null)
+        [FromQuery] string? timerange = null)
     {
         var transactions = _azureTableService.GetTransactions();
-        var filteredTransactions = TransactionsFilter.FilterTransactions(transactions, tickers, startDate, endDate);
+        var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, null, null);
 
         // Named tx because tickers it already used as parameter name
         var tx = filteredTransactions
@@ -39,16 +36,20 @@ public class DashboardController : Controller
 
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx);
 
-        var tableViewModel = GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
+        var tableViewModel = GetDashboardTableRows(tx, filteredTransactions, marketHistoryDataPoints);
 
         LineChartViewModel lineChartViewModel = mode switch
         {
-            "value" => GetPortfolioWorthLineChart(transactions, marketHistoryDataPoints),
-            "profit" => GetPortfolioProfitLineChart(transactions, marketHistoryDataPoints),
-            "profit-percentage" => GetPortfolioProfitPercentageLineChart(transactions, marketHistoryDataPoints),
-            _ => GetPortfolioProfitLineChart(transactions, marketHistoryDataPoints), // Default to 'profit'
+            "value" => GetPortfolioWorthLineChart(filteredTransactions, marketHistoryDataPoints),
+            "profit" => GetPortfolioProfitLineChart(filteredTransactions, marketHistoryDataPoints),
+            "profit-percentage" => GetPortfolioProfitPercentageLineChart(filteredTransactions, marketHistoryDataPoints),
+            _ => GetPortfolioProfitLineChart(filteredTransactions, marketHistoryDataPoints), // Default to 'profit'
         };
-        
+
+        // Apply time range filter to line chart
+        var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+        lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
+
         var viewModel = new DashboardViewModel
         {
             TableRows = tableViewModel,

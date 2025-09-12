@@ -22,7 +22,7 @@ public class InvestmentController : Controller
         [FromQuery] DateOnly? endDate)
     {
         var transactions = _service.GetTransactions();
-        var filteredTransactions = TransactionsFilter.FilterTransactions(transactions, tickers, startDate, endDate);
+        var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
 
         var pieChartViewModel = GetPieChartViewModel(filteredTransactions);
         var barChartViewModel = GetBarChartViewModel(filteredTransactions);
