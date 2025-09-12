@@ -3,20 +3,47 @@
 @{
     ViewData["Title"] = "Dashboard";
 
+    var modes = new[] { "profit", "profit-percentage", "value" };
+
     var currentTimerange = 
         Context.Request.Query.TryGetValue("timerange", out var value) && !string.IsNullOrWhiteSpace(value)
             ? value.ToString()
             : "ALL";
+
+    var currentMode =
+        Context.Request.Query.TryGetValue("mode", out var modeVal) && !string.IsNullOrWhiteSpace(modeVal)
+            ? modeVal.ToString()
+            : "profit";
+
+    var currentTicker =
+        Context.Request.Query.TryGetValue("tickers", out var tickerVal) && !string.IsNullOrWhiteSpace(tickerVal)
+            ? tickerVal.ToString()
+            : null;
 }
 
 <div class="row mb-3" style="height: 25vh;">
     <div class="col-md-4">
         <div class="card">
-            <div class="card-body d-flex align-items-center">
+            <div class="card-body d-flex flex-column justify-content-evenly">
+                <div class="btn-group w-100" role="group">
+                    @foreach (var mode in modes)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Dashboard"
+                           asp-route-timerange="@currentTimerange"
+                           asp-route-tickers="@currentTicker"
+                           asp-route-mode="@mode"
+                           class="btn btn-ticker px-3 py-2 @(mode == currentMode ? "active" : "")">
+                            @string.Join(" ", mode.Split("-").Select(x => x.ToUpper()))
+                        </a>
+                    }
+                </div>
                 <div class="btn-group w-100" role="group">
                     @foreach (var t in FilterHelper.TIMERANGES)
                     {
-                        <a asp-controller="Dashboard" asp-action="Dashboard" asp-route-timerange="@t"
+                        <a asp-controller="Dashboard" asp-action="Dashboard"
+                           asp-route-timerange="@t"
+                           asp-route-tickers="@currentTicker"
+                           asp-route-mode="@currentMode"
                            class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
                             @t
                         </a>
@@ -25,11 +52,12 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive h-100">
-                    <table class="table table-hover table-sm mb-0 w-100">
+                    <table id="portfolioTable" class="table table-hover table-sm mb-0 w-100">
                         <thead>
                             <th>Ticker</th>
                             <th>Portfolio %</th>
@@ -40,18 +68,28 @@
                             <th>Profit %</th>
                         </thead>
                         <tbody>
-                            @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
-                            {
-                                <tr>
-                                    <td>@row.Ticker</td>
-                                    <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
-                                    <td>@row.Amount</td>
-                                    <td>@row.TotalInvestment.ToString("C2")</td>
-                                    <td>@row.Worth.ToString("C2")</td>
-                                    <td>@row.Profit.ToString("C2")</td>
-                                    <td>@((row.ProfitPercentage * 100).ToString("F2") + "%")</td>
-                                </tr>
-                            }
+                        @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
+                        {
+                            var isActive = currentTicker?.Equals(row.Ticker, StringComparison.OrdinalIgnoreCase) == true;
+
+                            <tr class="position-relative" style="cursor:pointer">
+                                <td>
+                                    @row.Ticker
+                                    <a asp-controller="Dashboard" asp-action="Dashboard"
+                                       asp-route-timerange="@currentTimerange"
+                                       asp-route-mode="@currentMode"
+                                       asp-route-tickers="@(isActive ? null : row.Ticker)"
+                                       class="stretched-link">
+                                    </a>
+                                </td>
+                                <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
+                                <td>@row.Amount</td>
+                                <td>@row.TotalInvestment.ToString("C2")</td>
+                                <td>@row.Worth.ToString("C2")</td>
+                                <td>@row.Profit.ToString("C2")</td>
+                                <td>@((row.ProfitPercentage * 100).ToString("F2") + "%")</td>
+                            </tr>
+                        }
                         </tbody>
                         <tfoot>
                         <tr>
