@@ -1,0 +1,18 @@
+﻿@model InvestmentViewModel
+
+<div class="row mb-3" style="height: 47vh;">
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6">
+        <partial name="Components/_PieChart" model="Model.PieChart"/>
+    </div>
+</div>
+
+<div class="row mb-3" style="height: 48vh;">
+    <div class="col-md-6">
+        <partial name="Components/_LineChart" model="Model.LineChart" />
+    </div>
+    <div class="col-md-6">
+        <partial name="Components/_BarChart" model="Model.BarChart" />
+    </div>
+</div>

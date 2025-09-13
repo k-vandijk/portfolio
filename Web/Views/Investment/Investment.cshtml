@@ -1,25 +1,67 @@
 ﻿@model InvestmentViewModel
 @{
     ViewData["Title"] = "Investment";
-
-    var tickers = new[] { "SXRV.DE", "BTCEUR", "IS3N.DE" };
-
-    var currentTickers = Context.Request.Query["tickers"].ToString().ToLower().Split(",");
 }
 
-<div class="row mb-3" style="height: 47vh;">
-    <div class="col-md-6">
+<section id="skeleton-section">
+    <div class="row mb-3" style="height: 47vh;">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6">
+            <partial name="Components/_LineChartSkeleton" />
+        </div>
     </div>
-    <div class="col-md-6">
-        <partial name="Components/_PieChart" model="Model.PieChart"/>
-    </div>
-</div>
 
-<div class="row mb-3" style="height: 48vh;">
-    <div class="col-md-6">
-        <partial name="Components/_LineChart" model="Model.LineChart" />
+    <div class="row mb-3" style="height: 48vh;">
+        <div class="col-md-6">
+            <partial name="Components/_LineChartSkeleton" />
+        </div>
+        <div class="col-md-6">
+            <partial name="Components/_LineChartSkeleton" />
+        </div>
     </div>
-    <div class="col-md-6">
-        <partial name="Components/_BarChart" model="Model.BarChart" />
-    </div>
-</div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInvestmentSection();
+        });
+
+        async function loadInvestmentSection() {
+            const skeleton = document.getElementById('skeleton-section');
+
+            try {
+                const response = await fetch(`/investment/section`);
+
+                const html = await response.text();
+
+                // Create a wrapper div to parse the HTML
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = html;
+
+                // Extract <script> tags BEFORE replacing the DOM
+                const scripts = wrapper.querySelectorAll('script');
+
+                // Replace skeleton with the fetched HTML
+                skeleton.replaceWith(...wrapper.childNodes);
+
+                // Re-inject <script> tags to make them execute
+                scripts.forEach((oldScript) => {
+                    const newScript = document.createElement('script');
+
+                    // Copy attributes
+                    for (const attr of oldScript.attributes) {
+                        newScript.setAttribute(attr.name, attr.value);
+                    }
+
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                });
+
+            } catch (err) {
+
+            }
+        }
+    </script>
+}

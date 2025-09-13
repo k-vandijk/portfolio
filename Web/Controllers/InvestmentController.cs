@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web.Helpers;
 using Web.Models;
@@ -9,17 +10,29 @@ namespace Web.Controllers;
 public class InvestmentController : Controller
 {
     private readonly IAzureTableService _service;
+    private readonly ILogger<InvestmentController> _logger;
 
-    public InvestmentController(IAzureTableService service)
+    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger)
     {
         _service = service;
+        _logger = logger;
     }
 
     [HttpGet("/investment")]
     public IActionResult Investment(
+        [FromQuery] string? tickers,
+        [FromQuery] string? timerange)
+    {
+        return View();
+    }
+
+    [HttpGet("/investment/section")]
+    public IActionResult InvestmentSection(
         [FromQuery] string? tickers, 
         [FromQuery] string? timerange)
     {
+        var sw = Stopwatch.StartNew();
+
         var transactions = _service.GetTransactions();
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
@@ -35,7 +48,9 @@ public class InvestmentController : Controller
             LineChart = lineChartViewModel
         };
 
-        return View(viewModel);
+        sw.Stop();
+        _logger.LogInformation("Investment view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
+        return PartialView("_InvestmentSection", viewModel);
     }
 
     private LineChartViewModel GetLineChartViewModel(List<Transaction> transactions)
