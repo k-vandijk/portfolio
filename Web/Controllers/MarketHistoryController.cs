@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models;
 using Web.Services;
@@ -8,28 +9,35 @@ namespace Web.Controllers;
 public class MarketHistoryController : Controller
 {
     private readonly ITickerApiService _service;
+    private readonly ILogger<MarketHistoryController> _logger;
 
-    public MarketHistoryController(ITickerApiService service)
+    public MarketHistoryController(ITickerApiService service, ILogger<MarketHistoryController> logger)
     {
         _service = service;
+        _logger = logger;
     }
 
+
     [HttpGet("/market-history")]
-    public async Task<IActionResult> MarketHistory(
-        [FromQuery] string? ticker = "SXRV.DE",
-        [FromQuery] DateOnly? startDate = null,
-        [FromQuery] DateOnly? endDate = null)
+    public IActionResult MarketHistory([FromQuery] string? ticker = "SXRV.DE")
     {
+        return View();
+    }
+
+    [HttpGet("/market-history/section")]
+    public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker)
+    {
+        var sw = Stopwatch.StartNew();
+
         var marketHistoryData = await _service.GetMarketHistoryResponseAsync(ticker);
-        if (marketHistoryData == null)
-        {
-            return NotFound();
-        }
+        if (marketHistoryData == null) return NotFound();
 
         var lineChartViewModel = GetMarketHistoryViewModel(marketHistoryData);
 
-        LineChartDataPoint first = lineChartViewModel.DataPoints.First();
-        LineChartDataPoint last = lineChartViewModel.DataPoints.Last();
+        // from
+        var first = lineChartViewModel.DataPoints.First();
+        // to
+        var last = lineChartViewModel.DataPoints.Last();
 
         decimal currentPrice = last.Value;
         string currentPriceString = currentPrice.ToString("C2");
@@ -48,7 +56,9 @@ public class MarketHistoryController : Controller
             InterestPercentageString = interestPercentageString
         };
 
-        return View(viewModel);
+        sw.Stop();
+        _logger.LogInformation("MarketHistory view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
+        return PartialView("_MarketHistorySection", viewModel);
     }
 
     private LineChartViewModel GetMarketHistoryViewModel(MarketHistoryResponse marketHistory)
