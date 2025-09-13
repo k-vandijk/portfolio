@@ -1,9 +1,9 @@
-﻿namespace Web.ViewModels;
+﻿namespace Dashboard.Web.ViewModels;
 
 public class InvestmentViewModel
 {
-    public PieChartViewModel PieChart { get; set; }
-    public BarChartViewModel BarChart { get; set; }
-    public LineChartViewModel LineChart { get; set; }
+    public PieChartViewModel PieChart { get; set; } = new();
+    public BarChartViewModel BarChart { get; set; } = new();
+    public LineChartViewModel LineChart { get; set; } = new();
 
 }

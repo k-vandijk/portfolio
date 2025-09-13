@@ -1,31 +1,29 @@
 ﻿using System.Text.Json;
-using Web.Models;
+using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Models;
 
-namespace Web.Services;
-
-public interface ITickerApiService
-{
-    Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(string ticker, string? period = "1y", string? interval = "1d");
-}
+namespace Dashboard.Infrastructure.Services;
 
 public class TickerApiService : ITickerApiService
 {
     private readonly HttpClient _http;
-    private readonly IConfiguration _config;
 
-    public TickerApiService(IHttpClientFactory httpFactory, IConfiguration config)
+    private readonly string FIRST_TRANSACTION_DATE = "2024-06-06";
+
+    public TickerApiService(IHttpClientFactory httpFactory)
     {
         _http = httpFactory.CreateClient("cached-http-client");
-        _config = config;
     }
 
     public async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(
+        string tickerApiUrl, 
+        string tickerApiCode,
         string ticker,
-        string? period = "1y",
+        string? period = null,
         string? interval = "1d")
     {
-        var tickerApiUrl = _config["Secrets:TickerApiUrl"] ?? throw new InvalidOperationException("Secrets:TickerApiUrl is not configured.");
-        var tickerApiCode = _config["Secrets:TickerApiCode"] ?? throw new InvalidOperationException("Secrets:TickerApiCode is not configured.");
+        period ??= GetPeriod();
+
         var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
 
         var response = await _http.GetAsync(requestUrl);
@@ -38,5 +36,15 @@ public class TickerApiService : ITickerApiService
         });
 
         return marketHistory;
+    }
+
+    private string GetPeriod(DateOnly? firstTransactionDate = null)
+    {
+        firstTransactionDate ??= DateOnly.Parse(FIRST_TRANSACTION_DATE);
+
+        // Get the difference in months between the first transaction date and today in years and add 1
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var yearsDifference = today.Year - firstTransactionDate.Value.Year;
+        return $"{yearsDifference + 1}y";
     }
 }

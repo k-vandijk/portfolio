@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Dashboard.Application;
+using Dashboard.Domain;
+using Dashboard.Infrastructure;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Web.Middleware;
-using Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,19 +25,9 @@ builder.Services.AddAuthorization(o => o.FallbackPolicy = o.DefaultPolicy);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddMemoryCache();
-
-builder.Services.AddHttpClient("cached-http-client")
-    .AddHttpMessageHandler(sp =>
-        new HttpGetCachingHandler(
-            sp.GetRequiredService<IMemoryCache>(), 
-            absoluteTtl: TimeSpan.FromMinutes(10),
-            slidingTtl: TimeSpan.FromMinutes(5)
-        )
-    );
-
-builder.Services.AddScoped<IAzureTableService, AzureTableService>();
-builder.Services.AddScoped<ITickerApiService, TickerApiService>();
+builder.Services.AddApplication();
+builder.Services.AddDomain();
+builder.Services.AddInfrastructure();
 
 var app = builder.Build();
 

@@ -1,22 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Web.Models;
-using Web.Services;
+﻿using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Web.Controllers;
+namespace Dashboard.Web.Controllers;
 
 public class TransactionsController : Controller
 {
     private readonly IAzureTableService _service;
+    private readonly IConfiguration _config;
 
-    public TransactionsController(IAzureTableService service)
+    public TransactionsController(IAzureTableService service, IConfiguration config)
     {
         _service = service;
+        _config = config;
     }
 
     [HttpGet("/transactions")]
     public IActionResult Transactions()
     {
-        var transactions = _service.GetTransactions();
+        var connectionString = _config["Secrets:TransactionsTableConnectionString"]
+            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
+
+        var transactions = _service.GetTransactions(connectionString);
 
         return View(transactions);
     }
@@ -36,7 +41,10 @@ public class TransactionsController : Controller
 
         try
         {
-            await _service.AddTransactionAsync(transaction);
+            var connectionString = _config["Secrets:TransactionsTableConnectionString"]
+                ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
+
+            await _service.AddTransactionAsync(connectionString, transaction);
             return Ok(new { success = true, message = "Transaction added" });
         }
         catch (Exception ex)
@@ -55,7 +63,10 @@ public class TransactionsController : Controller
 
         try
         {
-            await _service.DeleteTransactionAsync(rowKey); // make sure you have this in your service
+            var connectionString = _config["Secrets:TransactionsTableConnectionString"]
+                ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
+
+            await _service.DeleteTransactionAsync(connectionString, rowKey); // make sure you have this in your service
             return Ok(new { success = true, message = "Transaction deleted" });
         }
         catch (Exception ex)

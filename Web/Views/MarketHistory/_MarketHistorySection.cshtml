@@ -1,4 +1,5 @@
-﻿@model MarketHistoryViewModel
+﻿@using Dashboard.Web.ViewModels
+@model Dashboard.Web.ViewModels.MarketHistoryViewModel
 @{
     var tickers = new[] { "SXRV.DE", "BTC-EUR", "IS3N.DE" };
     var currentTicker = Context.Request.Query["ticker"].ToString();

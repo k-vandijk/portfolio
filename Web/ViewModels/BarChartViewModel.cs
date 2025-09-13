@@ -1,14 +1,11 @@
-﻿namespace Web.ViewModels;
+﻿using Dashboard.Application.Dtos;
+
+namespace Dashboard.Web.ViewModels;
 
 public class BarChartViewModel
 {
     public string Title { get; set; } = string.Empty;
-    public List<BarChartDataPoint> DataPoints { get; set; } = new ();
+    public List<BarChartDataPointDto> DataPoints { get; set; } = new ();
     public string Format { get; set; } = "currency"; // "currency" | "percentage" | "number"
 }
 
-public class BarChartDataPoint
-{
-    public string Label { get; set; } = string.Empty;
-    public decimal Value { get; set; } = 0;
-}

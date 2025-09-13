@@ -1,5 +1,5 @@
-﻿@using Web.Helpers
-@model DashboardViewModel
+﻿@using Dashboard.Application.Helpers
+@model Dashboard.Web.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 
@@ -73,7 +73,7 @@
                             <tbody>
                                 @for (int i = 0; i < 4; i++)
                                 {
-                                    <tr>
+                                    <tr class="placeholder-glow">
                                         <td><span class="placeholder col-6"></span></td>
                                         <td><span class="placeholder col-6"></span></td>
                                         <td><span class="placeholder col-6"></span></td>

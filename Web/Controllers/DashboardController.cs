@@ -1,23 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using Web.Helpers;
-using Web.Models;
-using Web.Services;
-using Web.ViewModels;
+﻿using System.Diagnostics;
+using Dashboard.Application.Dtos;
+using Dashboard.Application.Helpers;
+using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Models;
+using Dashboard.Web.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Web.Controllers;
+namespace Dashboard.Web.Controllers;
 
 public class DashboardController : Controller
 {
     private readonly IAzureTableService _azureTableService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DashboardController> _logger;
+    private readonly IConfiguration _config;
 
-    public DashboardController(IAzureTableService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger)
+    public DashboardController(IAzureTableService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IConfiguration config)
     {
         _azureTableService = azureTableService;
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _config = config;
     }
 
     [HttpGet("/dashboard")]
@@ -37,7 +40,10 @@ public class DashboardController : Controller
     {
         var sw = Stopwatch.StartNew();
 
-        var transactions = _azureTableService.GetTransactions();
+        var connectionString = _config["Secrets:TransactionsTableConnectionString"] 
+            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
+
+        var transactions = _azureTableService.GetTransactions(connectionString);
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers);
 
         // Named tx because tickers it already used as parameter name
@@ -60,6 +66,11 @@ public class DashboardController : Controller
 
         // Apply time range filter to line chart
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+
+        // Limit startDate to first transaction date to avoid empty charts
+        var firstTransactionDate = filteredTransactions.Any() ? filteredTransactions.Min(t => t.Date) : DateOnly.MinValue;
+        if (startDate < firstTransactionDate) startDate = firstTransactionDate;
+        
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
 
         var viewModel = new DashboardViewModel
@@ -113,7 +124,14 @@ public class DashboardController : Controller
             try
             {
                 _logger.LogInformation("Fetching market history...");
-                var data = await api.GetMarketHistoryResponseAsync(ticker);
+
+                var tickerApiUrl = _config["Secrets:TickerApiurl"]
+                    ?? throw new ArgumentNullException("Secrets:TickerApiurl", "Please set the TickerApiurl in the configuration.");
+
+                var tickerApiCode = _config["Secrets:TickerApiCode"]
+                    ?? throw new ArgumentNullException("Secrets:TickerApiCode", "Please set the TickerApiCode in the configuration.");
+
+                var data = await api.GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
                 _logger.LogInformation("Fetched market history: {HasData}", data != null);
                 return (ticker, data, null);
             }
@@ -128,7 +146,7 @@ public class DashboardController : Controller
     private List<DashboardTableRowViewModel> GetDashboardTableRows(List<string> tickers, List<Transaction> transactions, List<MarketHistoryDataPoint> marketHistoryDataPoints)
     {
         var latestClose = marketHistoryDataPoints
-            .GroupBy(p => p.Ticker.ToUpperInvariant())
+            .GroupBy(p => p.Ticker!.ToUpperInvariant())
             .ToDictionary(
                 g => g.Key,
                 g => g.OrderByDescending(x => x.Date).First().Close
@@ -197,7 +215,7 @@ public class DashboardController : Controller
 
         var historyByTicker = history
             .Where(h => !string.IsNullOrWhiteSpace(h.Ticker))
-            .GroupBy(h => h.Ticker.ToUpperInvariant())
+            .GroupBy(h => h.Ticker!.ToUpperInvariant())
             .ToDictionary(g => g.Key, g => g.OrderBy(h => h.Date).ToList());
 
         var allDates = historyByTicker.Values
@@ -217,7 +235,7 @@ public class DashboardController : Controller
         );
 
         decimal netInvested = 0m;
-        var points = new List<LineChartDataPoint>(allDates.Count);
+        var points = new List<LineChartDataPointDto>(allDates.Count);
 
         foreach (var date in allDates)
         {
@@ -251,7 +269,7 @@ public class DashboardController : Controller
             // projectie via selector
             decimal y = selector(totalWorth, netInvested);
 
-            points.Add(new LineChartDataPoint
+            points.Add(new LineChartDataPointDto
             {
                 Label = date.ToString("yyyy-MM-dd"),
                 Value = y
