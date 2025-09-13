@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
-using Web.Models;
-using Web.ViewModels;
+using Dashboard.Application.Dtos;
+using Dashboard.Domain.Models;
 
-namespace Web.Helpers;
+namespace Dashboard.Application.Helpers;
 
 public static class FilterHelper
 {
@@ -41,7 +41,7 @@ public static class FilterHelper
         };
     }
 
-    public static List<LineChartDataPoint> FilterLineChartDataPoints(List<LineChartDataPoint> datapoints, DateOnly startDate, DateOnly endDate)
+    public static List<LineChartDataPointDto> FilterLineChartDataPoints(List<LineChartDataPointDto> datapoints, DateOnly startDate, DateOnly endDate)
     {
         return datapoints.Where(p =>
             {

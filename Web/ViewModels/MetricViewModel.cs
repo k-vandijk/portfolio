@@ -1,4 +1,4 @@
-﻿namespace Web.ViewModels;
+﻿namespace Dashboard.Web.ViewModels;
 
 public class MetricViewModel
 {

@@ -1,21 +1,24 @@
-using System.Diagnostics;
+using Dashboard.Application.Dtos;
+using Dashboard.Application.Helpers;
+using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Models;
+using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Web.Helpers;
-using Web.Models;
-using Web.Services;
-using Web.ViewModels;
+using System.Diagnostics;
 
-namespace Web.Controllers;
+namespace Dashboard.Web.Controllers;
 
 public class InvestmentController : Controller
 {
     private readonly IAzureTableService _service;
     private readonly ILogger<InvestmentController> _logger;
+    private readonly IConfiguration _config;
 
-    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger)
+    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger, IConfiguration config)
     {
         _service = service;
         _logger = logger;
+        _config = config;
     }
 
     [HttpGet("/investment")]
@@ -33,7 +36,10 @@ public class InvestmentController : Controller
     {
         var sw = Stopwatch.StartNew();
 
-        var transactions = _service.GetTransactions();
+        var connectionString = _config["Secrets:TransactionsTableConnectionString"]
+            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
+
+        var transactions = _service.GetTransactions(connectionString);
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
 
@@ -61,7 +67,7 @@ public class InvestmentController : Controller
             .Select(g =>
             {
                 cumulativeSum += g.Sum(t => t.TotalCosts);
-                return new LineChartDataPoint
+                return new LineChartDataPointDto
                 {
                     Label = g.Key.ToString("yyyy-MM-dd"),
                     Value = cumulativeSum
@@ -84,7 +90,7 @@ public class InvestmentController : Controller
     {
         var groupedTransactions = transactions
             .GroupBy(t => t.Ticker)
-            .Select(g => new PieChartDataPoint
+            .Select(g => new PieChartDataPointDto
             {
                 Label = g.Key,
                 Value = g.Sum(t => t.TotalCosts)
@@ -104,7 +110,7 @@ public class InvestmentController : Controller
     {
         var groupedTransactions = transactions
             .GroupBy(t => new { t.Date.Year, t.Date.Month })
-            .Select(g => new BarChartDataPoint
+            .Select(g => new BarChartDataPointDto
             {
                 Label = $"{g.Key.Year}-{g.Key.Month:D2}",
                 Value = g.Sum(t => t.TotalCosts)

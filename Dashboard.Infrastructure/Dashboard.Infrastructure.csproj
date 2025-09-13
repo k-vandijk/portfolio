@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dashboard.Application\Dashboard.Application.csproj" />
+    <ProjectReference Include="..\Dashboard.Domain\Dashboard.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

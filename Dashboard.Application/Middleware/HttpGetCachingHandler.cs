@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using System.Net;
+﻿using System.Net;
 using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 
-namespace Web.Middleware;
+namespace Dashboard.Application.Middleware;
 
 public sealed class HttpGetCachingHandler : DelegatingHandler
 {
@@ -29,9 +29,9 @@ public sealed class HttpGetCachingHandler : DelegatingHandler
 
         var cacheKey = BuildKey(request);
 
-        if (_cache.TryGetValue(cacheKey, out CachedHttpResponse cached))
+        if (_cache.TryGetValue(cacheKey, out CachedHttpResponse? cached))
         {
-            return cached.ToHttpResponseMessage(); // fresh clone per request
+            return cached!.ToHttpResponseMessage(); // fresh clone per request
         }
 
         var response = await base.SendAsync(request, ct);

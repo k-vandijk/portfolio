@@ -1,22 +1,24 @@
-using System.Diagnostics;
+using Dashboard.Application.Dtos;
+using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Models;
+using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Web.Models;
-using Web.Services;
-using Web.ViewModels;
+using System.Diagnostics;
 
-namespace Web.Controllers;
+namespace Dashboard.Web.Controllers;
 
 public class MarketHistoryController : Controller
 {
     private readonly ITickerApiService _service;
     private readonly ILogger<MarketHistoryController> _logger;
+    private readonly IConfiguration _config;
 
-    public MarketHistoryController(ITickerApiService service, ILogger<MarketHistoryController> logger)
+    public MarketHistoryController(ITickerApiService service, ILogger<MarketHistoryController> logger, IConfiguration config)
     {
         _service = service;
         _logger = logger;
+        _config = config;
     }
-
 
     [HttpGet("/market-history")]
     public IActionResult MarketHistory([FromQuery] string? ticker = "SXRV.DE")
@@ -29,7 +31,13 @@ public class MarketHistoryController : Controller
     {
         var sw = Stopwatch.StartNew();
 
-        var marketHistoryData = await _service.GetMarketHistoryResponseAsync(ticker);
+        var tickerApiUrl = _config["Secrets:TickerApiurl"]
+            ?? throw new ArgumentNullException("Secrets:TickerApiurl", "Please set the TickerApiurl in the configuration.");
+
+        var tickerApiCode = _config["Secrets:TickerApiCode"]
+            ?? throw new ArgumentNullException("Secrets:TickerApiCode", "Please set the TickerApiCode in the configuration.");
+
+        var marketHistoryData = await _service.GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
         if (marketHistoryData == null) return NotFound();
 
         var lineChartViewModel = GetMarketHistoryViewModel(marketHistoryData);
@@ -68,7 +76,7 @@ public class MarketHistoryController : Controller
             Title = "Market history",
             DataPoints = marketHistory.History
                 .OrderBy(h => h.Date) // Order so that we can find the latest value easily
-                .Select(h => new LineChartDataPoint
+                .Select(h => new LineChartDataPointDto
                 {
                     Label = h.Date.ToString("dd-MM-yyyy"),
                     Value = h.Close
