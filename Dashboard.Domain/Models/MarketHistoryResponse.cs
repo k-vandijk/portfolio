@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Web.Models;
+namespace Dashboard.Domain.Models;
 
 public class MarketHistoryResponse
 {

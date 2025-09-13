@@ -1,32 +1,19 @@
-﻿using Azure;
+﻿using System.Globalization;
+using Azure;
 using Azure.Data.Tables;
-using System.Globalization;
-using Web.Models;
+using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Models;
 
-namespace Web.Services;
-
-public interface IAzureTableService
-{
-    List<Transaction> GetTransactions();
-    Task AddTransactionAsync(Transaction transaction);
-    Task DeleteTransactionAsync(string rowKey);
-}
+namespace Dashboard.Infrastructure.Services;
 
 public class AzureTableService : IAzureTableService
 {
-    private readonly IConfiguration _configuration;
-
     private const string TableName = "transactions";
     private const string Partition = "transactions";
 
-    public AzureTableService(IConfiguration configuration)
+    public List<Transaction> GetTransactions(string connectionString)
     {
-        _configuration = configuration;
-    }
-
-    public List<Transaction> GetTransactions()
-    {
-        var tableClient = GetTableClient();
+        var tableClient = GetTableClient(connectionString);
 
         Pageable<TransactionEntity> transactions = tableClient.Query<TransactionEntity>(
             filter: "PartitionKey eq 'transactions'"
@@ -35,9 +22,9 @@ public class AzureTableService : IAzureTableService
         return transactions.Select(ToModel).OrderBy(t => t.Date).ToList();
     }
 
-    public async Task AddTransactionAsync(Transaction transaction)
+    public async Task AddTransactionAsync(string connectionString, Transaction transaction)
     {
-        var table = GetTableClient();
+        var table = GetTableClient(connectionString);
 
         var entity = ToEntity(transaction);
 
@@ -48,24 +35,21 @@ public class AzureTableService : IAzureTableService
         transaction.RowKey = entity.RowKey;
     }
 
-    public async Task DeleteTransactionAsync(string rowKey)
+    public async Task DeleteTransactionAsync(string connectionString, string rowKey)
     {
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new ArgumentException("rowKey is required to delete.");
 
-        var table = GetTableClient();
+        var table = GetTableClient(connectionString);
 
         // ETag.All = skip concurrency check; if you want optimistic concurrency,
         // fetch entity first and pass its ETag instead.
         await table.DeleteEntityAsync(Partition, rowKey, ETag.All);
     }
 
-    private TableClient GetTableClient()
+    private TableClient GetTableClient(string connectionString)
     {
-        string connection = _configuration["Secrets:TransactionsTableConnectionString"]
-                            ?? throw new InvalidOperationException("Secrets:TransactionsTableConnectionString is not configured.");
-
-        var client = new TableServiceClient(connection).GetTableClient(TableName);
+        var client = new TableServiceClient(connectionString).GetTableClient(TableName);
         client.CreateIfNotExists();
         return client;
     }
