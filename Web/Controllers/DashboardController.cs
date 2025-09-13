@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using Web.Helpers;
 using Web.Models;
 using Web.Services;
@@ -20,11 +21,22 @@ public class DashboardController : Controller
     }
 
     [HttpGet("/dashboard")]
-    public async Task<IActionResult> Dashboard(
+    public IActionResult Dashboard(
         [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
         [FromQuery] string? tickers = null,
         [FromQuery] string? timerange = null)
     {
+        return View();
+    }
+
+    [HttpGet("/dashboard/section")]
+    public async Task<IActionResult> DashboardSection(
+        [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
+        [FromQuery] string? tickers = null,
+        [FromQuery] string? timerange = null)
+    {
+        var sw = Stopwatch.StartNew();
+
         var transactions = _azureTableService.GetTransactions();
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers);
 
@@ -56,7 +68,9 @@ public class DashboardController : Controller
             LineChart = lineChartViewModel
         };
 
-        return View(viewModel);
+        sw.Stop();
+        _logger.LogInformation("Dashboard view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
+        return PartialView("_DashboardSection", viewModel);
     }
 
     private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)

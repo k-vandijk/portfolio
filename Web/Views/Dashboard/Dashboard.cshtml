@@ -21,96 +21,128 @@
             : null;
 }
 
-<div class="row mb-3" style="height: 25vh;">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body d-flex flex-column justify-content-evenly">
-                <div class="btn-group w-100" role="group">
-                    @foreach (var mode in modes)
-                    {
-                        <a asp-controller="Dashboard" asp-action="Dashboard"
-                           asp-route-timerange="@currentTimerange"
-                           asp-route-tickers="@currentTicker"
-                           asp-route-mode="@mode"
-                           class="btn btn-ticker px-3 py-2 @(mode == currentMode ? "active" : "")">
-                            @string.Join(" ", mode.Split("-").Select(x => x.ToUpper()))
-                        </a>
-                    }
-                </div>
-                <div class="btn-group w-100" role="group">
-                    @foreach (var t in FilterHelper.TIMERANGES)
-                    {
-                        <a asp-controller="Dashboard" asp-action="Dashboard"
-                           asp-route-timerange="@t"
-                           asp-route-tickers="@currentTicker"
-                           asp-route-mode="@currentMode"
-                           class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
-                            @t
-                        </a>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive h-100">
-                    <table id="portfolioTable" class="table table-hover table-sm mb-0 w-100">
-                        <thead>
-                            <th>Ticker</th>
-                            <th>Portfolio %</th>
-                            <th>Amount</th>
-                            <th>Total investment</th>
-                            <th>Worth</th>
-                            <th>Profit €</th>
-                            <th>Profit %</th>
-                        </thead>
-                        <tbody>
-                        @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
+<section id="skeleton-section">
+    <div class="row mb-3" style="height: 25vh;">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body d-flex flex-column justify-content-evenly">
+                    <div class="btn-group w-100" role="group">
+                        @foreach (var mode in modes)
                         {
-                            var isActive = currentTicker?.Equals(row.Ticker, StringComparison.OrdinalIgnoreCase) == true;
-
-                            <tr class="position-relative" style="cursor:pointer">
-                                <td>
-                                    @row.Ticker
-                                    <a asp-controller="Dashboard" asp-action="Dashboard"
-                                       asp-route-timerange="@currentTimerange"
-                                       asp-route-mode="@currentMode"
-                                       asp-route-tickers="@(isActive ? null : row.Ticker)"
-                                       class="stretched-link">
-                                    </a>
-                                </td>
-                                <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
-                                <td>@row.Amount</td>
-                                <td>@row.TotalInvestment.ToString("C2")</td>
-                                <td>@row.Worth.ToString("C2")</td>
-                                <td>@row.Profit.ToString("C2")</td>
-                                <td>@((row.ProfitPercentage * 100).ToString("F2") + "%")</td>
-                            </tr>
+                            <a asp-controller="Dashboard" asp-action="Dashboard"
+                               asp-route-timerange="@currentTimerange"
+                               asp-route-tickers="@currentTicker"
+                               asp-route-mode="@mode"
+                               class="btn btn-ticker px-3 py-2 @(mode == currentMode ? "active" : "")">
+                                @string.Join(" ", mode.Split("-").Select(x => x.ToUpper()))
+                            </a>
                         }
-                        </tbody>
-                        <tfoot>
-                        <tr>
-                            <th>Total</th>
-                            <th></th>
-                            <th></th>
-                            <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
-                            <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2")</th>
-                            <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
-                            <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
-                        </tr>
-                        </tfoot>
-                    </table>
+                    </div>
+                    <div class="btn-group w-100" role="group">
+                        @foreach (var t in FilterHelper.TIMERANGES)
+                        {
+                            <a asp-controller="Dashboard" asp-action="Dashboard"
+                               asp-route-timerange="@t"
+                               asp-route-tickers="@currentTicker"
+                               asp-route-mode="@currentMode"
+                               class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
+                                @t
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive h-100">
+                        <table class="table table-hover table-sm mb-0 w-100">
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Portfolio %</th>
+                                    <th>Amount</th>
+                                    <th>Total investment</th>
+                                    <th>Worth</th>
+                                    <th>Profit €</th>
+                                    <th>Profit %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < 4; i++)
+                                {
+                                    <tr>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row mb-3" style="height: 70vh;">
-    <div class="col-md-12">
-        <partial name="Components/_LineChart" model="Model.LineChart" />
+    <div class="row mb-3" style="height: 70vh;">
+        <div class="col-md-12">
+            <partial name="Components/_LineChartSkeleton" />
+        </div>
     </div>
-</div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUrl = new URL(window.location.href);
+            const tickers = currentUrl.searchParams.get('tickers');
+            const mode = currentUrl.searchParams.get('mode');
+            const timerange = currentUrl.searchParams.get('timerange');
+
+            loadMarketHistorySection(tickers, mode, timerange);
+        });
+
+        async function loadMarketHistorySection(tickers, mode, timerange) {
+            const skeleton = document.getElementById('skeleton-section');
+
+            try {
+                const response = await fetch(`/dashboard/section?tickers=${encodeURIComponent(tickers)}&mode=${encodeURIComponent(mode)}&timerange=${encodeURIComponent(timerange)}`);
+
+                const html = await response.text();
+
+                // Create a wrapper div to parse the HTML
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = html;
+
+                // Extract <script> tags BEFORE replacing the DOM
+                const scripts = wrapper.querySelectorAll('script');
+
+                // Replace skeleton with the fetched HTML
+                skeleton.replaceWith(...wrapper.childNodes);
+
+                // Re-inject <script> tags to make them execute
+                scripts.forEach((oldScript) => {
+                    const newScript = document.createElement('script');
+
+                    // Copy attributes
+                    for (const attr of oldScript.attributes) {
+                        newScript.setAttribute(attr.name, attr.value);
+                    }
+
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                });
+
+            } catch (err) {
+            
+            }
+        }
+    </script>
+}

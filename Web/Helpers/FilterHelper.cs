@@ -10,7 +10,7 @@ public static class FilterHelper
 
     public static List<Transaction> FilterTransactions(List<Transaction> transactions, string? tickers, DateOnly? startDate = null, DateOnly? endDate = null)
     {
-        if (!string.IsNullOrWhiteSpace(tickers))
+        if (!string.IsNullOrWhiteSpace(tickers) && !string.Equals(tickers, "null"))
         {
             var set = tickers
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
