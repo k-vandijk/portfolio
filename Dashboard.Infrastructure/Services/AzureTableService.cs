@@ -88,13 +88,11 @@ public class AzureTableService : IAzureTableService
             return 0m;
 
         // We slaan op met InvariantCulture, dus eerst (en eigenlijk: uitsluitend) zo parsen
-        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign,
-                             CultureInfo.InvariantCulture, out var inv))
+        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var inv))
             return inv;
 
         // Optionele fallback naar nl-NL voor oude/handmatig ingevoerde data met komma
-        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign,
-                             CultureInfo.GetCultureInfo("nl-NL"), out var nl))
+        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.GetCultureInfo("nl-NL"), out var nl))
             return nl;
 
         return 0m;

@@ -66,6 +66,11 @@ public class DashboardController : Controller
 
         // Apply time range filter to line chart
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+
+        // Limit startDate to first transaction date to avoid empty charts
+        var firstTransactionDate = filteredTransactions.Any() ? filteredTransactions.Min(t => t.Date) : DateOnly.MinValue;
+        if (startDate < firstTransactionDate) startDate = firstTransactionDate;
+        
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
 
         var viewModel = new DashboardViewModel

@@ -2,7 +2,6 @@
 using Dashboard.Domain;
 using Dashboard.Infrastructure;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -25,10 +24,6 @@ builder.Services.AddAuthorization(o => o.FallbackPolicy = o.DefaultPolicy);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-builder.Services.AddMemoryCache();
-
-
 
 builder.Services.AddApplication();
 builder.Services.AddDomain();
