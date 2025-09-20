@@ -6,7 +6,19 @@
 <div class="card">
     @if (!string.IsNullOrEmpty(Model.Title))
     {
-        <div class="card-header">@Model.Title</div>
+        <div class="card-header d-flex gap-1">
+            @Model.Title
+
+            @if (Model.Profit.HasValue)
+            {
+                var profit = Model.Profit.Value;
+                var cssClass = profit >= 0 ? "text-success" : "text-danger";
+
+                <span class="@cssClass fw-bold small">
+                    (@profit.ToString("C2"))
+                </span>
+            }
+        </div>
     }
     <div class="card-body">
         <canvas id="@chartId" class="chart-canvas"></canvas>
