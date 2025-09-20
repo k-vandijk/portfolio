@@ -84,8 +84,17 @@
                                 <td>@row.Amount</td>
                                 <td>@row.TotalInvestment.ToString("C2")</td>
                                 <td>@row.Worth.ToString("C2")</td>
-                                <td>@row.Profit.ToString("C2")</td>
-                                <td>@((row.ProfitPercentage * 100).ToString("F2") + "%")</td>
+                                <td>
+                                    <span class="fw-bold @(row.Profit >= 0 ? "text-success" : "text-danger")">
+                                        @row.Profit.ToString("C2")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="fw-bold @(row.ProfitPercentage >= 0 ? "text-success" : "text-danger")">
+                                        @((row.ProfitPercentage * 100).ToString("F2") + "%")
+                                    </span>
+                                </td>
                             </tr>
                         }
                         </tbody>

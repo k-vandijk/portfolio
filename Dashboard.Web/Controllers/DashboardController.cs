@@ -197,13 +197,13 @@ public class DashboardController : Controller
         return rows;
     }
 
-    private LineChartViewModel GetPortfolioWorthLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio value €") =>
+    private LineChartViewModel GetPortfolioWorthLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio value") =>
         GetPortfolioLineChart(transactions, history, title, "currency", (worth, invested) => worth);
 
-    private LineChartViewModel GetPortfolioProfitLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit €") =>
+    private LineChartViewModel GetPortfolioProfitLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit") =>
         GetPortfolioLineChart(transactions, history, title, "currency", (worth, invested) => worth - invested);
 
-    private LineChartViewModel GetPortfolioProfitPercentageLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit %") =>
+    private LineChartViewModel GetPortfolioProfitPercentageLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title = "Portfolio profit") =>
         GetPortfolioLineChart(transactions, history, title, "percentage", (worth, invested) => invested != 0m ? (worth - invested) / invested * 100m : 0m);
 
     private LineChartViewModel GetPortfolioLineChart(List<Transaction> transactions, List<MarketHistoryDataPoint> history, string title, string format, Func<decimal, decimal, decimal> selector)
@@ -280,7 +280,7 @@ public class DashboardController : Controller
         {
             Title = title,
             DataPoints = points,
-            Format = format
+            Format = format,
         };
     }
 }
