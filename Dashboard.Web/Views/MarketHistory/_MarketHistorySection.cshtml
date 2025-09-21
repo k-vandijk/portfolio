@@ -1,7 +1,6 @@
 ﻿@using Dashboard.Web.ViewModels
 @model Dashboard.Web.ViewModels.MarketHistoryViewModel
 @{
-    var tickers = new[] { "SXRV.DE", "BTC-EUR", "IS3N.DE" };
     var currentTicker = Context.Request.Query["ticker"].ToString();
 }
 
@@ -10,7 +9,7 @@
         <div class="card">
             <div class="card-body d-flex align-items-center">
                 <div class="btn-group w-100" role="group">
-                    @foreach (var t in tickers)
+                    @foreach (var t in Model.Tickers)
                     {
                         <a asp-controller="MarketHistory" asp-action="MarketHistory" asp-route-ticker="@t"
                            class="btn btn-ticker px-3 py-2 @(t == currentTicker ? "active" : "")">
