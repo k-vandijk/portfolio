@@ -17,5 +17,13 @@
 
     <partial name="_Scripts" />
     @await RenderSectionAsync("Scripts", required: false)
+    @if (TempData["ErrorMessage"] is string error && !string.IsNullOrWhiteSpace(error))
+    {
+        <script>
+            $(document).ready(function () {
+                showAlert("error", "@error");
+            });
+        </script>
+    }
 </body>
 </html>

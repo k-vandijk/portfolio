@@ -9,14 +9,12 @@ namespace Dashboard.Web.Controllers;
 
 public class MarketHistoryController : Controller
 {
-    private readonly ITickerApiService _service;
     private readonly ILogger<MarketHistoryController> _logger;
     private readonly IConfiguration _config;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public MarketHistoryController(ITickerApiService service, ILogger<MarketHistoryController> logger, IConfiguration config, IServiceScopeFactory scopeFactory)
+    public MarketHistoryController(ILogger<MarketHistoryController> logger, IConfiguration config, IServiceScopeFactory scopeFactory)
     {
-        _service = service;
         _logger = logger;
         _config = config;
         _scopeFactory = scopeFactory;
@@ -29,7 +27,7 @@ public class MarketHistoryController : Controller
     }
 
     [HttpGet("/market-history/section")]
-    public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker)
+    public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker = "SXRV.DE")
     {
         var sw = Stopwatch.StartNew();
 

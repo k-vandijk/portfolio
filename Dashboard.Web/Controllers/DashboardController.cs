@@ -70,8 +70,10 @@ public class DashboardController : Controller
         // Limit startDate to first transaction date to avoid empty charts
         var firstTransactionDate = filteredTransactions.Any() ? filteredTransactions.Min(t => t.Date) : DateOnly.MinValue;
         if (startDate < firstTransactionDate) startDate = firstTransactionDate;
-        
+
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
+        lineChartViewModel.DataPoints = NormalizeSeries(lineChartViewModel.DataPoints, mode);
+        lineChartViewModel.Profit = lineChartViewModel.DataPoints.Count > 0 ? lineChartViewModel.DataPoints[^1].Value : null;
 
         var viewModel = new DashboardViewModel
         {
@@ -91,10 +93,10 @@ public class DashboardController : Controller
         var results = await Task.WhenAll(fetchTasks);
 
         // Log failures (if any)
-        // TODO display this in ui
         var failed = results.Where(r => r.Error is not null).ToList();
         if (failed.Count > 0)
         {
+            TempData["ErrorMessage"] = $"Failed to fetch market data for {failed.Count} ticker(s): {string.Join(", ", failed.Select(f => f.Ticker))}. Please try again later.";
             _logger.LogWarning("Some tickers failed: {Tickers}", string.Join(", ", failed.Select(f => f.Ticker)));
         }
 
@@ -237,7 +239,7 @@ public class DashboardController : Controller
 
         foreach (var date in allDates)
         {
-            // transacties t/m datum verwerken
+            // process transactions up to and including this date
             foreach (var t in tickers)
             {
                 if (!transactionsByTicker.TryGetValue(t, out var txs)) continue;
@@ -246,11 +248,11 @@ public class DashboardController : Controller
                 {
                     var tx = txs[txIndex[t]++];
                     positions[t] += tx.Amount;
-                    netInvested += (tx.Amount * tx.PurchasePrice) + tx.TransactionCosts;
+                    netInvested += tx.TotalCosts;
                 }
             }
 
-            // laatste bekende prijzen bijwerken
+            // update last known prices
             foreach (var t in tickers)
             {
                 if (priceMap.TryGetValue(t, out var pricePerDate) &&
@@ -260,11 +262,11 @@ public class DashboardController : Controller
                 }
             }
 
-            // totale marktwaarde
+            // total market worth at this date
             decimal totalWorth = tickers.Sum(t =>
                 lastPrices[t] is decimal p && positions[t] != 0m ? positions[t] * p : 0m);
 
-            // projectie via selector
+            // projection via selector
             decimal y = selector(totalWorth, netInvested);
 
             points.Add(new LineChartDataPointDto
@@ -280,5 +282,23 @@ public class DashboardController : Controller
             DataPoints = points,
             Format = format,
         };
+    }
+
+    private static List<LineChartDataPointDto> NormalizeSeries(IReadOnlyList<LineChartDataPointDto> points, string? mode)
+    {
+        // If 'profit' or 'profit-percentage', normalize to start at zero
+
+        if (mode == "profit" || mode == "profit-percentage")
+        {
+            var first = points.FirstOrDefault()?.Value ?? 0m;
+
+            return points.Select(p => new LineChartDataPointDto
+            {
+                Label = p.Label,
+                Value = p.Value - first
+            }).ToList();
+        }
+
+        return points.ToList();
     }
 }

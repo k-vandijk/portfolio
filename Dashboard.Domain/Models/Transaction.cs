@@ -12,5 +12,5 @@ public class Transaction
     [Required] public decimal PurchasePrice { get; set; }
     [Required] public decimal TransactionCosts { get; set; }
 
-    public decimal TotalCosts => (Amount * PurchasePrice) + TransactionCosts;
+    public decimal TotalCosts => Amount * PurchasePrice + TransactionCosts;
 }
