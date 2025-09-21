@@ -6,4 +6,5 @@ public class MarketHistoryViewModel
     public string CurrentPriceString { get; set; } = string.Empty;
     public string InterestString { get; set; } = string.Empty;
     public string InterestPercentageString { get; set; } = string.Empty;
+    public string[] Tickers { get; set; } = [];
 }

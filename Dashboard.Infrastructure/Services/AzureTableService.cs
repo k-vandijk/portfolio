@@ -11,15 +11,21 @@ public class AzureTableService : IAzureTableService
     private const string TableName = "transactions";
     private const string Partition = "transactions";
 
-    public List<Transaction> GetTransactions(string connectionString)
+    public async Task<List<Transaction>> GetTransactionsAsync(string connectionString)
     {
         var tableClient = GetTableClient(connectionString);
 
-        Pageable<TransactionEntity> transactions = tableClient.Query<TransactionEntity>(
+        var transactionsPageable = tableClient.QueryAsync<TransactionEntity>(
             filter: "PartitionKey eq 'transactions'"
         );
 
-        return transactions.Select(ToModel).OrderBy(t => t.Date).ToList();
+        var transactions = new List<Transaction>();
+        await foreach (var entity in transactionsPageable)
+        {
+            transactions.Add(ToModel(entity));
+        }
+
+        return transactions.OrderBy(t => t.Date).ToList();
     }
 
     public async Task AddTransactionAsync(string connectionString, Transaction transaction)

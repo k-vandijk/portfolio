@@ -43,7 +43,7 @@ public class DashboardController : Controller
         var connectionString = _config["Secrets:TransactionsTableConnectionString"] 
             ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
 
-        var transactions = _azureTableService.GetTransactions(connectionString);
+        var transactions = await _azureTableService.GetTransactionsAsync(connectionString);
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers);
 
         // Named tx because tickers it already used as parameter name

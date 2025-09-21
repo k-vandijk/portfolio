@@ -30,7 +30,7 @@ public class InvestmentController : Controller
     }
 
     [HttpGet("/investment/section")]
-    public IActionResult InvestmentSection(
+    public async Task<IActionResult> InvestmentSection(
         [FromQuery] string? tickers, 
         [FromQuery] string? timerange)
     {
@@ -39,7 +39,7 @@ public class InvestmentController : Controller
         var connectionString = _config["Secrets:TransactionsTableConnectionString"]
             ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
 
-        var transactions = _service.GetTransactions(connectionString);
+        var transactions = await _service.GetTransactionsAsync(connectionString);
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
 

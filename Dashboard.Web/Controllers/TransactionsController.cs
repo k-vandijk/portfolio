@@ -21,16 +21,22 @@ public class TransactionsController : Controller
     [HttpGet("/transactions")]
     public IActionResult Transactions()
     {
+        return View();
+    }
+
+    [HttpGet("/transactions/section")]
+    public async Task<IActionResult> TransactionsSection()
+    {
         var sw = Stopwatch.StartNew();
 
         var connectionString = _config["Secrets:TransactionsTableConnectionString"]
             ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
 
-        var transactions = _service.GetTransactions(connectionString);
+        var transactions = await _service.GetTransactionsAsync(connectionString);
 
         sw.Stop();
         _logger.LogInformation("Transactions view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return View(transactions);
+        return PartialView("_TransactionsSection", transactions);
     }
 
     [HttpPost]

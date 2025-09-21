@@ -12,12 +12,14 @@ public class MarketHistoryController : Controller
     private readonly ITickerApiService _service;
     private readonly ILogger<MarketHistoryController> _logger;
     private readonly IConfiguration _config;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public MarketHistoryController(ITickerApiService service, ILogger<MarketHistoryController> logger, IConfiguration config)
+    public MarketHistoryController(ITickerApiService service, ILogger<MarketHistoryController> logger, IConfiguration config, IServiceScopeFactory scopeFactory)
     {
         _service = service;
         _logger = logger;
         _config = config;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpGet("/market-history")]
@@ -37,7 +39,17 @@ public class MarketHistoryController : Controller
         var tickerApiCode = _config["Secrets:TickerApiCode"]
             ?? throw new ArgumentNullException("Secrets:TickerApiCode", "Please set the TickerApiCode in the configuration.");
 
-        var marketHistoryData = await _service.GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
+        var connectionString = _config["Secrets:TransactionsTableConnectionString"]
+            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
+
+        var marketHistoryDataTask = GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
+        var transactionsTask = GetTransactionsAsync(connectionString);
+
+        await Task.WhenAll(marketHistoryDataTask, transactionsTask);
+
+        var marketHistoryData = marketHistoryDataTask.Result;
+        var transactions = transactionsTask.Result;
+
         if (marketHistoryData == null) return NotFound();
 
         var lineChartViewModel = GetMarketHistoryViewModel(marketHistoryData);
@@ -61,12 +73,29 @@ public class MarketHistoryController : Controller
             LineChart = lineChartViewModel,
             CurrentPriceString = currentPriceString,
             InterestString = interestString,
-            InterestPercentageString = interestPercentageString
+            InterestPercentageString = interestPercentageString,
+            Tickers = transactions.Select(t => t.Ticker).Distinct().OrderBy(t => t).ToArray(),
         };
 
         sw.Stop();
         _logger.LogInformation("MarketHistory view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
         return PartialView("_MarketHistorySection", viewModel);
+    }
+
+    private async Task<List<Transaction>> GetTransactionsAsync(string connectionString)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<IAzureTableService>();
+
+        return await service.GetTransactionsAsync(connectionString);
+    }
+
+    private async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(string tickerApiUrl, string tickerApiCode, string ticker)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
+
+        return await service.GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
     }
 
     private LineChartViewModel GetMarketHistoryViewModel(MarketHistoryResponse marketHistory)

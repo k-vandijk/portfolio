@@ -4,7 +4,7 @@ namespace Dashboard.Application.Interfaces;
 
 public interface IAzureTableService
 {
-    List<Transaction> GetTransactions(string connectionString);
+    Task<List<Transaction>> GetTransactionsAsync(string connectionString);
     Task AddTransactionAsync(string connectionString, Transaction transaction);
     Task DeleteTransactionAsync(string connectionString, string rowKey);
 }
