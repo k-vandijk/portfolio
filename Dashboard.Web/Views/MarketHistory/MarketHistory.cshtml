@@ -7,10 +7,9 @@
 }
 
 <section id="skeleton-section">
-    <div class="row mb-3" style="height: 15vh;">
-        <div class="col-md-4">
+    <div class="row" style="height: 15vh;">
+        <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-4 mb-3">
             <div class="card">
-                <div class="card-header">Tickers</div>
                 <div class="card-body d-flex align-items-center">
                     <div class="btn-group w-100" role="group">
                         @foreach (var t in tickers)
@@ -24,11 +23,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8 d-flex">
+        <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-8 mb-3 d-flex">
             <div class="row flex-fill">
                 @for (int i = 0; i < 3; i++)
                 {
-                    <div class="col-md-4">
+                    <div class="col-4">
                         <partial name="Components/_MetricSkeleton" />
                     </div>
                 }
@@ -37,8 +36,8 @@
 
     </div>
 
-    <div class="row mb-3" style="height: 80vh;">
-        <div class="col-md-12">
+    <div class="row" style="height: 80vh;">
+        <div class="col-12 mb-3">
             <partial name="Components/_LineChartSkeleton" />
         </div>
     </div>

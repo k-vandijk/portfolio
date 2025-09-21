@@ -27,7 +27,6 @@ body {
 /* Verzorgt de background gradient */
 body {
     background: linear-gradient(135deg, var(--accent-4-light), var(--accent-1-light));
-    background-blend-mode: lighten;
 }
 
 /* Zorgt dat alle 'hr's' in de kleur van accent-1 en meer dikgedrukt zijn. */
@@ -105,4 +104,11 @@ aside {
 /* Table styling */
 .table-transparent {
     --bs-table-bg: transparent !important;
+}
+
+/* Hide sidebar entirely on screens smaller than Bootstrap's md breakpoint */
+@media (max-width: 767.98px) {
+    #sidebar {
+        display: none;
+    }
 }
