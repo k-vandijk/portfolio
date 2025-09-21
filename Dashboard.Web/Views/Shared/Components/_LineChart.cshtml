@@ -3,6 +3,22 @@
     var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
 }
 
+<style>
+    /* Ensure the parent container defines its own height (flex or px/vh based) */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 100%; /* Fill parent’s height */
+    }
+
+    .chart-container > .chart-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important; /* Force the canvas to fill container height */
+    }
+</style>
+
 <div class="card">
     @if (!string.IsNullOrEmpty(Model.Title))
     {
@@ -21,16 +37,18 @@
         </div>
     }
     <div class="card-body">
-        <canvas id="@chartId" class="chart-canvas"></canvas>
+        <div class="chart-container">
+            <canvas id="@chartId" class="chart-canvas"></canvas>
+        </div>
     </div>
 </div>
 
 <script>
     function init() {
-        var element = document.getElementById('@chartId');
+        const element = document.getElementById('@chartId');
         if (!element) return;
 
-        // Chart data serializeren
+        // Chart data
         const chartData = @Html.Raw(JsonSerializer.Serialize(new {
             labels   = Model.DataPoints.Select(dp => dp.Label),
             datasets = new[] {
@@ -44,9 +62,8 @@
                     hitRadius = 8
                 }
             }
-        })); 
+        }));
 
-        // Css variables ophalen
         chartData.datasets[0].borderColor = accentColors[0];
         chartData.datasets[0].backgroundColor = accentColors[0] + "33";
 
@@ -62,29 +79,26 @@
             return fmtNumber.format(v);
         }
 
-        // Chart initialiseren
-        const chart = new Chart(element, {
+        new Chart(element, {
             type: 'line',
-            data: chartData,    
+            data: chartData,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { 
+                plugins: {
                     legend: { display: false },
                     tooltip: {
-                        callbacks: {
-                            label: (ctx) => formatY(ctx.parsed.y)
-                        }
+                        callbacks: { label: (ctx) => formatY(ctx.parsed.y) }
                     }
                 },
                 scales: {
                     x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
-                    y: { 
-                        grid: { display: false }, 
-                        ticks: { 
+                    y: {
+                        grid: { display: false },
+                        ticks: {
                             maxTicksLimit: 6,
                             callback: (value) => formatY(value)
-                        } 
+                        }
                     }
                 }
             }
@@ -96,5 +110,4 @@
     } else {
         init();
     }
-
 </script>
