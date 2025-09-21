@@ -13,10 +13,12 @@
             ? modeVal.ToString()
             : "profit";
 
-    var currentTicker =
-        Context.Request.Query.TryGetValue("tickers", out var tickerVal) && !string.IsNullOrWhiteSpace(tickerVal)
-            ? tickerVal.ToString()
+    var currentTickersString = 
+        Context.Request.Query.TryGetValue("tickers", out var tickersVal) && !string.IsNullOrWhiteSpace(tickersVal)
+            ? tickersVal.ToString()
             : null;
+
+    var currentTickers = currentTickersString?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
 }
 
 <div class="row" style="height: 25vh;">
@@ -28,7 +30,7 @@
                     {
                         <a asp-controller="Dashboard" asp-action="Dashboard"
                            asp-route-timerange="@currentTimerange"
-                           asp-route-tickers="@currentTicker"
+                           asp-route-tickers="@currentTickersString"
                            asp-route-mode="@mode"
                            class="btn btn-ticker px-3 py-2 @(mode == currentMode ? "active" : "")">
                             @string.Join(" ", mode.Split("-").Select(x => x.ToUpper()))
@@ -40,7 +42,7 @@
                     {
                         <a asp-controller="Dashboard" asp-action="Dashboard"
                            asp-route-timerange="@t"
-                           asp-route-tickers="@currentTicker"
+                           asp-route-tickers="@currentTickersString"
                            asp-route-mode="@currentMode"
                            class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
                             @t
@@ -68,15 +70,19 @@
                         <tbody>
                         @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
                         {
-                            var isActive = currentTicker?.Equals(row.Ticker, StringComparison.OrdinalIgnoreCase) == true;
+                            var isActive = currentTickers.Contains(row.Ticker, StringComparer.OrdinalIgnoreCase);
+                            var rowClass = isActive ? "table-active" : "";
+                            var tickersRoute = isActive
+                                ? string.Join(',', currentTickers.Where(t => !t.Equals(row.Ticker, StringComparison.OrdinalIgnoreCase)))
+                                : (string.IsNullOrWhiteSpace(currentTickersString) ? row.Ticker : currentTickersString + "," + row.Ticker);
 
-                            <tr class="position-relative" style="cursor:pointer">
+                            <tr class="position-relative @rowClass" style="cursor:pointer">
                                 <td>
                                     @row.Ticker
                                     <a asp-controller="Dashboard" asp-action="Dashboard"
                                        asp-route-timerange="@currentTimerange"
                                        asp-route-mode="@currentMode"
-                                       asp-route-tickers="@(isActive ? null : row.Ticker)"
+                                       asp-route-tickers="@tickersRoute"
                                        class="stretched-link">
                                     </a>
                                 </td>

@@ -44,17 +44,18 @@ public class DashboardController : Controller
             ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
 
         var transactions = await _azureTableService.GetTransactionsAsync(connectionString);
-        var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers);
 
         // Named tx because tickers it already used as parameter name
-        var tx = filteredTransactions
+        var tx = transactions
             .Select(t => t.Ticker.ToUpperInvariant())
             .Distinct()
             .ToList();
 
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx);
 
-        var tableViewModel = GetDashboardTableRows(tx, filteredTransactions, marketHistoryDataPoints);
+        var tableViewModel = GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
+
+        var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers);
 
         LineChartViewModel lineChartViewModel = mode switch
         {
