@@ -21,13 +21,13 @@ public class MarketHistoryController : Controller
     }
 
     [HttpGet("/market-history")]
-    public IActionResult MarketHistory([FromQuery] string? ticker = "SXRV.DE")
+    public IActionResult MarketHistory()
     {
         return View();
     }
 
     [HttpGet("/market-history/section")]
-    public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker = "SXRV.DE")
+    public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker)
     {
         var sw = Stopwatch.StartNew();
 
