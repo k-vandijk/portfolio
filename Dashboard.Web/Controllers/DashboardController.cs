@@ -23,8 +23,8 @@ public class DashboardController : Controller
         _config = config;
     }
 
-    [HttpGet("/dashboard")]
-    public IActionResult Dashboard() => View();
+    [HttpGet("/")]
+    public IActionResult Index() => View();
 
     [HttpGet("/dashboard/section")]
     public async Task<IActionResult> DashboardSection(
@@ -78,7 +78,7 @@ public class DashboardController : Controller
 
         sw.Stop();
         _logger.LogInformation("Dashboard view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_DashboardSection", viewModel);
+        return PartialView("_Loaded", viewModel);
     }
 
     private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)

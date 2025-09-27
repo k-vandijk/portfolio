@@ -21,7 +21,7 @@ public class MarketHistoryController : Controller
     }
 
     [HttpGet("/market-history")]
-    public IActionResult MarketHistory() => View();
+    public IActionResult Index() => View();
 
     [HttpGet("/market-history/section")]
     public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker)
@@ -74,7 +74,7 @@ public class MarketHistoryController : Controller
 
         sw.Stop();
         _logger.LogInformation("MarketHistory view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_MarketHistorySection", viewModel);
+        return PartialView("_Loaded", viewModel);
     }
 
     private async Task<List<Transaction>> GetTransactionsAsync(string connectionString)
