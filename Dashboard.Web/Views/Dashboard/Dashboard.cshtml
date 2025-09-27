@@ -101,11 +101,20 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const currentUrl = new URL(window.location.href);
-            const tickers = currentUrl.searchParams.get('tickers');
-            const mode = currentUrl.searchParams.get('mode');
-            const timerange = currentUrl.searchParams.get('timerange');
-            const sectionUrl = `/dashboard/section?tickers=${encodeURIComponent(tickers)}&mode=${encodeURIComponent(mode)}&timerange=${encodeURIComponent(timerange)}`;
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams();
+
+            const tickers = url.searchParams.get('tickers');
+            const mode = url.searchParams.get('mode');
+            const timerange = url.searchParams.get('timerange');
+
+            if (tickers) params.set('tickers', tickers);
+            if (mode) params.set('mode', mode);
+            if (timerange) params.set('timerange', timerange);
+
+            const sectionUrl = params.toString()
+              ? `/dashboard/section?${params.toString()}`
+              : `/dashboard/section`;
 
             loadSkeletonSection(sectionUrl);
         });
