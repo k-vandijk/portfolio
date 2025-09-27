@@ -64,8 +64,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/", () => Results.Redirect("/dashboard"));
-app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+//app.MapGet("/", () => Results.Redirect("/dashboard"));
+app.MapControllerRoute("default", "{controller=Dashboard}/{action=Index}/{id?}");
 
 await app.StartAsync();
 

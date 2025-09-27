@@ -28,7 +28,7 @@
                 <div class="btn-group w-100" role="group">
                     @foreach (var mode in modes)
                     {
-                        <a asp-controller="Dashboard" asp-action="Dashboard"
+                        <a asp-controller="Dashboard" asp-action="Index"
                            asp-route-timerange="@currentTimerange"
                            asp-route-tickers="@currentTickersString"
                            asp-route-mode="@mode"
@@ -40,7 +40,7 @@
                 <div class="btn-group w-100" role="group">
                     @foreach (var t in FilterHelper.TIMERANGES)
                     {
-                        <a asp-controller="Dashboard" asp-action="Dashboard"
+                        <a asp-controller="Dashboard" asp-action="Index"
                            asp-route-timerange="@t"
                            asp-route-tickers="@currentTickersString"
                            asp-route-mode="@currentMode"
@@ -79,7 +79,7 @@
                             <tr class="position-relative @rowClass" style="cursor:pointer">
                                 <td>
                                     @row.Ticker
-                                    <a asp-controller="Dashboard" asp-action="Dashboard"
+                                    <a asp-controller="Dashboard" asp-action="Index"
                                        asp-route-timerange="@currentTimerange"
                                        asp-route-mode="@currentMode"
                                        asp-route-tickers="@tickersRoute"

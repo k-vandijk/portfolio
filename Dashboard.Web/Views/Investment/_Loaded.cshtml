@@ -37,7 +37,7 @@
                             ? string.Join(',', nextSelection.Distinct(StringComparer.OrdinalIgnoreCase))
                             : null;
 
-                        <a asp-controller="Investment" asp-action="Investment"
+                        <a asp-controller="Investment" asp-action="Index"
                            asp-route-tickers="@route"
                            asp-route-year="@currentYear"
                            class="btn btn-ticker px-3 py-2 @(isActive ? "active" : "")">
@@ -48,7 +48,7 @@
                 <div class="btn-group w-100" role="group">
                     @foreach (var y in Model.Years)
                     {
-                        <a asp-controller="Investment" asp-action="Investment"
+                        <a asp-controller="Investment" asp-action="Index"
                            asp-route-tickers="@currentTickersString"
                            asp-route-year="@y"
                            class="btn btn-ticker px-3 py-2 @(y == currentYear ? "active" : "")">

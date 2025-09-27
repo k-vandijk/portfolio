@@ -8,6 +8,108 @@
         .ToList();
 }
 
+<style>
+    /* Make all table cells vertically centered (override Bootstrap's default 'top') */
+    #transactionsTable > :not(caption) > * > * {
+        vertical-align: middle;
+    }
+
+    /* Center-align the first and last columns (header + body) */
+    #transactionsTable thead th:first-child,
+    #transactionsTable tbody td:first-child,
+    #transactionsTable thead th:last-child,
+    #transactionsTable tbody td:last-child {
+        text-align: center;
+    }
+
+    /* Keep the last column compact and prevent wrapping */
+    #transactionsTable thead th:last-child,
+    #transactionsTable tbody td:last-child {
+        white-space: nowrap;
+        width: 1%;
+    }
+
+        /* Ensure the delete button/icon is perfectly centered */
+        #transactionsTable tbody td:last-child .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Optional: normalize icon alignment in first column */
+        #transactionsTable tbody td:first-child i,
+        #transactionsTable thead th:last-child i {
+            line-height: 1;
+            vertical-align: middle;
+        }
+
+
+
+
+    /* Scope to this table's generated wrapper */
+    #transactionsTable_wrapper .dataTables_paginate {
+        display: flex;
+        align-items: center;
+        gap: .25rem;
+        margin-top: .5rem;
+    }
+
+        /* Base button look */
+        #transactionsTable_wrapper .dataTables_paginate .paginate_button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            height: 2rem;
+            padding: 0 .5rem;
+            border: 1px solid var(--bs-border-color, #dee2e6);
+            border-radius: .5rem;
+            background: transparent;
+            color: var(--bs-body-color, #212529) !important;
+            font-size: .875rem;
+            line-height: 1;
+            text-decoration: none !important;
+            transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, filter .15s ease;
+            cursor: pointer;
+        }
+
+            /* Hover */
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button:hover {
+                background: var(--bs-light, #f8f9fa);
+                border-color: var(--bs-border-color, #dee2e6);
+            }
+
+            /* Active (current page) */
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button.current,
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button.current:hover {
+                background: var(--accent-1, #0d6efd);
+                border-color: var(--accent-1, #0d6efd);
+                color: #fff !important;
+            }
+
+            /* Disabled (e.g., prev/next at ends) */
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button.disabled,
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+                opacity: .45;
+                background: transparent;
+                color: var(--bs-secondary-color, #6c757d) !important;
+                cursor: not-allowed;
+            }
+
+            /* Prev/Next buttons */
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button.previous,
+            #transactionsTable_wrapper .dataTables_paginate .paginate_button.next {
+                padding: 0 .6rem;
+            }
+
+        /* Ellipsis (…) */
+        #transactionsTable_wrapper .dataTables_paginate .ellipsis {
+            padding: 0 .4rem;
+            opacity: .6;
+        }
+
+</style>
+
 <datalist id="tickerList">
     @foreach (var t in uniqueTickers)
     {
@@ -34,7 +136,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="table-light">
+                        <tr>
                             <td class="text-center align-middle"><i class="fas fa-plus text-success"></i></td>
                             <td><input class="form-control form-control-sm" id="dateInput" type="text" /></td>
                             <td><input class="form-control form-control-sm" id="tickerInput" list="tickerList" autocomplete="off" /></td>
@@ -78,14 +180,20 @@
 <script>
     $(document).ready(function () {
 
-        // Initialize the datatable
         $('#transactionsTable').DataTable({
-            "paging": true,
-            "searching": false,
-            "ordering": false,
-            "pageLength": 20,
-            "lengthChange": false,
-            "order": [[0, 'desc']]
+            paging: true,
+            searching: false,
+            ordering: false,
+            pageLength: 20,
+            lengthChange: false,
+            order: [[0, 'desc']],
+            pagingType: 'simple_numbers',
+            language: {
+            paginate: {
+                    previous: '<i class="fa-solid fa-angle-left" aria-hidden="true"></i>',
+                    next:     '<i class="fa-solid fa-angle-right" aria-hidden="true"></i>'
+                }
+            }
         });
 
         // Set event listeners on the number inputs to update the totals
