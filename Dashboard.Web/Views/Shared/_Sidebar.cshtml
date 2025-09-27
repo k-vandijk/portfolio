@@ -6,19 +6,18 @@
         height: 100vh;
     }
 
-    #sidebar.collapsed {
-        width: 56px;
-        /* slim */
-        padding-left: .5rem !important;
-        padding-right: .5rem !important;
-    }
+        #sidebar.collapsed {
+            width: 56px; /* slim */
+            padding-left: .5rem !important;
+            padding-right: .5rem !important;
+            padding-top: 2.75rem !important; /* space between caret and first icon */
+        }
 
     /* Toggle button */
     #toggleSidebar {
         position: absolute;
         top: .5rem;
-        right: .5rem;
-        /* default: align right when expanded */
+        right: .5rem; /* default: align right when expanded */
         background: transparent;
         border: 0;
         padding: .25rem;
@@ -26,44 +25,88 @@
         cursor: pointer;
     }
 
-    #toggleSidebar i {
-        transition: transform .25s ease;
-    }
+        #toggleSidebar i {
+            transition: transform .25s ease;
+        }
 
     /* Flip the double-caret when collapsed */
     #sidebar.collapsed #toggleSidebar i {
         transform: rotate(180deg);
     }
 
-    /* Hide content when collapsed; keep only the toggle button */
+    /* Keep text from wrapping in expanded state */
     #sidebar .brand,
     #sidebar .brand-text,
     #sidebar .link-text {
         white-space: nowrap;
     }
 
-    /* remove everything except the toggle in collapsed */
-    #sidebar.collapsed .brand,
-    #sidebar.collapsed hr,
-    #sidebar.collapsed .nav {
-        display: none !important;
-    }
-
-    /* (Optional) original alignment styles kept for expanded state */
+    /* Base link layout (expanded) */
     #sidebar .nav-link {
         display: flex;
         align-items: center;
     }
 
-    #sidebar .nav-link i {
-        margin-right: .5rem;
+        #sidebar .nav-link i {
+            margin-right: .5rem;
+            color: inherit; /* follow link color by default */
+        }
+
+    /* -------- Collapsed behavior -------- */
+
+    /* Hide brand and divider when collapsed (but keep the nav visible) */
+    #sidebar.collapsed .brand,
+    #sidebar.collapsed hr {
+        display: none !important;
     }
+
+    /* Hide only the text; keep the icons visible */
+    #sidebar.collapsed .brand-text,
+    #sidebar.collapsed .link-text {
+        display: none !important;
+    }
+
+    /* Center icons inside the narrow sidebar */
+    #sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+
+        /* No gap next to icons when text is hidden */
+        #sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
 
     /* Center the toggle horizontally when collapsed */
     #sidebar.collapsed #toggleSidebar {
         left: 50%;
         right: auto;
         transform: translateX(-50%);
+    }
+
+    /* Extra breathing room between the caret and the first icon */
+    #sidebar.collapsed .nav {
+        margin-top: .5rem; /* tweak to taste */
+    }
+
+    /* Do NOT highlight the active tab (no pill background) when collapsed */
+    #sidebar.collapsed .nav-pills .nav-link.active,
+    #sidebar.collapsed .nav-pills .nav-link.active:focus,
+    #sidebar.collapsed .nav-pills .nav-link.active:hover {
+        background-color: transparent !important;
+        color: var(--bs-body-color) !important; /* keep link color neutral */
+        box-shadow: none;
+    }
+
+        /* In collapsed state, color ONLY the active icon */
+        #sidebar.collapsed .nav-pills .nav-link.active i {
+            color: var(--accent-1) !important;
+        }
+
+    /* (Optional) subtle hover cue when collapsed */
+    #sidebar.collapsed .nav-link:hover {
+        color: var(--accent-1) !important;
     }
 </style>
 

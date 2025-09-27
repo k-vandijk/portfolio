@@ -28,9 +28,9 @@ public class DashboardController : Controller
 
     [HttpGet("/dashboard/section")]
     public async Task<IActionResult> DashboardSection(
-        [FromQuery] string? mode, // mode = value | profit | profit-percentage
-        [FromQuery] string? tickers,
-        [FromQuery] string? timerange)
+        [FromQuery] string? mode = "profit", // mode = value | profit | profit-percentage
+        [FromQuery] string? tickers = null,
+        [FromQuery] string? timerange = null)
     {
         var sw = Stopwatch.StartNew();
 
@@ -56,7 +56,7 @@ public class DashboardController : Controller
             "value" => GetPortfolioWorthLineChart(filteredTransactions, marketHistoryDataPoints),
             "profit" => GetPortfolioProfitLineChart(filteredTransactions, marketHistoryDataPoints),
             "profit-percentage" => GetPortfolioProfitPercentageLineChart(filteredTransactions, marketHistoryDataPoints),
-            _ => GetPortfolioProfitLineChart(filteredTransactions, marketHistoryDataPoints), // Default to 'profit'
+            _ => throw new InvalidOperationException("mode cannot be null")
         };
 
         // Apply time range filter to line chart
@@ -68,7 +68,7 @@ public class DashboardController : Controller
 
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
         lineChartViewModel.DataPoints = NormalizeSeries(lineChartViewModel.DataPoints, mode);
-        lineChartViewModel.Profit = lineChartViewModel.DataPoints.Count > 0 ? lineChartViewModel.DataPoints[^1].Value : null;
+        lineChartViewModel.Profit = GetPeriodDelta(lineChartViewModel.DataPoints, mode);
 
         var viewModel = new DashboardViewModel
         {
@@ -295,5 +295,14 @@ public class DashboardController : Controller
         }
 
         return points.ToList();
+    }
+
+    private static decimal? GetPeriodDelta(List<LineChartDataPointDto> points, string mode)
+    {
+        return points.Count > 0
+            ? mode == "value"
+                ? points[^1].Value - points[0].Value
+                : points[^1].Value
+            : null;
     }
 }
