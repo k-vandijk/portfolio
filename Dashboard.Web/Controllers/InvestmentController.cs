@@ -22,7 +22,7 @@ public class InvestmentController : Controller
     }
 
     [HttpGet("/investment")]
-    public IActionResult Investment() => View();
+    public IActionResult Index() => View();
 
     [HttpGet("/investment/section")]
     public async Task<IActionResult> InvestmentSection(
@@ -53,7 +53,7 @@ public class InvestmentController : Controller
 
         sw.Stop();
         _logger.LogInformation("Investment view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_InvestmentSection", viewModel);
+        return PartialView("_Loaded", viewModel);
     }
 
     private LineChartViewModel GetLineChartViewModel(List<Transaction> transactions)

@@ -19,7 +19,7 @@ public class TransactionsController : Controller
     }
 
     [HttpGet("/transactions")]
-    public IActionResult Transactions() => View();
+    public IActionResult Index() => View();
 
     [HttpGet("/transactions/section")]
     public async Task<IActionResult> TransactionsSection()
@@ -33,7 +33,7 @@ public class TransactionsController : Controller
 
         sw.Stop();
         _logger.LogInformation("Transactions view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_TransactionsSection", transactions);
+        return PartialView("_Loaded", transactions);
     }
 
     [HttpPost]
