@@ -41,6 +41,13 @@ public static class FilterHelper
         };
     }
 
+    public static (DateOnly, DateOnly) GetMinMaxDatesFromYear(int year)
+    {
+        var startDate = new DateOnly(year, 1, 1);
+        var endDate = new DateOnly(year, 12, 31);
+        return (startDate, endDate);
+    }
+
     public static List<LineChartDataPointDto> FilterLineChartDataPoints(List<LineChartDataPointDto> datapoints, DateOnly startDate, DateOnly endDate)
     {
         return datapoints.Where(p =>

@@ -19,10 +19,7 @@ public class TransactionsController : Controller
     }
 
     [HttpGet("/transactions")]
-    public IActionResult Transactions()
-    {
-        return View();
-    }
+    public IActionResult Transactions() => View();
 
     [HttpGet("/transactions/section")]
     public async Task<IActionResult> TransactionsSection()

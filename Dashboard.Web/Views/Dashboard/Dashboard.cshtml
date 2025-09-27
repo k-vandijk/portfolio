@@ -1,57 +1,12 @@
-﻿@using Dashboard.Application.Helpers
-@model Dashboard.Web.ViewModels.DashboardViewModel
+﻿@model Dashboard.Web.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
-
-    var modes = new[] { "profit", "profit-percentage", "value" };
-
-    var currentTimerange = 
-        Context.Request.Query.TryGetValue("timerange", out var value) && !string.IsNullOrWhiteSpace(value)
-            ? value.ToString()
-            : "ALL";
-
-    var currentMode =
-        Context.Request.Query.TryGetValue("mode", out var modeVal) && !string.IsNullOrWhiteSpace(modeVal)
-            ? modeVal.ToString()
-            : "profit";
-
-    var currentTicker =
-        Context.Request.Query.TryGetValue("tickers", out var tickerVal) && !string.IsNullOrWhiteSpace(tickerVal)
-            ? tickerVal.ToString()
-            : null;
 }
 
 <section id="skeleton-section">
     <div class="row" style="height: 25vh;">
         <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-4 mb-3">
-            <div class="card">
-                <div class="card-body d-flex flex-column justify-content-evenly">
-                    <div class="btn-group w-100" role="group">
-                        @foreach (var mode in modes)
-                        {
-                            <a asp-controller="Dashboard" asp-action="Dashboard"
-                               asp-route-timerange="@currentTimerange"
-                               asp-route-tickers="@currentTicker"
-                               asp-route-mode="@mode"
-                               class="btn btn-ticker px-3 py-2 @(mode == currentMode ? "active" : "")">
-                                @string.Join(" ", mode.Split("-").Select(x => x.ToUpper()))
-                            </a>
-                        }
-                    </div>
-                    <div class="btn-group w-100" role="group">
-                        @foreach (var t in FilterHelper.TIMERANGES)
-                        {
-                            <a asp-controller="Dashboard" asp-action="Dashboard"
-                               asp-route-timerange="@t"
-                               asp-route-tickers="@currentTicker"
-                               asp-route-mode="@currentMode"
-                               class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
-                                @t
-                            </a>
-                        }
-                    </div>
-                </div>
-            </div>
+            <partial name="Components/_LineChartSkeleton" />
         </div>
 
         <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-8 mb-3">

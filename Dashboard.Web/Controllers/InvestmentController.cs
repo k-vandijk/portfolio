@@ -22,17 +22,12 @@ public class InvestmentController : Controller
     }
 
     [HttpGet("/investment")]
-    public IActionResult Investment(
-        [FromQuery] string? tickers,
-        [FromQuery] string? timerange)
-    {
-        return View();
-    }
+    public IActionResult Investment() => View();
 
     [HttpGet("/investment/section")]
     public async Task<IActionResult> InvestmentSection(
-        [FromQuery] string? tickers, 
-        [FromQuery] string? timerange)
+        [FromQuery] string? tickers,    
+        [FromQuery] int? year)
     {
         var sw = Stopwatch.StartNew();
 
@@ -40,7 +35,7 @@ public class InvestmentController : Controller
             ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
 
         var transactions = await _service.GetTransactionsAsync(connectionString);
-        var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+        var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromYear(year ?? DateTime.UtcNow.Year);
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
 
         var pieChartViewModel = GetPieChartViewModel(filteredTransactions);
@@ -51,7 +46,9 @@ public class InvestmentController : Controller
         {
             PieChart = pieChartViewModel,
             BarChart = barChartViewModel,
-            LineChart = lineChartViewModel
+            LineChart = lineChartViewModel,
+            Tickers = transactions.Select(t => t.Ticker).Distinct().OrderBy(t => t).ToArray(),
+            Years = transactions.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
         };
 
         sw.Stop();
