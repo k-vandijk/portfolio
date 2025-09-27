@@ -24,19 +24,13 @@ public class DashboardController : Controller
     }
 
     [HttpGet("/dashboard")]
-    public IActionResult Dashboard(
-        [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
-        [FromQuery] string? tickers = null,
-        [FromQuery] string? timerange = null)
-    {
-        return View();
-    }
+    public IActionResult Dashboard() => View();
 
     [HttpGet("/dashboard/section")]
     public async Task<IActionResult> DashboardSection(
-        [FromQuery] string? mode = null, // mode = value | profit | profit-percentage
-        [FromQuery] string? tickers = null,
-        [FromQuery] string? timerange = null)
+        [FromQuery] string? mode, // mode = value | profit | profit-percentage
+        [FromQuery] string? tickers,
+        [FromQuery] string? timerange)
     {
         var sw = Stopwatch.StartNew();
 
