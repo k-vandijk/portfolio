@@ -1,7 +1,63 @@
 ﻿@model Dashboard.Web.ViewModels.InvestmentViewModel
+@{
+    var currentTickersString =
+        Context.Request.Query.TryGetValue("tickers", out var tickersVal) && !string.IsNullOrWhiteSpace(tickersVal)
+            ? tickersVal.ToString()
+            : null;
+
+    var currentTickers = currentTickersString?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
+
+    var currentYear = Context.Request.Query.TryGetValue("year", out var yearVal) && !string.IsNullOrWhiteSpace(yearVal)
+        ? int.Parse(yearVal!)
+        : DateTime.Now.Year;
+
+    var selectAll = currentTickers.Length == 0;
+    var selectedTickers = selectAll ? Model.Tickers : currentTickers;
+}
 
 <div class="row" style="height: 47vh;">
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
+        <div class="card">
+            <div class="card-body d-flex flex-column justify-content-evenly">
+                <div class="btn-group w-100" role="group">
+                    @foreach (var t in Model.Tickers)
+                    {
+                        var isActive = selectedTickers.Contains(t, StringComparer.OrdinalIgnoreCase);
+
+                        // Toggle behavior:
+                        // - If currently active, clicking removes it.
+                        // - If currently inactive, clicking adds it.
+                        var nextSelection = isActive
+                            ? selectedTickers.Where(x => !x.Equals(t, StringComparison.OrdinalIgnoreCase))
+                            : selectedTickers.Concat(new[] { t });
+
+                        // If the toggle would result in an empty set, pass null so the URL omits "tickers"
+                        // and we fall back to "all selected" again.
+                        var route = nextSelection.Any()
+                            ? string.Join(',', nextSelection.Distinct(StringComparer.OrdinalIgnoreCase))
+                            : null;
+
+                        <a asp-controller="Investment" asp-action="Investment"
+                           asp-route-tickers="@route"
+                           asp-route-year="@currentYear"
+                           class="btn btn-ticker px-3 py-2 @(isActive ? "active" : "")">
+                            @t
+                        </a>
+                    }
+                </div>
+                <div class="btn-group w-100" role="group">
+                    @foreach (var y in Model.Years)
+                    {
+                        <a asp-controller="Investment" asp-action="Investment"
+                           asp-route-tickers="@currentTickersString"
+                           asp-route-year="@y"
+                           class="btn btn-ticker px-3 py-2 @(y == currentYear ? "active" : "")">
+                            @y
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
         <partial name="Components/_PieChart" model="Model.PieChart"/>

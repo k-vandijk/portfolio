@@ -21,10 +21,7 @@ public class MarketHistoryController : Controller
     }
 
     [HttpGet("/market-history")]
-    public IActionResult MarketHistory()
-    {
-        return View();
-    }
+    public IActionResult MarketHistory() => View();
 
     [HttpGet("/market-history/section")]
     public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker)

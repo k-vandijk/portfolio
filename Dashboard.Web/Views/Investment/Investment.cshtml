@@ -6,6 +6,7 @@
 <section id="skeleton-section">
     <div class="row" style="height: 47vh;">
         <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
+            <partial name="Components/_LineChartSkeleton" />
         </div>
         <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
             <partial name="Components/_LineChartSkeleton" />
@@ -25,7 +26,20 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sectionUrl = `/investment/section`;
+            const url = new URL(window.location.href);
+            const tickers = url.searchParams.get('tickers');
+            const year = url.searchParams.get('year');
+
+            // Build query string only if params exist
+            const params = new URLSearchParams();
+            if (tickers) params.set('tickers', tickers);
+            if (year) params.set('year', year);
+
+            // Construct the URL dynamically
+            const sectionUrl = params.toString()
+                ? `/investment/section?${params.toString()}`
+                : `/investment/section`;
+
             loadSkeletonSection(sectionUrl);
         });
     </script>
