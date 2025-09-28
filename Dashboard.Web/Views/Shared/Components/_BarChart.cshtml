@@ -14,7 +14,7 @@
 </div>
 
 <script>
-    function init() {
+    $(document).ready(function() {
         var element = document.getElementById('@chartId');
         if (!element) return;
     
@@ -32,19 +32,33 @@
         // Css variables ophalen
         chartData.datasets[0].backgroundColor = accentColors[0];
 
-        // Formatting from ViewModel
-        const yFormat = @Html.Raw(JsonSerializer.Serialize(Model.Format)); // "currency" | "percentage" | "number"
+        const showAvg = @Html.Raw(JsonSerializer.Serialize(Model.ShowAverageLine));
+        if (showAvg) {
+            const values = chartData.datasets[0].data.map(Number).filter(v => Number.isFinite(v));
+            const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
 
-        const fmtCurrency = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const fmtNumber = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 });
+            // Kies een nette kleur uit je palet (bijv. accent-4) of fallback
+            const css = getComputedStyle(document.documentElement);
+            const avgColor = (css.getPropertyValue('--accent-4') || '#666').trim();
 
-        function formatY(v) {
-            if (yFormat === 'currency') return fmtCurrency.format(v);
-            if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
-            return fmtNumber.format(v);
+            chartData.datasets.push({
+                type: 'line',
+                label: 'Average',
+                data: chartData.labels.map(() => avg),
+                borderColor: avgColor,
+                borderWidth: 2,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                pointHitRadius: 0,
+                tension: 0,
+                fill: false,
+                // Zorg dat de lijn boven de bars ligt
+                order: 0
+            });
+
+            chartData._avgValue = avg;
         }
 
-        // Chart initialiseren
         new Chart(element, {
             type: 'bar',
             data: chartData,
@@ -54,29 +68,46 @@
                 plugins: { 
                     legend: { display: false },
                     tooltip: {
-                        callbacks: {
+                        callbacks: { 
                             label: (ctx) => formatY(ctx.parsed.y)
                         }
-                    }
+                    },
                 },
                 scales: {
                     x: { grid: { display: false } },
                     y: { 
-                        grid: { display: false }, 
+                        grid: { display: false },
                         ticks: { 
                             maxTicksLimit: 6,
                             callback: (value) => formatY(value)
-                        } 
+                        },
+                        afterDataLimits: (axis) => {
+                            if (chartData._avgValue > axis.max) {
+                                axis.max = chartData._avgValue * 1.1; // iets ruimte boven de lijn
+                            }
+                        },
+                        afterBuildTicks: (axis) => {
+                            if (!chartData._avgValue) return;
+                            const ticks = axis.ticks.map(t => t.value);
+                            if (!ticks.includes(chartData._avgValue)) {
+                                axis.ticks.push({ value: chartData._avgValue });
+                                axis.ticks.sort((a, b) => a.value - b.value);
+                            }
+                        }
                     }
                 }
             }
         });
-    }
+    });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+    function formatY(v) {
+        const yFormat = @Html.Raw(JsonSerializer.Serialize(Model.Format)); // "currency" | "percentage" | "number"
+        const fmtCurrency = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmtNumber = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 });
+
+        if (yFormat === 'currency') return fmtCurrency.format(v);
+        if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
+        return fmtNumber.format(v);
     }
 
 </script>

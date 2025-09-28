@@ -1,8 +1,8 @@
 ﻿:root {
-    --accent-1: #0F6CBD; /* brand primary */
-    --accent-2: #115EA3; /* darker brand */
-    --accent-3: #2886DE; /* lighter/secondary brand */
-    --accent-4: #8A8886; /* muted neutral accent */
+    --accent-1: #1560BD; /* Denim Blue */
+    --accent-2: #264653; /* Donker teal - koel en modern, perfecte aanvulling */
+    --accent-3: #E9C46A; /* Goud/mosterd - warme, vriendelijke accentkleur */
+    --accent-4: #F4A261; /* Zachte terracotta - warm, uitnodigend en goed contrasterend */
 
     --accent-1-light: #EBF3FC; /* brand wash for subtle backgrounds */
     --accent-4-light: #FAFAFA; /* neutral wash for gradients */
