@@ -14,7 +14,7 @@
 </div>
 
 <script>
-    function init() {
+    $(document).ready(function() {
         var element = document.getElementById('@chartId');
         if (!element) return;
 
@@ -34,19 +34,10 @@
         // Css variables ophalen
         chartData.datasets[0].backgroundColor = accentColors;
 
-        // Formatting from ViewModel
         const yFormat = @Html.Raw(JsonSerializer.Serialize(Model.Format)); // "currency" | "percentage" | "number"
-
         const fmtCurrency = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const fmtNumber = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 });
 
-        function formatY(v) {
-            if (yFormat === 'currency') return fmtCurrency.format(v);
-            if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
-            return fmtNumber.format(v);
-        }
-
-        // Chart initialiseren
         var chart = new Chart(element, {
             type: 'pie',
             data: chartData,
@@ -86,12 +77,12 @@
                 },
             }
         });
-    }
+    });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+    function formatY(v) {
+        if (yFormat === 'currency') return fmtCurrency.format(v);
+        if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
+        return fmtNumber.format(v);
     }
 
 </script>

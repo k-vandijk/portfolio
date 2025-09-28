@@ -77,7 +77,7 @@ public class InvestmentController : Controller
         {
             Title = "Investment (cumulative) per month",
             DataPoints = groupedTransactions,
-            Format = "currency"
+            Format = "currency",
         };
 
         return lineChartViewModel;
@@ -118,7 +118,8 @@ public class InvestmentController : Controller
         var barChartViewModel = new BarChartViewModel
         {
             Title = "Investment per month",
-            DataPoints = groupedTransactions
+            DataPoints = groupedTransactions,
+            ShowAverageLine = true
         };
 
         return barChartViewModel;

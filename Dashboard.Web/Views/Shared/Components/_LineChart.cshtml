@@ -43,13 +43,13 @@
 </div>
 
 <script>
-    function init() {
+    $(document).ready(function() {
         const element = document.getElementById('@chartId');
         if (!element) return;
 
         // Chart data
         const chartData = @Html.Raw(JsonSerializer.Serialize(new {
-            labels   = Model.DataPoints.Select(dp => dp.Label),
+            labels = Model.DataPoints.Select(dp => dp.Label),
             datasets = new[] {
                 new {
                     label = Model.Title,
@@ -65,18 +65,6 @@
 
         chartData.datasets[0].borderColor = accentColors[0];
         chartData.datasets[0].backgroundColor = accentColors[0] + "33";
-
-        // Formatting from ViewModel
-        const yFormat = @Html.Raw(JsonSerializer.Serialize(Model.Format)); // "currency" | "percentage" | "number"
-
-        const fmtCurrency = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const fmtNumber = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 });
-
-        function formatY(v) {
-            if (yFormat === 'currency') return fmtCurrency.format(v);
-            if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
-            return fmtNumber.format(v);
-        }
 
         new Chart(element, {
             type: 'line',
@@ -102,11 +90,16 @@
                 }
             }
         });
+    });
+
+    function formatY(v) {
+        const yFormat = @Html.Raw(JsonSerializer.Serialize(Model.Format)); // "currency" | "percentage" | "number"
+        const fmtCurrency = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmtNumber = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 });
+
+        if (yFormat === 'currency') return fmtCurrency.format(v);
+        if (yFormat === 'percentage') return fmtNumber.format(v) + '%';
+        return fmtNumber.format(v);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
 </script>
