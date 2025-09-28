@@ -68,8 +68,8 @@
             if (timerange) params.set('timerange', timerange);
 
             const sectionUrl = params.toString()
-              ? `/dashboard/section?${params.toString()}`
-              : `/dashboard/section`;
+              ? `/dashboard/content?${params.toString()}`
+              : `/dashboard/content`;
 
             loadSkeletonSection(sectionUrl);
         });

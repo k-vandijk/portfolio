@@ -17,8 +17,6 @@ builder.Services
     {
         builder.Configuration.Bind("AzureAd", options);
         options.ResponseType = OpenIdConnectResponseType.Code;
-        options.UsePkce = true;
-        options.SaveTokens = true;
     });
 
 // Require authenticated users by default
@@ -64,7 +62,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.MapGet("/", () => Results.Redirect("/dashboard"));
 app.MapControllerRoute("default", "{controller=Dashboard}/{action=Index}/{id?}");
 
 await app.StartAsync();

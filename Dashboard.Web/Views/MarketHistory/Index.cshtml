@@ -33,7 +33,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const currentUrl = new URL(window.location.href);
             const ticker = currentUrl.searchParams.get('ticker') || 'SXRV.DE';
-            const sectionUrl = `/market-history/section?ticker=${encodeURIComponent(ticker)}`;
+            const sectionUrl = `/market-history/content?ticker=${encodeURIComponent(ticker)}`;
 
             loadSkeletonSection(sectionUrl);
         });

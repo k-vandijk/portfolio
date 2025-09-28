@@ -47,7 +47,7 @@
         }
 
         // Chart initialiseren
-        new Chart(element, {
+        var chart = new Chart(element, {
             type: 'pie',
             data: chartData,
             options: {
@@ -64,7 +64,26 @@
                             }
                         }
                     }
-                }
+                },
+                onClick: (evt) => {
+                    const points = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                    if (!points.length) return;
+
+                    const sliceIndex = points[0].index;
+                    const clickedTicker = String(chart.data.labels[sliceIndex]);
+
+                    // Als de parent layout een functie 'onSelectTicker' heeft:
+                    if (typeof window.onSelectTicker === 'function') {
+                        window.onSelectTicker(clickedTicker);
+                    }
+                },
+                onHover: (evt, activeEls) => {
+
+                    // Als de parent layout een functie 'onSelectTicker' heeft:
+                    if (typeof window.onSelectTicker === 'function') {
+                        evt.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
+                    }
+                },
             }
         });
     }

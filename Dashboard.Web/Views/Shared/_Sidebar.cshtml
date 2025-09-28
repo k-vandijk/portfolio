@@ -1,4 +1,12 @@
-﻿<style>
+﻿@functions {
+    public bool IsActive(string controllerName)
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        return string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<style>
 
     #sidebar {
         width: 250px;
@@ -123,25 +131,25 @@
     <ul class="nav nav-pills flex-column">
         
         <li class="nav-item mb-2">
-            <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+            <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(IsActive("Dashboard") ? "active" : "")">
                 <i class="fas fa-tachometer-alt me-2"></i>
                 <span class="link-text">Dashboard</span>
             </a>
         </li>
         <li class="nav-item mb-2">
-            <a asp-controller="Investment" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Investment" ? "active" : "")">
+            <a asp-controller="Investment" asp-action="Index" class="nav-link @(IsActive("Investment") ? "active" : "")">
                 <i class="fas fa-chart-line me-2"></i>
                 <span class="link-text">Investment</span>
             </a>
         </li>
         <li class="nav-item">
-            <a asp-controller="MarketHistory" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MarketHistory" ? "active" : "")">
+            <a asp-controller="MarketHistory" asp-action="Index" class="nav-link @(IsActive("MarketHistory") ? "active" : "")">
                 <i class="fas fa-clock-rotate-left me-2"></i>
                 <span class="link-text">Market History</span>
             </a>
         </li>
         <li class="nav-item">
-            <a asp-controller="Transactions" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Transactions" ? "active" : "")">
+            <a asp-controller="Transactions" asp-action="Index" class="nav-link @(IsActive("Transactions") ? "active" : "")">
                 <i class="fas fa-receipt me-2"></i>
                 <span class="link-text">Transactions</span>
             </a>

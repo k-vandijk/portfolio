@@ -24,8 +24,8 @@ public class InvestmentController : Controller
     [HttpGet("/investment")]
     public IActionResult Index() => View();
 
-    [HttpGet("/investment/section")]
-    public async Task<IActionResult> InvestmentSection(
+    [HttpGet("/investment/content")]
+    public async Task<IActionResult> InvestmentContent(
         [FromQuery] string? tickers,    
         [FromQuery] int? year)
     {
@@ -53,7 +53,7 @@ public class InvestmentController : Controller
 
         sw.Stop();
         _logger.LogInformation("Investment view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_Loaded", viewModel);
+        return PartialView("_InvestmentContent", viewModel);
     }
 
     private LineChartViewModel GetLineChartViewModel(List<Transaction> transactions)
@@ -64,7 +64,7 @@ public class InvestmentController : Controller
             .Select(g =>
             {
                 cumulativeSum += g.Sum(t => t.TotalCosts);
-                return new LineChartDataPointDto
+                return new DataPointDto
                 {
                     Label = g.Key.ToString("yyyy-MM-dd"),
                     Value = cumulativeSum
@@ -87,7 +87,7 @@ public class InvestmentController : Controller
     {
         var groupedTransactions = transactions
             .GroupBy(t => t.Ticker)
-            .Select(g => new PieChartDataPointDto
+            .Select(g => new DataPointDto
             {
                 Label = g.Key,
                 Value = g.Sum(t => t.TotalCosts)
@@ -107,7 +107,7 @@ public class InvestmentController : Controller
     {
         var groupedTransactions = transactions
             .GroupBy(t => new { t.Date.Year, t.Date.Month })
-            .Select(g => new BarChartDataPointDto
+            .Select(g => new DataPointDto
             {
                 Label = $"{g.Key.Year}-{g.Key.Month:D2}",
                 Value = g.Sum(t => t.TotalCosts)

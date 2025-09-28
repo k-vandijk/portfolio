@@ -23,8 +23,8 @@ public class MarketHistoryController : Controller
     [HttpGet("/market-history")]
     public IActionResult Index() => View();
 
-    [HttpGet("/market-history/section")]
-    public async Task<IActionResult> MarketHistorySection([FromQuery] string ticker)
+    [HttpGet("/market-history/content")]
+    public async Task<IActionResult> MarketHistoryContent([FromQuery] string ticker)
     {
         var sw = Stopwatch.StartNew();
 
@@ -74,7 +74,7 @@ public class MarketHistoryController : Controller
 
         sw.Stop();
         _logger.LogInformation("MarketHistory view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_Loaded", viewModel);
+        return PartialView("_MarketHistoryContent", viewModel);
     }
 
     private async Task<List<Transaction>> GetTransactionsAsync(string connectionString)
@@ -100,7 +100,7 @@ public class MarketHistoryController : Controller
             Title = "Market history",
             DataPoints = marketHistory.History
                 .OrderBy(h => h.Date) // Order so that we can find the latest value easily
-                .Select(h => new LineChartDataPointDto
+                .Select(h => new DataPointDto
                 {
                     Label = h.Date.ToString("dd-MM-yyyy"),
                     Value = h.Close

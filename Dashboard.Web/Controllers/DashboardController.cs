@@ -26,8 +26,8 @@ public class DashboardController : Controller
     [HttpGet("/")]
     public IActionResult Index() => View();
 
-    [HttpGet("/dashboard/section")]
-    public async Task<IActionResult> DashboardSection(
+    [HttpGet("/dashboard/content")]
+    public async Task<IActionResult> DashboardContent(
         [FromQuery] string? mode = "profit", // mode = value | profit | profit-percentage
         [FromQuery] string? tickers = null,
         [FromQuery] string? timerange = null)
@@ -78,7 +78,7 @@ public class DashboardController : Controller
 
         sw.Stop();
         _logger.LogInformation("Dashboard view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_Loaded", viewModel);
+        return PartialView("_DashboardContent", viewModel);
     }
 
     private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)
@@ -230,7 +230,7 @@ public class DashboardController : Controller
         );
 
         decimal netInvested = 0m;
-        var points = new List<LineChartDataPointDto>(allDates.Count);
+        var points = new List<DataPointDto>(allDates.Count);
 
         foreach (var date in allDates)
         {
@@ -264,7 +264,7 @@ public class DashboardController : Controller
             // projection via selector
             decimal y = selector(totalWorth, netInvested);
 
-            points.Add(new LineChartDataPointDto
+            points.Add(new DataPointDto
             {
                 Label = date.ToString("yyyy-MM-dd"),
                 Value = y
@@ -279,7 +279,7 @@ public class DashboardController : Controller
         };
     }
 
-    private static List<LineChartDataPointDto> NormalizeSeries(IReadOnlyList<LineChartDataPointDto> points, string? mode)
+    private static List<DataPointDto> NormalizeSeries(IReadOnlyList<DataPointDto> points, string? mode)
     {
         // If 'profit' or 'profit-percentage', normalize to start at zero
 
@@ -287,7 +287,7 @@ public class DashboardController : Controller
         {
             var first = points.FirstOrDefault()?.Value ?? 0m;
 
-            return points.Select(p => new LineChartDataPointDto
+            return points.Select(p => new DataPointDto
             {
                 Label = p.Label,
                 Value = p.Value - first
@@ -297,7 +297,7 @@ public class DashboardController : Controller
         return points.ToList();
     }
 
-    private static decimal? GetPeriodDelta(List<LineChartDataPointDto> points, string mode)
+    private static decimal? GetPeriodDelta(List<DataPointDto> points, string mode)
     {
         return points.Count > 0
             ? mode == "value"

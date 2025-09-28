@@ -48,7 +48,7 @@ public static class FilterHelper
         return (startDate, endDate);
     }
 
-    public static List<LineChartDataPointDto> FilterLineChartDataPoints(List<LineChartDataPointDto> datapoints, DateOnly startDate, DateOnly endDate)
+    public static List<DataPointDto> FilterLineChartDataPoints(List<DataPointDto> datapoints, DateOnly startDate, DateOnly endDate)
     {
         return datapoints.Where(p =>
             {

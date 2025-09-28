@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Dashboard.Domain.Models;
+﻿namespace Dashboard.Domain.Models;
 
 public class MarketHistoryResponse
 {
@@ -15,12 +13,5 @@ public class MarketHistoryDataPoint
 
     public DateOnly Date { get; set; }
     public decimal Open { get; set; }
-    public decimal High { get; set; }
-    public decimal Low { get; set; }
     public decimal Close { get; set; }
-    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] // Volume can be huge; also allow reading from JSON strings if the API sends "123456789"
-    public long? Volume { get; set; }
-    public decimal Dividends { get; set; }
-    public decimal StockSplits { get; set; }
-    public decimal CapitalGains { get; set; }
 }

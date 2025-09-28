@@ -21,8 +21,8 @@ public class TransactionsController : Controller
     [HttpGet("/transactions")]
     public IActionResult Index() => View();
 
-    [HttpGet("/transactions/section")]
-    public async Task<IActionResult> TransactionsSection()
+    [HttpGet("/transactions/content")]
+    public async Task<IActionResult> TransactionsContent()
     {
         var sw = Stopwatch.StartNew();
 
@@ -33,7 +33,7 @@ public class TransactionsController : Controller
 
         sw.Stop();
         _logger.LogInformation("Transactions view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
-        return PartialView("_Loaded", transactions);
+        return PartialView("_TransactionsContent", transactions);
     }
 
     [HttpPost]

@@ -72,3 +72,39 @@
         <partial name="Components/_BarChart" model="Model.BarChart" />
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        function onSelectTicker(ticker) {
+            // Bepaal huidige URL en parameter
+            const url = new URL(window.location.href);
+            const param = url.searchParams.get('tickers');
+
+            // Helper voor case-insensitive check
+            const norm = (s) => (s ?? '').trim().toLowerCase();
+
+            // Is er precies één ticker geselecteerd en is dat dezelfde als 'ticker'?
+            const isSingleSame =
+                !!param &&
+                param
+                .split(',')
+                .map(s => s.trim())
+                .filter(Boolean).length === 1 &&
+                norm(param) === norm(ticker);
+
+            if (isSingleSame) {
+                // Nogmaals klikken op dezelfde => reset naar "alles" (param verwijderen)
+                url.searchParams.delete('tickers');
+            } else {
+                // Forceer filter op alleen deze ticker
+                url.searchParams.set('tickers', ticker);
+            }
+
+            // Navigeer (laat overige params zoals 'year' intact)
+            window.location.assign(url.toString());
+        }
+
+        // Exposeer globaal zodat de pie-chart ‘m kan aanroepen
+        window.onSelectTicker = onSelectTicker;
+    });
+</script>
