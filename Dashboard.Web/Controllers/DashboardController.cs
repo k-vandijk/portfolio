@@ -23,6 +23,8 @@ public class DashboardController : Controller
         _config = config;
     }
 
+    // TODO optimaliseren
+
     [HttpGet("/")]
     public IActionResult Index() => View();
 
@@ -45,6 +47,7 @@ public class DashboardController : Controller
             .Distinct()
             .ToList();
 
+        // TODO minder markthistorie ophalen voor performance
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx);
 
         var tableViewModel = GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
