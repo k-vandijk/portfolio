@@ -39,7 +39,9 @@ public class DashboardController : Controller
         var connectionString = _config["Secrets:TransactionsTableConnectionString"] 
             ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
 
+        var msBeforeTransactions = sw.ElapsedMilliseconds;
         var transactions = await _azureTableService.GetTransactionsAsync(connectionString);
+        var msAfterTransactions = sw.ElapsedMilliseconds;
 
         // Named tx because tickers it already used as parameter name
         var tx = transactions
@@ -48,7 +50,9 @@ public class DashboardController : Controller
             .ToList();
 
         // TODO minder markthistorie ophalen voor performance
+        var msBeforeMarketHistory = sw.ElapsedMilliseconds;
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx);
+        var msAfterMarketHistory = sw.ElapsedMilliseconds;
 
         var tableViewModel = GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
 
@@ -80,7 +84,12 @@ public class DashboardController : Controller
         };
 
         sw.Stop();
-        _logger.LogInformation("Dashboard view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
+        _logger.LogInformation("Timings: Transactions={Transactions}ms, MarketHistory={MarketHistory}ms, Other={Other}ms, Total={Total}ms",
+            msAfterTransactions - msBeforeTransactions,
+            msAfterMarketHistory - msBeforeMarketHistory,
+            sw.ElapsedMilliseconds - (msAfterTransactions - msBeforeTransactions) - (msAfterMarketHistory - msBeforeMarketHistory),
+            sw.ElapsedMilliseconds);
+
         return PartialView("_DashboardContent", viewModel);
     }
 
