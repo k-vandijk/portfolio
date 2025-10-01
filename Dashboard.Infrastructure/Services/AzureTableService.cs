@@ -3,21 +3,30 @@ using Azure;
 using Azure.Data.Tables;
 using Dashboard.Application.Interfaces;
 using Dashboard.Domain.Models;
+using Dashboard.Domain.Utils;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Dashboard.Infrastructure.Services;
 
 public class AzureTableService : IAzureTableService
 {
-    private const string TableName = "transactions";
-    private const string Partition = "transactions";
+    private readonly TableClient _table;
+    private readonly IMemoryCache _cache;
+
+    private const string CacheKey = "transactions";
+
+    public AzureTableService(TableClient table, IMemoryCache cache)
+    {
+        _table = table;
+        _cache = cache;
+    }
 
     public async Task<List<Transaction>> GetTransactionsAsync(string connectionString)
     {
-        var tableClient = GetTableClient(connectionString);
+        if (_cache.TryGetValue(CacheKey, out List<Transaction>? cached))
+            return cached!;
 
-        var transactionsPageable = tableClient.QueryAsync<TransactionEntity>(
-            filter: "PartitionKey eq 'transactions'"
-        );
+        var transactionsPageable = _table.QueryAsync<TransactionEntity>(filter: "PartitionKey eq 'transactions'");
 
         var transactions = new List<Transaction>();
         await foreach (var entity in transactionsPageable)
@@ -25,20 +34,29 @@ public class AzureTableService : IAzureTableService
             transactions.Add(ToModel(entity));
         }
 
-        return transactions.OrderBy(t => t.Date).ToList();
+        var orderedTransactions = transactions.OrderBy(t => t.Date).ToList();
+
+        _cache.Set(CacheKey, orderedTransactions, new MemoryCacheEntryOptions
+        {
+            SlidingExpiration = TimeSpan.FromMinutes(StaticDetails.SlidingExpirationMinutes),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(StaticDetails.AbsoluteExpirationMinutes)
+        });
+
+        return orderedTransactions;
     }
 
     public async Task AddTransactionAsync(string connectionString, Transaction transaction)
     {
-        var table = GetTableClient(connectionString);
-
         var entity = ToEntity(transaction);
 
         // Add will throw if the RowKey already exists; this is usually what you want for "create"
-        await table.AddEntityAsync(entity);
+        await _table.AddEntityAsync(entity);
 
         // Return generated RowKey back to caller if needed
         transaction.RowKey = entity.RowKey;
+
+        // Invalidate cache
+        _cache.Remove(CacheKey);
     }
 
     public async Task DeleteTransactionAsync(string connectionString, string rowKey)
@@ -46,25 +64,19 @@ public class AzureTableService : IAzureTableService
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new ArgumentException("rowKey is required to delete.");
 
-        var table = GetTableClient(connectionString);
-
         // ETag.All = skip concurrency check; if you want optimistic concurrency,
         // fetch entity first and pass its ETag instead.
-        await table.DeleteEntityAsync(Partition, rowKey, ETag.All);
-    }
+        await _table.DeleteEntityAsync(StaticDetails.PartitionKey, rowKey, ETag.All);
 
-    private TableClient GetTableClient(string connectionString)
-    {
-        var client = new TableServiceClient(connectionString).GetTableClient(TableName);
-        client.CreateIfNotExists();
-        return client;
+        // Invalidate cache
+        _cache.Remove(CacheKey);
     }
 
     private static TransactionEntity ToEntity(Transaction t)
     {
         return new TransactionEntity
         {
-            PartitionKey = Partition,
+            PartitionKey = StaticDetails.PartitionKey,
             RowKey = string.IsNullOrWhiteSpace(t.RowKey) ? Guid.NewGuid().ToString("N") : t.RowKey,
             Date = FormatDate(t.Date),
             Ticker = t.Ticker,

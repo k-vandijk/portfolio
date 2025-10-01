@@ -1,18 +1,20 @@
-﻿using System.Text.Json;
-using Dashboard.Application.Interfaces;
+﻿using Dashboard.Application.Interfaces;
 using Dashboard.Domain.Models;
+using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
+using Dashboard.Domain.Utils;
 
 namespace Dashboard.Infrastructure.Services;
 
 public class TickerApiService : ITickerApiService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IMemoryCache _cache;
 
-    private readonly string FIRST_TRANSACTION_DATE = "2024-06-06";
-
-    public TickerApiService(IHttpClientFactory httpFactory)
+    public TickerApiService(IHttpClientFactory httpFactory, IMemoryCache cache)
     {
         _httpClientFactory = httpFactory;
+        _cache = cache;
     }
 
     public async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(
@@ -24,9 +26,12 @@ public class TickerApiService : ITickerApiService
     {
         period ??= GetPeriod();
 
-        var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
+        var cacheKey = $"history:{ticker}:{period}:{interval}";
+        if (_cache.TryGetValue(cacheKey, out MarketHistoryResponse? cached))
+            return cached;
 
-        using var client = _httpClientFactory.CreateClient("cached-http-client");
+        var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
+        using var client = _httpClientFactory.CreateClient();
         var response = await client.GetAsync(requestUrl);
         response.EnsureSuccessStatusCode();
 
@@ -36,12 +41,19 @@ public class TickerApiService : ITickerApiService
             PropertyNameCaseInsensitive = true
         });
 
+        // 10 minuten sliding + 60 minuten absolute (voorbeeld)
+        _cache.Set(cacheKey, marketHistory, new MemoryCacheEntryOptions
+        {
+            SlidingExpiration = TimeSpan.FromMinutes(StaticDetails.SlidingExpirationMinutes),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(StaticDetails.AbsoluteExpirationMinutes)
+        });
+
         return marketHistory;
     }
 
     private string GetPeriod(DateOnly? firstTransactionDate = null)
     {
-        firstTransactionDate ??= DateOnly.Parse(FIRST_TRANSACTION_DATE);
+        firstTransactionDate ??= DateOnly.Parse(StaticDetails.FirstTransactionDate);
 
         // Get the difference in months between the first transaction date and today in years and add 1
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
