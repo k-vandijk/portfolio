@@ -1,9 +1,22 @@
-﻿@functions {
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@functions {
     public bool IsActive(string controllerName)
     {
         var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
         return string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase);
     }
+}
+
+@{
+    // Bepaal huidige UI-cultuur en bouw de select-items (geen inline C# in <option>)
+    var currentCulture = CultureInfo.CurrentUICulture.Name;
+    var cultureItems = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "nl-NL", Text = "Nederlands", Selected = currentCulture == "nl-NL" },
+        new SelectListItem { Value = "en-US", Text = "English",   Selected = currentCulture == "en-US" }
+    };
 }
 
 <style>
@@ -116,9 +129,19 @@
     #sidebar.collapsed .nav-link:hover {
         color: var(--accent-1) !important;
     }
+
+    #sidebar .language-selector {
+        margin-top: auto;
+    }
+
+    /* Verberg de language selector als de sidebar collapsed is */
+    #sidebar.collapsed .language-selector {
+        display: none !important;
+    }
+
 </style>
 
-<aside id="sidebar" class="p-3 position-relative">
+<aside id="sidebar" class="p-3 position-relative d-flex flex-column">
     <button id="toggleSidebar" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="true" class="text-secondary">
         <i class="fa-solid fa-angles-left"></i>
     </button>
@@ -133,28 +156,36 @@
         <li class="nav-item mb-2">
             <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(IsActive("Dashboard") ? "active" : "")">
                 <i class="fas fa-tachometer-alt me-2"></i>
-                <span class="link-text">Dashboard</span>
+                <span class="link-text">@SharedLocalizer["Dashboard"]</span>
             </a>
         </li>
         <li class="nav-item mb-2">
             <a asp-controller="Investment" asp-action="Index" class="nav-link @(IsActive("Investment") ? "active" : "")">
                 <i class="fas fa-chart-line me-2"></i>
-                <span class="link-text">Investment</span>
+                <span class="link-text">@SharedLocalizer["Investment"]</span>
             </a>
         </li>
         <li class="nav-item">
             <a asp-controller="MarketHistory" asp-action="Index" class="nav-link @(IsActive("MarketHistory") ? "active" : "")">
                 <i class="fas fa-clock-rotate-left me-2"></i>
-                <span class="link-text">Market History</span>
+                <span class="link-text">@SharedLocalizer["MarketHistory"]</span>
             </a>
         </li>
         <li class="nav-item">
             <a asp-controller="Transactions" asp-action="Index" class="nav-link @(IsActive("Transactions") ? "active" : "")">
                 <i class="fas fa-receipt me-2"></i>
-                <span class="link-text">Transactions</span>
+                <span class="link-text">@SharedLocalizer["Transactions"]</span>
             </a>
         </li>
     </ul>
+    
+        <div class="language-selector mt-auto pt-3">
+        <form asp-controller="Localization" asp-action="SetCulture" method="post" id="cultureSelectionForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+            <select id="uiLang" name="culture" class="form-select form-select-sm" asp-items="cultureItems"></select>
+        </form>
+    </div>
 </aside>
 
 <script>
@@ -171,5 +202,9 @@
         const collapsed = sidebar.classList.toggle('collapsed');
         localStorage.setItem('sidebar-collapsed', collapsed);
         toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+    });
+
+    document.getElementById('cultureSelectionForm').addEventListener('change', function () {
+        document.getElementById('cultureSelectionForm').submit();
     });
 </script>

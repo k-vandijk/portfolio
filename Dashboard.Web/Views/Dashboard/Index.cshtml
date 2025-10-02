@@ -1,4 +1,6 @@
-﻿@model Dashboard.Web.ViewModels.DashboardViewModel
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@model DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -16,13 +18,13 @@
                         <table class="table table-hover table-sm table-transparent mb-0 w-100">
                             <thead>
                                 <tr>
-                                    <th>Ticker</th>
-                                    <th>Portfolio %</th>
-                                    <th>Amount</th>
-                                    <th>Total investment</th>
-                                    <th>Worth</th>
-                                    <th>Profit €</th>
-                                    <th>Profit %</th>
+                                    <th>@SharedLocalizer["Ticker"]</th>
+                                    <th>@SharedLocalizer["ProfitPct"]</th>
+                                    <th>@SharedLocalizer["Amount"]</th>
+                                    <th>@SharedLocalizer["TotalInvestment"]</th>
+                                    <th>@SharedLocalizer["Worth"]</th>
+                                    <th>@SharedLocalizer["ProfitEur"]</th>
+                                    <th>@SharedLocalizer["ProfitPct"]</th>
                                 </tr>
                             </thead>
                             <tbody>
