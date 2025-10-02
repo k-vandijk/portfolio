@@ -2,10 +2,12 @@
 using Dashboard.Domain;
 using Dashboard.Infrastructure;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Serilog;
 using Serilog.Events;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +24,9 @@ builder.Services
 // Require authenticated users by default
 builder.Services.AddAuthorization(o => o.FallbackPolicy = o.DefaultPolicy);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Localization");
+
+builder.Services.AddControllersWithViews().AddViewLocalization();
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -43,9 +46,27 @@ builder.Services.AddInfrastructure();
 
 var app = builder.Build();
 
-var culture = new System.Globalization.CultureInfo("nl-NL");
-System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
-System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+var nlNL = new CultureInfo("nl-NL");
+var enUS = new CultureInfo("en-US");
+
+CultureInfo.DefaultThreadCurrentCulture = nlNL;
+CultureInfo.DefaultThreadCurrentUICulture = nlNL;
+
+var supportedUI = new[] { nlNL, enUS };
+var supportedFormatting = new[] { nlNL };
+
+// Default request culture: format = nl-NL, UI = nl-NL (you can pick en-US if you prefer)
+var locOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(culture: "nl-NL", uiCulture: "nl-NL"),
+    SupportedCultures = supportedFormatting,
+    SupportedUICultures = supportedUI
+};
+
+// Alleen de localization laten bepalen via een cookie
+locOptions.RequestCultureProviders = [ new CookieRequestCultureProvider() ];
+
+app.UseRequestLocalization(locOptions);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -70,3 +91,8 @@ foreach (var a in app.Urls) Log.Information("Now listening on: {BaseUrl}", a);
 
 // keep the app running
 await app.WaitForShutdownAsync();
+
+
+
+// Dummy class for localization resources
+public sealed class SharedResource { }
