@@ -1,4 +1,5 @@
-﻿@model List<Dashboard.Domain.Models.Transaction>
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@model List<Dashboard.Domain.Models.Transaction>
 @{
     var uniqueTickers = Model
         .Select(t => t.Ticker.Trim())
@@ -126,12 +127,12 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>Date</th>
-                            <th>Ticker</th>
-                            <th>Amount</th>
-                            <th>Purchase price</th>
-                            <th>Transaction costs</th>
-                            <th>Total costs</th>
+                            <th>@SharedLocalizer["Date"]</th>
+                            <th>@SharedLocalizer["Ticker"]</th>
+                            <th>@SharedLocalizer["Amount"]</th>
+                            <th>@SharedLocalizer["PurchasePrice"]</th>
+                            <th>@SharedLocalizer["TransactionCosts"]</th>
+                            <th>@SharedLocalizer["TotalCosts"]</th>
                             <th class="text-center"><i class="fas fa-trash-alt"></i></th>
                         </tr>
                         </thead>

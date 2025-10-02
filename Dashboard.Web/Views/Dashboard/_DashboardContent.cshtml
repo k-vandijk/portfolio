@@ -1,5 +1,7 @@
 ﻿@using Dashboard.Application.Helpers
-@model Dashboard.Web.ViewModels.DashboardViewModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@model DashboardViewModel
 @{
     var modes = new[] { "profit", "profit-percentage", "value" };
 
@@ -59,13 +61,13 @@
                 <div class="table-responsive h-100">
                     <table id="portfolioTable" class="table table-hover table-sm table-transparent mb-0 w-100">
                         <thead>
-                            <th>Ticker</th>
-                            <th>Portfolio %</th>
-                            <th>Amount</th>
-                            <th>Total investment</th>
-                            <th>Worth</th>
-                            <th>Profit €</th>
-                            <th>Profit %</th>
+                            <th>@SharedLocalizer["Ticker"]</th>
+                            <th>@SharedLocalizer["ProfitPct"]</th>
+                            <th>@SharedLocalizer["Amount"]</th>
+                            <th>@SharedLocalizer["TotalInvestment"]</th>
+                            <th>@SharedLocalizer["Worth"]</th>
+                            <th>@SharedLocalizer["ProfitEur"]</th>
+                            <th>@SharedLocalizer["ProfitPct"]</th>
                         </thead>
                         <tbody>
                         @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
@@ -106,7 +108,7 @@
                         </tbody>
                         <tfoot>
                         <tr>
-                            <th>Total</th>
+                            <th>@SharedLocalizer["Total"]</th>
                             <th></th>
                             <th></th>
                             <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
