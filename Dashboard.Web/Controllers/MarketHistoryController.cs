@@ -3,6 +3,7 @@ using Dashboard.Application.Interfaces;
 using Dashboard.Domain.Models;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Diagnostics;
 
 namespace Dashboard.Web.Controllers;
@@ -12,12 +13,14 @@ public class MarketHistoryController : Controller
     private readonly ILogger<MarketHistoryController> _logger;
     private readonly IConfiguration _config;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public MarketHistoryController(ILogger<MarketHistoryController> logger, IConfiguration config, IServiceScopeFactory scopeFactory)
+    public MarketHistoryController(ILogger<MarketHistoryController> logger, IConfiguration config, IServiceScopeFactory scopeFactory, IStringLocalizer<SharedResource> localizer)
     {
         _logger = logger;
         _config = config;
         _scopeFactory = scopeFactory;
+        _localizer = localizer;
     }
 
     [HttpGet("/market-history")]
@@ -97,7 +100,7 @@ public class MarketHistoryController : Controller
     {
         var viewModel = new LineChartViewModel
         {
-            Title = "Market history",
+            Title = _localizer["MarketHistory"],
             DataPoints = marketHistory.History
                 .OrderBy(h => h.Date) // Order so that we can find the latest value easily
                 .Select(h => new DataPointDto

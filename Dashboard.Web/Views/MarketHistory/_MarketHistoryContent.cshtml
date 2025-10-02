@@ -1,4 +1,4 @@
-﻿@using Dashboard.Web.ViewModels
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
 @model Dashboard.Web.ViewModels.MarketHistoryViewModel
 @{
     var currentTicker = Context.Request.Query["ticker"].ToString();
@@ -23,13 +23,13 @@
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-8 mb-3 d-flex">
         <div class="row flex-fill">
             <div class="col-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Current price", Value = Model.CurrentPriceString }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = SharedLocalizer["CurrentPrice"], Value = Model.CurrentPriceString }' />
             </div>
             <div class="col-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest €", Value = Model.InterestString }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = SharedLocalizer["InterestEur"], Value = Model.InterestString }' />
             </div>
             <div class="col-4">
-                <partial name="Components/_Metric" model='new MetricViewModel { Title = "Interest %", Value = Model.InterestPercentageString }' />
+                <partial name="Components/_Metric" model='new MetricViewModel { Title = SharedLocalizer["InterestPct"], Value = Model.InterestPercentageString }' />
             </div>
         </div>
     </div>

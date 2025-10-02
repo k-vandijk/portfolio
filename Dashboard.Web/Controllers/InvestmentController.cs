@@ -4,6 +4,7 @@ using Dashboard.Application.Interfaces;
 using Dashboard.Domain.Models;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Diagnostics;
 
 namespace Dashboard.Web.Controllers;
@@ -13,12 +14,14 @@ public class InvestmentController : Controller
     private readonly IAzureTableService _service;
     private readonly ILogger<InvestmentController> _logger;
     private readonly IConfiguration _config;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger, IConfiguration config)
+    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger, IConfiguration config, IStringLocalizer<SharedResource> localizer)
     {
         _service = service;
         _logger = logger;
         _config = config;
+        _localizer = localizer;
     }
 
     [HttpGet("/investment")]
@@ -75,7 +78,7 @@ public class InvestmentController : Controller
 
         var lineChartViewModel = new LineChartViewModel
         {
-            Title = "Investment (cumulative) per month",
+            Title = _localizer["InvestmentPerMonth"],
             DataPoints = groupedTransactions,
             Format = "currency",
         };
@@ -96,7 +99,7 @@ public class InvestmentController : Controller
 
         var pieChartViewModel = new PieChartViewModel
         {
-            Title = "Investment per ticker",
+            Title = _localizer["InvestmentPerTicker"],
             Data = groupedTransactions
         };
 
@@ -117,7 +120,7 @@ public class InvestmentController : Controller
 
         var barChartViewModel = new BarChartViewModel
         {
-            Title = "Investment per month",
+            Title = _localizer["InvestmentPerMonth"],
             DataPoints = groupedTransactions,
             ShowAverageLine = true
         };
