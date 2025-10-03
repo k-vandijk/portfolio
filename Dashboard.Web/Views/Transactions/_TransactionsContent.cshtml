@@ -1,4 +1,5 @@
 ﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@using System.Globalization
 @model List<Dashboard.Domain.Models.Transaction>
 @{
     var uniqueTickers = Model
@@ -7,6 +8,11 @@
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .OrderBy(t => t)
         .ToList();
+
+    var currentCulture = CultureInfo.CurrentUICulture.Name; // nl-NL | en-US
+    var dtLangUrl = currentCulture == "nl-NL"
+        ? "https://cdn.datatables.net/plug-ins/1.13.7/i18n/nl-NL.json"
+        : ""; // Engels is standaard
 }
 
 <style>
@@ -181,6 +187,16 @@
 <script>
     $(document).ready(function () {
 
+        var dtLanguage = {
+          paginate: {
+            previous: '<i class="fa-solid fa-angle-left" aria-hidden="true"></i>',
+            next: '<i class="fa-solid fa-angle-right" aria-hidden="true"></i>'
+          }
+        };
+
+        var dtLangUrl = '@dtLangUrl';
+        if (dtLangUrl) { dtLanguage.url = dtLangUrl; }
+
         $('#transactionsTable').DataTable({
             paging: true,
             searching: false,
@@ -188,13 +204,7 @@
             pageLength: 20,
             lengthChange: false,
             order: [[0, 'desc']],
-            pagingType: 'simple_numbers',
-            language: {
-            paginate: {
-                    previous: '<i class="fa-solid fa-angle-left" aria-hidden="true"></i>',
-                    next:     '<i class="fa-solid fa-angle-right" aria-hidden="true"></i>'
-                }
-            }
+            language: dtLanguage
         });
 
         // Set event listeners on the number inputs to update the totals

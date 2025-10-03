@@ -3,7 +3,12 @@
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @model DashboardViewModel
 @{
-    var modes = new[] { "profit", "profit-percentage", "value" };
+    var modes = new Dictionary<string, string>
+    {
+        { "profit", SharedLocalizer["ProfitEur"] },
+        { "profit-percentage", SharedLocalizer["ProfitPct"] },
+        { "value", SharedLocalizer["Worth"] }
+    };
 
     var currentTimerange = 
         Context.Request.Query.TryGetValue("timerange", out var value) && !string.IsNullOrWhiteSpace(value)
@@ -33,9 +38,9 @@
                         <a asp-controller="Dashboard" asp-action="Index"
                            asp-route-timerange="@currentTimerange"
                            asp-route-tickers="@currentTickersString"
-                           asp-route-mode="@mode"
-                           class="btn btn-ticker px-3 py-2 @(mode == currentMode ? "active" : "")">
-                            @string.Join(" ", mode.Split("-").Select(x => x.ToUpper()))
+                           asp-route-mode="@mode.Key"
+                           class="btn btn-ticker px-3 py-2 @(mode.Key == currentMode ? "active" : "")">
+                            @mode.Value
                         </a>
                     }
                 </div>
