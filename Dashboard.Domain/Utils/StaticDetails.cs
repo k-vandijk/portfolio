@@ -9,4 +9,6 @@ public static class StaticDetails
 
     public const int SlidingExpirationMinutes = 10;
     public const int AbsoluteExpirationMinutes = 60;
+
+    public const string SidebarStateCookie = "SidebarState";
 }
