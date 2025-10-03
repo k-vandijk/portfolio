@@ -189,4 +189,7 @@
   <data name="PortfolioProfitPct" xml:space="preserve">
     <value>Portfolio profit %</value>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
 </root>
