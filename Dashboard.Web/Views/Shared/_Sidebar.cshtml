@@ -15,8 +15,8 @@
     var currentCulture = CultureInfo.CurrentUICulture.Name;
     var cultureItems = new List<SelectListItem>
     {
-        new SelectListItem { Value = "nl-NL", Text = "Nederlands", Selected = currentCulture == "nl-NL" },
-        new SelectListItem { Value = "en-US", Text = "English",   Selected = currentCulture == "en-US" }
+        new SelectListItem { Value = "nl-NL", Text = "🇳🇱  Nederlands", Selected = currentCulture == "nl-NL" },
+        new SelectListItem { Value = "en-US", Text = "🇺🇸  English",    Selected = currentCulture == "en-US" }
     };
 
     bool isCollapsed = Context.Request.Cookies[StaticDetails.SidebarStateCookie] == "true";
@@ -182,13 +182,15 @@
         </li>
     </ul>
     
-    <div class="language-selector mt-auto pt-3">
-        <form asp-controller="Localization" asp-action="SetCulture" method="post" id="cultureSelectionForm">
+    <div class="mt-auto pt-3 language-selector">
+        <div class="label">@SharedLocalizer["Language"]</div>
+        <form asp-controller="Sidebar" asp-action="SetCulture" method="post" id="cultureSelectionForm">
             @Html.AntiForgeryToken()
             <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-            <select id="uiLang" name="culture" class="form-select form-select-sm" asp-items="cultureItems"></select>
+            <select id="uiLang" name="culture" class="form-select form-select-sm rounded-pill border-0" asp-items="cultureItems" aria-label="Language"></select>
         </form>
     </div>
+
 </aside>
 
 <script>
