@@ -1,8 +1,8 @@
-﻿using Dashboard.Domain.Models;
+﻿using Dashboard.Application.Dtos;
 
 namespace Dashboard.Application.Interfaces;
 
 public interface ITickerApiService
 {
-    Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(string tickerApiUrl, string tickerApiCode, string ticker, string? period = null, string? interval = "1d");
+    Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(string ticker, string? period = null, string? interval = "1d");
 }

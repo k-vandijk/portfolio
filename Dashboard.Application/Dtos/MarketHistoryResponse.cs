@@ -1,4 +1,4 @@
-﻿namespace Dashboard.Domain.Models;
+﻿namespace Dashboard.Application.Dtos;
 
 public class MarketHistoryResponse
 {

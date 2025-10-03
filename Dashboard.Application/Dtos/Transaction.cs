@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Dashboard.Domain.Models;
+namespace Dashboard.Application.Dtos;
 
 public class Transaction
 {

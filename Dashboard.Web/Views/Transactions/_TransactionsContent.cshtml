@@ -1,6 +1,6 @@
 ﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
 @using System.Globalization
-@model List<Dashboard.Domain.Models.Transaction>
+@model List<Dashboard.Application.Dtos.Transaction>
 @{
     var uniqueTickers = Model
         .Select(t => t.Ticker.Trim())

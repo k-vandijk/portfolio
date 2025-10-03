@@ -24,7 +24,7 @@ builder.Services
 // Require authenticated users by default
 builder.Services.AddAuthorization(o => o.FallbackPolicy = o.DefaultPolicy);
 
-builder.Services.AddLocalization(options => options.ResourcesPath = "Localization");
+builder.Services.AddLocalization(options => options.ResourcesPath = "wwwroot");
 
 builder.Services.AddControllersWithViews().AddViewLocalization();
 

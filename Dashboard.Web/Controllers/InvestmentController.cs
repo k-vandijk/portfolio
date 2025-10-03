@@ -1,7 +1,6 @@
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard.Application.Interfaces;
-using Dashboard.Domain.Models;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -13,14 +12,12 @@ public class InvestmentController : Controller
 {
     private readonly IAzureTableService _service;
     private readonly ILogger<InvestmentController> _logger;
-    private readonly IConfiguration _config;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger, IConfiguration config, IStringLocalizer<SharedResource> localizer)
+    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger, IStringLocalizer<SharedResource> localizer)
     {
         _service = service;
         _logger = logger;
-        _config = config;
         _localizer = localizer;
     }
 
@@ -34,10 +31,7 @@ public class InvestmentController : Controller
     {
         var sw = Stopwatch.StartNew();
 
-        var connectionString = _config["Secrets:TransactionsTableConnectionString"]
-            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
-
-        var transactions = await _service.GetTransactionsAsync(connectionString);
+        var transactions = await _service.GetTransactionsAsync();
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromYear(year ?? DateTime.UtcNow.Year);
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
 

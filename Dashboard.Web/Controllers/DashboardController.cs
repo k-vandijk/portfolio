@@ -1,7 +1,6 @@
 ﻿using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard.Application.Interfaces;
-using Dashboard.Domain.Models;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -14,15 +13,13 @@ public class DashboardController : Controller
     private readonly IAzureTableService _azureTableService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DashboardController> _logger;
-    private readonly IConfiguration _config;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DashboardController(IAzureTableService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IConfiguration config, IStringLocalizer<SharedResource> localizer)
+    public DashboardController(IAzureTableService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer)
     {
         _azureTableService = azureTableService;
         _scopeFactory = scopeFactory;
         _logger = logger;
-        _config = config;
         _localizer = localizer;
     }
 
@@ -39,11 +36,8 @@ public class DashboardController : Controller
     {
         var sw = Stopwatch.StartNew();
 
-        var connectionString = _config["Secrets:TransactionsTableConnectionString"] 
-            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
-
         var msBeforeTransactions = sw.ElapsedMilliseconds;
-        var transactions = await _azureTableService.GetTransactionsAsync(connectionString);
+        var transactions = await _azureTableService.GetTransactionsAsync();
         var msAfterTransactions = sw.ElapsedMilliseconds;
 
         // Named tx because tickers it already used as parameter name
@@ -136,13 +130,9 @@ public class DashboardController : Controller
         {
             logger.LogInformation("Fetching market history for ticker {Ticker}", ticker);
 
-            var tickerApiUrl = _config["Secrets:TickerApiurl"]
-                ?? throw new ArgumentNullException("Secrets:TickerApiurl", "Please set the TickerApiurl in the configuration.");
 
-            var tickerApiCode = _config["Secrets:TickerApiCode"]
-                ?? throw new ArgumentNullException("Secrets:TickerApiCode", "Please set the TickerApiCode in the configuration.");
 
-            var data = await api.GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
+            var data = await api.GetMarketHistoryResponseAsync(ticker);
             logger.LogInformation("Fetched market history for ticker {Ticker} with {Count} data points", ticker, data?.History.Count ?? 0);
             return (ticker, data, null);
         }
