@@ -1,6 +1,5 @@
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
-using Dashboard.Domain.Models;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -11,14 +10,12 @@ namespace Dashboard.Web.Controllers;
 public class MarketHistoryController : Controller
 {
     private readonly ILogger<MarketHistoryController> _logger;
-    private readonly IConfiguration _config;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public MarketHistoryController(ILogger<MarketHistoryController> logger, IConfiguration config, IServiceScopeFactory scopeFactory, IStringLocalizer<SharedResource> localizer)
+    public MarketHistoryController(ILogger<MarketHistoryController> logger, IServiceScopeFactory scopeFactory, IStringLocalizer<SharedResource> localizer)
     {
         _logger = logger;
-        _config = config;
         _scopeFactory = scopeFactory;
         _localizer = localizer;
     }
@@ -31,17 +28,8 @@ public class MarketHistoryController : Controller
     {
         var sw = Stopwatch.StartNew();
 
-        var tickerApiUrl = _config["Secrets:TickerApiurl"]
-            ?? throw new ArgumentNullException("Secrets:TickerApiurl", "Please set the TickerApiurl in the configuration.");
-
-        var tickerApiCode = _config["Secrets:TickerApiCode"]
-            ?? throw new ArgumentNullException("Secrets:TickerApiCode", "Please set the TickerApiCode in the configuration.");
-
-        var connectionString = _config["Secrets:TransactionsTableConnectionString"]
-            ?? throw new ArgumentNullException("Secrets:TransactionsTableConnectionString", "Please set the connection string in the configuration.");
-
-        var marketHistoryDataTask = GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
-        var transactionsTask = GetTransactionsAsync(connectionString);
+        var marketHistoryDataTask = GetMarketHistoryResponseAsync(ticker);
+        var transactionsTask = GetTransactionsAsync();
 
         await Task.WhenAll(marketHistoryDataTask, transactionsTask);
 
@@ -80,20 +68,20 @@ public class MarketHistoryController : Controller
         return PartialView("_MarketHistoryContent", viewModel);
     }
 
-    private async Task<List<Transaction>> GetTransactionsAsync(string connectionString)
+    private async Task<List<Transaction>> GetTransactionsAsync()
     {
         using var scope = _scopeFactory.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<IAzureTableService>();
 
-        return await service.GetTransactionsAsync(connectionString);
+        return await service.GetTransactionsAsync();
     }
 
-    private async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(string tickerApiUrl, string tickerApiCode, string ticker)
+    private async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(string ticker)
     {
         using var scope = _scopeFactory.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
 
-        return await service.GetMarketHistoryResponseAsync(tickerApiUrl, tickerApiCode, ticker);
+        return await service.GetMarketHistoryResponseAsync(ticker);
     }
 
     private LineChartViewModel GetMarketHistoryViewModel(MarketHistoryResponse marketHistory)

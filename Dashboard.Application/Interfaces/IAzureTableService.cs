@@ -1,10 +1,10 @@
-﻿using Dashboard.Domain.Models;
+﻿using Dashboard.Application.Dtos;
 
 namespace Dashboard.Application.Interfaces;
 
 public interface IAzureTableService
 {
-    Task<List<Transaction>> GetTransactionsAsync(string connectionString);
-    Task AddTransactionAsync(string connectionString, Transaction transaction);
-    Task DeleteTransactionAsync(string connectionString, string rowKey);
+    Task<List<Transaction>> GetTransactionsAsync();
+    Task AddTransactionAsync(Transaction transaction);
+    Task DeleteTransactionAsync(string rowKey);
 }

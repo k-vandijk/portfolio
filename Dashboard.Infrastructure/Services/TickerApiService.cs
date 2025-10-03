@@ -1,8 +1,10 @@
 ﻿using Dashboard.Application.Interfaces;
-using Dashboard.Domain.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
+using Dashboard.Application.Dtos;
+using Dashboard.Application.Helpers;
 using Dashboard.Domain.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace Dashboard.Infrastructure.Services;
 
@@ -10,21 +12,24 @@ public class TickerApiService : ITickerApiService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMemoryCache _cache;
+    private readonly IConfiguration _config;
 
-    public TickerApiService(IHttpClientFactory httpFactory, IMemoryCache cache)
+    public TickerApiService(IHttpClientFactory httpFactory, IMemoryCache cache, IConfiguration config)
     {
         _httpClientFactory = httpFactory;
         _cache = cache;
+        _config = config;
     }
 
     public async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(
-        string tickerApiUrl, 
-        string tickerApiCode,
         string ticker,
         string? period = null,
         string? interval = "1d")
     {
-        period ??= GetPeriod();
+        var tickerApiUrl = _config["Secrets:TickerApiurl"] ?? throw new ArgumentNullException("Secrets:TickerApiurl", "Please set the TickerApiurl in the configuration.");
+        var tickerApiCode = _config["Secrets:TickerApiCode"] ?? throw new ArgumentNullException("Secrets:TickerApiCode", "Please set the TickerApiCode in the configuration.");
+
+        period ??= PeriodHelper.GetDefaultPeriod();
 
         var cacheKey = $"history:{ticker}:{period}:{interval}";
         if (_cache.TryGetValue(cacheKey, out MarketHistoryResponse? cached))
@@ -49,15 +54,5 @@ public class TickerApiService : ITickerApiService
         });
 
         return marketHistory;
-    }
-
-    private string GetPeriod(DateOnly? firstTransactionDate = null)
-    {
-        firstTransactionDate ??= DateOnly.Parse(StaticDetails.FirstTransactionDate);
-
-        // Get the difference in months between the first transaction date and today in years and add 1
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var yearsDifference = today.Year - firstTransactionDate.Value.Year;
-        return $"{yearsDifference + 1}y";
     }
 }
