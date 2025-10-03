@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using Dashboard.Domain.Utils
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @functions {
@@ -17,6 +18,8 @@
         new SelectListItem { Value = "nl-NL", Text = "Nederlands", Selected = currentCulture == "nl-NL" },
         new SelectListItem { Value = "en-US", Text = "English",   Selected = currentCulture == "en-US" }
     };
+
+    bool isCollapsed = Context.Request.Cookies[StaticDetails.SidebarStateCookie] == "true";
 }
 
 <style>
@@ -141,7 +144,7 @@
 
 </style>
 
-<aside id="sidebar" class="p-3 position-relative d-flex flex-column">
+<aside id="sidebar" class="p-3 position-relative d-flex flex-column @(isCollapsed ? "collapsed" : "")">
     <button id="toggleSidebar" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="true" class="text-secondary">
         <i class="fa-solid fa-angles-left"></i>
     </button>
@@ -179,7 +182,7 @@
         </li>
     </ul>
     
-        <div class="language-selector mt-auto pt-3">
+    <div class="language-selector mt-auto pt-3">
         <form asp-controller="Localization" asp-action="SetCulture" method="post" id="cultureSelectionForm">
             @Html.AntiForgeryToken()
             <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
@@ -192,16 +195,19 @@
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleSidebar');
 
-    const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-    if (isCollapsed) {
-        sidebar.classList.add('collapsed');
-        toggleBtn.setAttribute('aria-expanded', 'false');
-    }
-
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.addEventListener('click', async () => {
         const collapsed = sidebar.classList.toggle('collapsed');
-        localStorage.setItem('sidebar-collapsed', collapsed);
         toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+
+        const formData = new FormData();
+        formData.set('collapsed', String(collapsed));
+
+        const url = '@Url.Action("ToggleSidebarCollapsedState", "Sidebar")';
+        await fetch(url, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
     });
 
     document.getElementById('cultureSelectionForm').addEventListener('change', function () {
