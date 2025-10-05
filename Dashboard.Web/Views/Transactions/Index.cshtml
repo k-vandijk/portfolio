@@ -1,6 +1,7 @@
-﻿@model List<Dashboard.Application.Dtos.Transaction>
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@model List<Dashboard.Application.Dtos.Transaction>
 @{
-    ViewData["Title"] = "Transactions";
+    ViewData["Title"] = SharedLocalizer["Transactions"];
 }
 
 <section id="skeleton-section">
