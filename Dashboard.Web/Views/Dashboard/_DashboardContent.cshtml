@@ -1,6 +1,6 @@
-﻿@using Dashboard.Application.Helpers
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@using Dashboard.Application.Helpers
 @using Microsoft.AspNetCore.Mvc.TagHelpers
-@inject IStringLocalizer<SharedResource> SharedLocalizer
 @model DashboardViewModel
 @{
     var modes = new Dictionary<string, string>
@@ -67,7 +67,7 @@
                     <table id="portfolioTable" class="table table-hover table-sm table-transparent mb-0 w-100">
                         <thead>
                             <th>@SharedLocalizer["Ticker"]</th>
-                            <th>@SharedLocalizer["ProfitPct"]</th>
+                            <th>@SharedLocalizer["PortfolioPct"]</th>
                             <th>@SharedLocalizer["Amount"]</th>
                             <th>@SharedLocalizer["TotalInvestment"]</th>
                             <th>@SharedLocalizer["Worth"]</th>

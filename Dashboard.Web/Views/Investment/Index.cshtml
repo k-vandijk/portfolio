@@ -1,6 +1,7 @@
-﻿@model Dashboard.Web.ViewModels.InvestmentViewModel
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@model Dashboard.Web.ViewModels.InvestmentViewModel
 @{
-    ViewData["Title"] = "Investment";
+    ViewData["Title"] = SharedLocalizer["Investment"];
 }
 
 <section id="skeleton-section">
