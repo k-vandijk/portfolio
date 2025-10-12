@@ -1,4 +1,5 @@
 ﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@using System.Globalization
 @using Dashboard.Application.Helpers
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model DashboardViewModel
@@ -62,17 +63,19 @@
 
     <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-8 mb-3">
         <div class="card">
-            <div class="card-body">
-                <div class="table-responsive h-100">
+            <div class="card-body p-0">
+                <div class="table-responsive h-100 m-0">
                     <table id="portfolioTable" class="table table-hover table-sm table-transparent mb-0 w-100">
                         <thead>
-                            <th>@SharedLocalizer["Ticker"]</th>
-                            <th>@SharedLocalizer["PortfolioPct"]</th>
-                            <th>@SharedLocalizer["Amount"]</th>
-                            <th>@SharedLocalizer["TotalInvestment"]</th>
-                            <th>@SharedLocalizer["Worth"]</th>
-                            <th>@SharedLocalizer["ProfitEur"]</th>
-                            <th>@SharedLocalizer["ProfitPct"]</th>
+                            <tr>
+                                <th>@SharedLocalizer["Ticker"]</th>
+                                <th>@SharedLocalizer["PortfolioPct"]</th>
+                                <th>@SharedLocalizer["Amount"]</th>
+                                <th>@SharedLocalizer["TotalInvestment"]</th>
+                                <th>@SharedLocalizer["Worth"]</th>
+                                <th>@SharedLocalizer["ProfitEur"]</th>
+                                <th>@SharedLocalizer["ProfitPct"]</th>
+                            </tr>
                         </thead>
                         <tbody>
                         @foreach (var row in Model.TableRows.OrderByDescending(tr => tr.ProfitPercentage))
@@ -95,14 +98,13 @@
                                 </td>
                                 <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
                                 <td>@row.Amount</td>
-                                <td>@row.TotalInvestment.ToString("C2")</td>
-                                <td>@row.Worth.ToString("C2")</td>
-                                <td>
+                                <td data-order="@row.TotalInvestment.ToString(CultureInfo.InvariantCulture)">@row.TotalInvestment.ToString("C2")</td>
+                                <td data-order="@row.Worth.ToString(CultureInfo.InvariantCulture)">@row.Worth.ToString("C2")</td>
+                                <td data-order="@row.Profit.ToString(CultureInfo.InvariantCulture)">
                                     <span class="fw-bold @(row.Profit >= 0 ? "text-success" : "text-danger")">
                                         @row.Profit.ToString("C2")
                                     </span>
                                 </td>
-
                                 <td>
                                     <span class="fw-bold @(row.ProfitPercentage >= 0 ? "text-success" : "text-danger")">
                                         @((row.ProfitPercentage * 100).ToString("F2") + "%")
@@ -120,7 +122,6 @@
                             <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2")</th>
                             <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
                             <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
-                            <th></th>
                         </tr>
                         </tfoot>
                     </table>
@@ -135,3 +136,18 @@
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+
+        $('#portfolioTable').DataTable({
+            paging: false,
+            searching: false,
+            ordering: true,
+            info: false,
+            lengthChange: false,
+            order: [[4, 'desc']],
+        });
+
+    });
+</script>
