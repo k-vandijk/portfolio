@@ -15,23 +15,6 @@
         : ""; // Engels is standaard
 }
 
-@* <style>
-    .dt-container .dt-paging .pagination .page-item.active .page-link,
-    .dt-container .dt-paging .pagination .page-item.active > a.page-link,
-    .dt-container .dt-paging .pagination .page-item.active > button.page-link {
-        background-color: var(--accent-1) !important;
-        border-color: var(--accent-1) !important;
-        color: var(--text-color) !important;
-    }
-
-        .dt-container .dt-paging .pagination .page-item.active .page-link:hover,
-        .dt-container .dt-paging .pagination .page-item.active .page-link:focus {
-            background-color: var(--accent-1-hover) !important;
-            border-color: var(--accent-1-hover) !important;
-            color: var(--text-color) !important;
-        }
-</style> *@
-
 <datalist id="tickerList">
     @foreach (var t in uniqueTickers)
     {
