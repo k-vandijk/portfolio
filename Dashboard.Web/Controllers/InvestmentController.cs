@@ -4,7 +4,6 @@ using Dashboard.Application.Interfaces;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using System.Diagnostics;
 
 namespace Dashboard.Web.Controllers;
 
@@ -29,8 +28,6 @@ public class InvestmentController : Controller
         [FromQuery] string? tickers,    
         [FromQuery] int? year)
     {
-        var sw = Stopwatch.StartNew();
-
         var transactions = await _service.GetTransactionsAsync();
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromYear(year ?? DateTime.UtcNow.Year);
         var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
@@ -48,8 +45,6 @@ public class InvestmentController : Controller
             Years = transactions.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
         };
 
-        sw.Stop();
-        _logger.LogInformation("Investment view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
         return PartialView("_InvestmentContent", viewModel);
     }
 
