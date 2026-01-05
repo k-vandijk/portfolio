@@ -33,7 +33,7 @@ The solution follows Clean Architecture principles with clear separation of conc
 - Azure Table Storage account (for transaction storage)
 - Access to the Ticker API endpoint
 
-## �� Getting Started
+## 🚀 Getting Started
 
 ### 1. Clone the Repository
 
