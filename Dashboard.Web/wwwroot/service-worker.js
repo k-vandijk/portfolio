@@ -50,10 +50,16 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Skip chrome-extension and authentication requests
-  if (event.request.url.startsWith('chrome-extension://') || 
-      event.request.url.includes('login.microsoftonline.com') ||
-      event.request.url.includes('signin-oidc')) {
+  // Parse the URL and skip chrome-extension and authentication requests
+  try {
+    const url = new URL(event.request.url);
+    if (url.protocol === 'chrome-extension:' || 
+        url.hostname === 'login.microsoftonline.com' ||
+        url.pathname.includes('/signin-oidc')) {
+      return;
+    }
+  } catch (e) {
+    // Invalid URL, skip
     return;
   }
 
