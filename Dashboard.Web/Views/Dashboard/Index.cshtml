@@ -63,10 +63,12 @@
             const tickers = url.searchParams.get('tickers');
             const mode = url.searchParams.get('mode');
             const timerange = url.searchParams.get('timerange');
+            const year = url.searchParams.get('year');
 
             if (tickers) params.set('tickers', tickers);
             if (mode) params.set('mode', mode);
             if (timerange) params.set('timerange', timerange);
+            if (year) params.set('year', year);
 
             const sectionUrl = params.toString()
               ? `/dashboard/content?${params.toString()}`
