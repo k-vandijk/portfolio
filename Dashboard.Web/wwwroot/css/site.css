@@ -176,4 +176,33 @@ aside {
         height: auto !important;
         min-height: 300px;
     }
+    
+    /* Specific page adjustments */
+    .dashboard-chart-row {
+        height: auto !important;
+        min-height: 300px;
+    }
+    
+    .investment-charts-row {
+        height: auto !important;
+    }
+    
+    .investment-charts-row > div {
+        min-height: 300px;
+    }
+    
+    .market-history-chart-row {
+        height: auto !important;
+        min-height: 300px;
+    }
+    
+    .transactions-row {
+        height: auto !important;
+        min-height: 400px;
+    }
+    
+    #transactionsTable input {
+        min-width: 80px;
+        font-size: 0.75rem;
+    }
 }

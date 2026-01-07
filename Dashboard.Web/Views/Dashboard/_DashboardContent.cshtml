@@ -131,20 +131,11 @@
     </div>
 </div>
 
-<div class="row mb-3" style="height: 70vh;" class="dashboard-chart-row">
+<div class="row mb-3 dashboard-chart-row" style="height: 70vh;">
     <div class="col-md-12">
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
 </div>
-
-<style>
-    @media (max-width: 767.98px) {
-        .dashboard-chart-row {
-            height: auto !important;
-            min-height: 300px;
-        }
-    }
-</style>
 
 <script>
     $(document).ready(function () {
