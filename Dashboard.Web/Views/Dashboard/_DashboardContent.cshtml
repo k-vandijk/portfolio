@@ -27,6 +27,10 @@
             : null;
 
     var currentTickers = currentTickersString?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+    
+    var currentYear = Context.Request.Query.TryGetValue("year", out var yearVal) && !string.IsNullOrWhiteSpace(yearVal) && int.TryParse(yearVal, out var parsedYear)
+        ? parsedYear
+        : (int?)null;
 }
 
 <div class="row" style="height: 25vh;">
@@ -39,6 +43,7 @@
                         <a asp-controller="Dashboard" asp-action="Index"
                            asp-route-timerange="@currentTimerange"
                            asp-route-tickers="@currentTickersString"
+                           asp-route-year="@currentYear"
                            asp-route-mode="@mode.Key"
                            class="btn btn-ticker px-3 py-2 @(mode.Key == currentMode ? "active" : "")">
                             @mode.Value
@@ -51,9 +56,31 @@
                         <a asp-controller="Dashboard" asp-action="Index"
                            asp-route-timerange="@t"
                            asp-route-tickers="@currentTickersString"
+                           asp-route-year="@currentYear"
                            asp-route-mode="@currentMode"
                            class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
                             @t
+                        </a>
+                    }
+                </div>
+                <div class="btn-group w-100" role="group">
+                    <a asp-controller="Dashboard" asp-action="Index"
+                       asp-route-timerange="@currentTimerange"
+                       asp-route-tickers="@currentTickersString"
+                       asp-route-year="@null"
+                       asp-route-mode="@currentMode"
+                       class="btn btn-ticker px-3 py-2 @(currentYear == null ? "active" : "")">
+                        ALL
+                    </a>
+                    @foreach (var y in Model.Years)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index"
+                           asp-route-timerange="@currentTimerange"
+                           asp-route-tickers="@currentTickersString"
+                           asp-route-year="@y"
+                           asp-route-mode="@currentMode"
+                           class="btn btn-ticker px-3 py-2 @(y == currentYear ? "active" : "")">
+                            @y
                         </a>
                     }
                 </div>
@@ -92,6 +119,7 @@
                                     <a asp-controller="Dashboard" asp-action="Index"
                                        asp-route-timerange="@currentTimerange"
                                        asp-route-mode="@currentMode"
+                                       asp-route-year="@currentYear"
                                        asp-route-tickers="@tickersRoute"
                                        class="stretched-link">
                                     </a>

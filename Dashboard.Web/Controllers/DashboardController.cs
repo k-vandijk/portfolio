@@ -34,7 +34,8 @@ public class DashboardController : Controller
     public async Task<IActionResult> DashboardContent(
         [FromQuery] string? mode = "profit", // mode = value | profit | profit-percentage
         [FromQuery] string? tickers = null,
-        [FromQuery] string? timerange = null)
+        [FromQuery] string? timerange = null,
+        [FromQuery] int? year = null)
     {
         var sw = Stopwatch.StartNew();
 
@@ -65,8 +66,18 @@ public class DashboardController : Controller
             _ => throw new InvalidOperationException("mode cannot be null")
         };
 
-        // Apply time range filter to line chart
-        var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+        // Apply time range or year filter to line chart
+        DateOnly startDate, endDate;
+        if (year.HasValue)
+        {
+            // When year is specified, show data for that entire year
+            (startDate, endDate) = FilterHelper.GetMinMaxDatesFromYear(year.Value);
+        }
+        else
+        {
+            // Use timerange filter when no year is specified
+            (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+        }
 
         // Limit startDate to first transaction date to avoid empty charts
         var firstTransactionDate = filteredTransactions.Any() ? filteredTransactions.Min(t => t.Date) : DateOnly.MinValue;
@@ -79,7 +90,8 @@ public class DashboardController : Controller
         var viewModel = new DashboardViewModel
         {
             TableRows = tableViewModel,
-            LineChart = lineChartViewModel
+            LineChart = lineChartViewModel,
+            Years = transactions.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
         };
 
         sw.Stop();
