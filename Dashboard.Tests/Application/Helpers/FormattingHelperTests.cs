@@ -31,7 +31,7 @@ public class FormattingHelperTests
     [InlineData("1234,56", 1234.56)]      // comma decimal (nl-NL)
     [InlineData("1.234,56", 1234.56)]     // thousands '.' + decimal ','
     [InlineData("-1.234,56", -1234.56)]
-    [InlineData("1.234", 1234)]           // '.' as thousands only (nl-NL)
+    [InlineData("1.234", 1.234)]          // '.' as decimal in InvariantCulture
     [InlineData("1,234", 1.234)]          // ',' as decimal (nl-NL)
     public void FallsBack_ToNlNl_IfInvariantFails(string input, decimal expected)
     {

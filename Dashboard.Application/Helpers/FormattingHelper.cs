@@ -28,7 +28,9 @@ public static class FormattingHelper
         if (DateOnly.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             return date;
 
-        if (DateTime.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+        // Use RoundtripKind to properly handle UTC indicators like 'Z'
+        // This prevents timezone conversion issues when parsing UTC timestamps
+        if (DateTime.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt))
             return DateOnly.FromDateTime(dt);
 
         return default; // or throw new FormatException($"Invalid date: {input}");
