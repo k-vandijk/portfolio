@@ -80,6 +80,16 @@ hr {
         box-shadow: var(--shadow-hover);
     }
 
+/* Filter label styling */
+.filter-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--accent-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
 /* Placeholder styling */
 .placeholder {
     border-radius: var(--border-radius) !important;
