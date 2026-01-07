@@ -22,7 +22,7 @@
     }
 </datalist>
 
-<div class="row mb-3" style="height: 95vh;">
+<div class="row mb-3 transactions-row" style="height: 95vh;">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
@@ -30,12 +30,12 @@
                     <table id="transactionsTable" class="table table-hover table-sm table-transparent mb-0 w-100">
                         <thead>
                         <tr>
-                            <th class="d-flex justify-content-center">#</th>
+                            <th class="text-center">#</th>
                             <th>@SharedLocalizer["Date"]</th>
                             <th>@SharedLocalizer["Ticker"]</th>
-                            <th>@SharedLocalizer["Amount"]</th>
-                            <th>@SharedLocalizer["PurchasePrice"]</th>
-                            <th>@SharedLocalizer["TransactionCosts"]</th>
+                            <th class="d-none d-md-table-cell">@SharedLocalizer["Amount"]</th>
+                            <th class="d-none d-lg-table-cell">@SharedLocalizer["PurchasePrice"]</th>
+                            <th class="d-none d-lg-table-cell">@SharedLocalizer["TransactionCosts"]</th>
                             <th>@SharedLocalizer["TotalCosts"]</th>
                             <th class="text-center"><i class="fas fa-trash-alt"></i></th>
                         </tr>
@@ -45,29 +45,29 @@
                             <td class="text-center align-middle"><i class="fas fa-plus text-success"></i></td>
                             <td><input class="form-control form-control-sm" id="dateInput" type="text" /></td>
                             <td><input class="form-control form-control-sm" id="tickerInput" list="tickerList" autocomplete="off" /></td>
-                            <td><input class="form-control form-control-sm" id="amountInput" /></td>
-                            <td><input class="form-control form-control-sm" id="purchasePriceInput" /></td>
-                            <td><input class="form-control form-control-sm" id="transactionCostsInput" /></td>
+                            <td class="d-none d-md-table-cell"><input class="form-control form-control-sm" id="amountInput" /></td>
+                            <td class="d-none d-lg-table-cell"><input class="form-control form-control-sm" id="purchasePriceInput" /></td>
+                            <td class="d-none d-lg-table-cell"><input class="form-control form-control-sm" id="transactionCostsInput" /></td>
                             <td><input class="form-control form-control-sm" id="totalCostsInput" readonly /></td>
                             <td></td>
                         </tr>
                         @for (int i = Model.Count - 1; i >= 0; i--)
                         {
                             <tr>
-                                <td class="d-flex justify-content-center">@(i + 1)</td>
+                                <td class="text-center">@(i + 1)</td>
                                 <td>@Model[i].Date.ToString("yyyy-MM-dd")</td>
                                 <td>@Model[i].Ticker</td>
-                                <td class="text-end">@Model[i].Amount</td>
-                                <td class="text-end">@Model[i].PurchasePrice.ToString("C2")</td>
-                                <td class="text-end">@Model[i].TransactionCosts.ToString("C2")</td>
+                                <td class="text-end d-none d-md-table-cell">@Model[i].Amount</td>
+                                <td class="text-end d-none d-lg-table-cell">@Model[i].PurchasePrice.ToString("C2")</td>
+                                <td class="text-end d-none d-lg-table-cell">@Model[i].TransactionCosts.ToString("C2")</td>
                                 <td class="text-end fw-bold">
                                     <span class="@(Model[i].TotalCosts >= 0 ? "text-success" : "text-danger")">
                                         @Model[i].TotalCosts.ToString("C2")
                                     </span>
                                 </td>
-                                    <td class="d-flex align-items-center justify-content-center">
+                                <td class="text-center align-middle">
                                     <button class="btn btn-outline-danger btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center"
-                                            style="width: 1rem; height: 1rem;"
+                                            style="width: 1.5rem; height: 1.5rem;"
                                             onclick="postDeleteTransaction('@Model[i].RowKey')">
                                         <i class="fas fa-minus fa-xs"></i>
                                     </button>
@@ -81,6 +81,21 @@
         </div>
     </div>
 </div>
+
+<style>
+    @media (max-width: 767.98px) {
+        .transactions-row {
+            height: auto !important;
+            min-height: 400px;
+        }
+        
+        /* Show input fields on mobile in a modal or different layout */
+        #transactionsTable input {
+            min-width: 80px;
+            font-size: 0.75rem;
+        }
+    }
+</style>
 
 <script>
     $(document).ready(function () {

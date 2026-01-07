@@ -17,6 +17,20 @@
         width: 100% !important;
         height: 100% !important; /* Force the canvas to fill container height */
     }
+    
+    /* Mobile chart improvements */
+    @media (max-width: 767.98px) {
+        .chart-container {
+            min-height: 250px;
+            height: auto;
+            position: relative;
+        }
+        
+        .chart-container > .chart-canvas {
+            position: relative;
+            height: 250px !important;
+        }
+    }
 </style>
 
 <div class="card">
@@ -72,6 +86,10 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -79,7 +97,14 @@
                     }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { 
+                            maxTicksLimit: window.innerWidth < 768 ? 6 : 12,
+                            maxRotation: window.innerWidth < 768 ? 45 : 0,
+                            minRotation: window.innerWidth < 768 ? 45 : 0
+                        } 
+                    },
                     y: {
                         grid: { display: false },
                         ticks: {

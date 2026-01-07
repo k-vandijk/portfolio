@@ -22,6 +22,53 @@
         :root {
             --kvandijk-loading-bar-color: var(--accent-1);
         }
+        
+        /* Mobile navigation bar */
+        #mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--card-color);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        @media (max-width: 767.98px) {
+            #mobile-nav {
+                display: flex;
+            }
+            
+            /* Add padding to main to prevent content hiding behind mobile nav */
+            main {
+                padding-bottom: 70px !important;
+            }
+        }
+        
+        #mobile-nav .nav-link {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        #mobile-nav .nav-link i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        #mobile-nav .nav-link.active {
+            color: var(--accent-1);
+            background-color: var(--accent-1-light);
+        }
     </style>
     <div id="top-loading-bar"></div>
 
@@ -32,6 +79,26 @@
             @RenderBody()
         </main>
     </div>
+    
+    <!-- Mobile Navigation -->
+    <nav id="mobile-nav">
+        <a href="/Dashboard" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/Investment" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Investment" ? "active" : "")">
+            <i class="fas fa-chart-line"></i>
+            <span>Investment</span>
+        </a>
+        <a href="/MarketHistory" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "MarketHistory" ? "active" : "")">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>History</span>
+        </a>
+        <a href="/Transactions" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transactions" ? "active" : "")">
+            <i class="fas fa-receipt"></i>
+            <span>Transactions</span>
+        </a>
+    </nav>
 
     <partial name="_Scripts" />
     @await RenderSectionAsync("Scripts", required: false)

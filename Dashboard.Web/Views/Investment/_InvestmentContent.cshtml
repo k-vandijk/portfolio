@@ -19,7 +19,7 @@
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
         <div class="card">
             <div class="card-body d-flex flex-column justify-content-evenly">
-                <div class="btn-group w-100" role="group">
+                <div class="btn-group w-100 mb-2" role="group">
                     @foreach (var t in Model.Tickers)
                     {
                         var isActive = selectedTickers.Contains(t, StringComparer.OrdinalIgnoreCase);
@@ -40,7 +40,7 @@
                         <a asp-controller="Investment" asp-action="Index"
                            asp-route-tickers="@route"
                            asp-route-year="@currentYear"
-                           class="btn btn-ticker px-3 py-2 @(isActive ? "active" : "")">
+                           class="btn btn-ticker px-2 py-2 @(isActive ? "active" : "")">
                             @t
                         </a>
                     }
@@ -51,7 +51,7 @@
                         <a asp-controller="Investment" asp-action="Index"
                            asp-route-tickers="@currentTickersString"
                            asp-route-year="@y"
-                           class="btn btn-ticker px-3 py-2 @(y == currentYear ? "active" : "")">
+                           class="btn btn-ticker px-2 py-2 @(y == currentYear ? "active" : "")">
                             @y
                         </a>
                     }
@@ -64,7 +64,7 @@
     </div>
 </div>
 
-<div class="row" style="height: 48vh;">
+<div class="row investment-charts-row" style="height: 48vh;">
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
@@ -72,6 +72,18 @@
         <partial name="Components/_BarChart" model="Model.BarChart" />
     </div>
 </div>
+
+<style>
+    @media (max-width: 767.98px) {
+        .investment-charts-row {
+            height: auto !important;
+        }
+        
+        .investment-charts-row > div {
+            min-height: 300px;
+        }
+    }
+</style>
 
 <script>
     $(document).ready(function () {
