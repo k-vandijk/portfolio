@@ -137,6 +137,14 @@ dotnet test Dashboard.Tests/Dashboard.Tests.csproj
 - Secure user authentication required by default
 - Microsoft Identity integration
 
+### Progressive Web App (PWA)
+- **Mobile-First Design**: Fully responsive layout optimized for mobile devices
+- **Installable**: Can be installed as a standalone app on iOS and Android
+- **Bottom Navigation**: Touch-friendly navigation bar on mobile devices
+- **Responsive Charts**: Charts adapt to screen size with touch interactions
+- **Offline Support**: Service worker for improved performance and caching
+- **Adaptive Tables**: Important columns remain visible on small screens
+
 ## 🔑 Configuration
 
 ### Central Package Management
@@ -222,6 +230,40 @@ The application uses Serilog for structured logging:
 - Secrets should be stored in Azure Key Vault or environment variables
 - HTTPS enforced in non-development environments
 - HSTS enabled for production
+
+## 📱 Mobile & Responsive Design
+
+### Mobile Experience
+The application is fully optimized for mobile devices with:
+
+- **Bottom Navigation Bar**: Fixed navigation menu at the bottom of the screen for easy thumb access
+- **Responsive Charts**: All charts (Line, Pie, Bar) automatically adjust to screen size
+  - Touch-optimized interactions
+  - Rotated labels on mobile for better readability
+  - Minimum height constraints to ensure visibility
+- **Smart Table Columns**: Tables show only essential columns on small screens
+  - Dashboard: Ticker, Worth, Profit %
+  - Transactions: Date, Ticker, Total Costs
+  - Horizontal scroll available when needed
+- **Compact UI**: Reduced padding and font sizes on mobile for efficient space usage
+- **Scrollable Content**: Body scrolling enabled on mobile (fixed on desktop)
+
+### PWA Installation
+
+The app can be installed on mobile devices:
+
+1. **iOS**: Open in Safari → Share → Add to Home Screen
+2. **Android**: Open in Chrome → Menu → Install App
+3. **Desktop**: Look for the install icon in the browser address bar
+
+See [PWA_INSTALLATIE_HANDLEIDING.md](PWA_INSTALLATIE_HANDLEIDING.md) for detailed installation instructions (Dutch).
+
+### Responsive Breakpoints
+
+The application uses Bootstrap 5 breakpoints:
+- **Mobile**: < 768px (Bottom nav, simplified tables)
+- **Tablet**: 768px - 1024px (Partial sidebar, medium tables)
+- **Desktop**: > 1024px (Full sidebar, all features)
 
 ## 🐛 Troubleshooting
 
