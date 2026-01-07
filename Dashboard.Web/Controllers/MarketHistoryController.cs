@@ -3,7 +3,6 @@ using Dashboard.Application.Interfaces;
 using Dashboard.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using System.Diagnostics;
 
 namespace Dashboard.Web.Controllers;
 
@@ -26,8 +25,6 @@ public class MarketHistoryController : Controller
     [HttpGet("/market-history/content")]
     public async Task<IActionResult> MarketHistoryContent([FromQuery] string ticker)
     {
-        var sw = Stopwatch.StartNew();
-
         var marketHistoryDataTask = GetMarketHistoryResponseAsync(ticker);
         var transactionsTask = GetTransactionsAsync();
 
@@ -63,8 +60,6 @@ public class MarketHistoryController : Controller
             Tickers = transactions.Select(t => t.Ticker).Distinct().OrderBy(t => t).ToArray(),
         };
 
-        sw.Stop();
-        _logger.LogInformation("MarketHistory view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
         return PartialView("_MarketHistoryContent", viewModel);
     }
 

@@ -2,6 +2,7 @@
 using Dashboard.Application.Helpers;
 using Dashboard.Application.Interfaces;
 using Dashboard.Web.ViewModels;
+using kvandijk.Common.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using System.Diagnostics;
@@ -28,6 +29,7 @@ public class DashboardController : Controller
     [HttpGet("/")]
     public IActionResult Index() => View();
 
+    [SkipRequestTiming]
     [HttpGet("/dashboard/content")]
     public async Task<IActionResult> DashboardContent(
         [FromQuery] string? mode = "profit", // mode = value | profit | profit-percentage

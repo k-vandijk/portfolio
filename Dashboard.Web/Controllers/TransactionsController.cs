@@ -1,6 +1,5 @@
 ﻿using Dashboard.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using Dashboard.Application.Dtos;
 
 namespace Dashboard.Web.Controllers;
@@ -22,12 +21,8 @@ public class TransactionsController : Controller
     [HttpGet("/transactions/content")]
     public async Task<IActionResult> TransactionsContent()
     {
-        var sw = Stopwatch.StartNew();
-
         var transactions = await _service.GetTransactionsAsync();
 
-        sw.Stop();
-        _logger.LogInformation("Transactions view rendered in {Elapsed} ms", sw.ElapsedMilliseconds);
         return PartialView("_TransactionsContent", transactions);
     }
 
