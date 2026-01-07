@@ -9,7 +9,9 @@
         <div class="card-header">@Model.Title</div>
     }
     <div class="card-body">
-        <canvas id="@chartId" class="chart-canvas"></canvas>
+        <div style="position: relative; height: 100%; min-height: 250px;">
+            <canvas id="@chartId" class="chart-canvas"></canvas>
+        </div>
     </div>
 </div>
 
@@ -48,8 +50,14 @@
                 maintainAspectRatio: false,
                 plugins: { 
                     legend: { 
-                        position: 'bottom', 
-                        onClick: null
+                        position: window.innerWidth < 768 ? 'bottom' : 'bottom',
+                        onClick: null,
+                        labels: {
+                            padding: window.innerWidth < 768 ? 8 : 10,
+                            font: {
+                                size: window.innerWidth < 768 ? 10 : 12
+                            }
+                        }
                     },
                     tooltip: {
                         callbacks: {

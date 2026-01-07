@@ -25,6 +25,15 @@ body {
     overflow: hidden;
 }
 
+/* Op mobiel maken we de body scrollbaar */
+@media (max-width: 767.98px) {
+    html,
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
 /* Verzorgt de background gradient */
 body {
     background: linear-gradient(135deg, var(--accent-4-light), var(--accent-1-light));
@@ -111,5 +120,60 @@ aside {
 @media (max-width: 767.98px) {
     #sidebar {
         display: none;
+    }
+    
+    /* Reduce padding on main container for mobile */
+    main {
+        padding: 0.75rem !important;
+    }
+    
+    /* Make cards more compact on mobile */
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .card-header {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.9rem;
+    }
+}
+
+/* Responsive button groups */
+.btn-group {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 767.98px) {
+    .btn-group .btn-ticker {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem !important;
+    }
+}
+
+/* Responsive tables */
+@media (max-width: 767.98px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table-sm td,
+    .table-sm th {
+        padding: 0.3rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Chart responsive improvements */
+@media (max-width: 767.98px) {
+    /* Make chart containers adapt to mobile */
+    .chart-container {
+        min-height: 250px !important;
+    }
+    
+    /* Adjust row heights for mobile */
+    .row[style*="height"] {
+        height: auto !important;
+        min-height: 300px;
     }
 }

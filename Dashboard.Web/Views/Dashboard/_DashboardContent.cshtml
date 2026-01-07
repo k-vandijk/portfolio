@@ -33,14 +33,14 @@
     <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-4 mb-3">
         <div class="card">
             <div class="card-body d-flex flex-column justify-content-evenly">
-                <div class="btn-group w-100" role="group">
+                <div class="btn-group w-100 mb-2" role="group">
                     @foreach (var mode in modes)
                     {
                         <a asp-controller="Dashboard" asp-action="Index"
                            asp-route-timerange="@currentTimerange"
                            asp-route-tickers="@currentTickersString"
                            asp-route-mode="@mode.Key"
-                           class="btn btn-ticker px-3 py-2 @(mode.Key == currentMode ? "active" : "")">
+                           class="btn btn-ticker px-2 py-2 @(mode.Key == currentMode ? "active" : "")">
                             @mode.Value
                         </a>
                     }
@@ -52,7 +52,7 @@
                            asp-route-timerange="@t"
                            asp-route-tickers="@currentTickersString"
                            asp-route-mode="@currentMode"
-                           class="btn btn-ticker px-3 py-2 @(t == currentTimerange ? "active" : "")">
+                           class="btn btn-ticker px-2 py-2 @(t == currentTimerange ? "active" : "")">
                             @t
                         </a>
                     }
@@ -69,11 +69,11 @@
                         <thead>
                             <tr>
                                 <th>@SharedLocalizer["Ticker"]</th>
-                                <th>@SharedLocalizer["PortfolioPct"]</th>
-                                <th>@SharedLocalizer["Amount"]</th>
-                                <th>@SharedLocalizer["TotalInvestment"]</th>
+                                <th class="d-none d-md-table-cell">@SharedLocalizer["PortfolioPct"]</th>
+                                <th class="d-none d-lg-table-cell">@SharedLocalizer["Amount"]</th>
+                                <th class="d-none d-lg-table-cell">@SharedLocalizer["TotalInvestment"]</th>
                                 <th>@SharedLocalizer["Worth"]</th>
-                                <th>@SharedLocalizer["ProfitEur"]</th>
+                                <th class="d-none d-md-table-cell">@SharedLocalizer["ProfitEur"]</th>
                                 <th>@SharedLocalizer["ProfitPct"]</th>
                             </tr>
                         </thead>
@@ -96,11 +96,11 @@
                                        class="stretched-link">
                                     </a>
                                 </td>
-                                <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
-                                <td>@row.Amount</td>
-                                <td data-order="@row.TotalInvestment.ToString(CultureInfo.InvariantCulture)">@row.TotalInvestment.ToString("C2")</td>
+                                <td class="d-none d-md-table-cell">@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
+                                <td class="d-none d-lg-table-cell">@row.Amount</td>
+                                <td class="d-none d-lg-table-cell" data-order="@row.TotalInvestment.ToString(CultureInfo.InvariantCulture)">@row.TotalInvestment.ToString("C2")</td>
                                 <td data-order="@row.Worth.ToString(CultureInfo.InvariantCulture)">@row.Worth.ToString("C2")</td>
-                                <td data-order="@row.Profit.ToString(CultureInfo.InvariantCulture)">
+                                <td class="d-none d-md-table-cell" data-order="@row.Profit.ToString(CultureInfo.InvariantCulture)">
                                     <span class="fw-bold @(row.Profit >= 0 ? "text-success" : "text-danger")">
                                         @row.Profit.ToString("C2")
                                     </span>
@@ -116,11 +116,11 @@
                         <tfoot>
                         <tr>
                             <th>@SharedLocalizer["Total"]</th>
-                            <th></th>
-                            <th></th>
-                            <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
+                            <th class="d-none d-md-table-cell"></th>
+                            <th class="d-none d-lg-table-cell"></th>
+                            <th class="d-none d-lg-table-cell">@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
                             <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2")</th>
-                            <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
+                            <th class="d-none d-md-table-cell">@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
                             <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
                         </tr>
                         </tfoot>
@@ -131,11 +131,20 @@
     </div>
 </div>
 
-<div class="row mb-3" style="height: 70vh;">
+<div class="row mb-3" style="height: 70vh;" class="dashboard-chart-row">
     <div class="col-md-12">
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
 </div>
+
+<style>
+    @media (max-width: 767.98px) {
+        .dashboard-chart-row {
+            height: auto !important;
+            min-height: 300px;
+        }
+    }
+</style>
 
 <script>
     $(document).ready(function () {

@@ -12,7 +12,7 @@
                     @foreach (var t in Model.Tickers)
                     {
                         <a asp-controller="MarketHistory" asp-action="Index" asp-route-ticker="@t"
-                           class="btn btn-ticker px-3 py-2 @(t == currentTicker ? "active" : "")">
+                           class="btn btn-ticker px-2 py-2 @(t == currentTicker ? "active" : "")">
                             @t
                         </a>
                     }
@@ -36,8 +36,17 @@
 
 </div>
 
-<div class="row" style="height: 80vh;">
+<div class="row market-history-chart-row" style="height: 80vh;">
     <div class="col-12 mb-3">
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>
 </div>
+
+<style>
+    @media (max-width: 767.98px) {
+        .market-history-chart-row {
+            height: auto !important;
+            min-height: 300px;
+        }
+    }
+</style>
