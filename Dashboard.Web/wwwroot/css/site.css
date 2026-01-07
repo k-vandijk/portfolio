@@ -119,7 +119,7 @@ aside {
 /* Hide sidebar entirely on screens smaller than Bootstrap's md breakpoint */
 @media (max-width: 767.98px) {
     #sidebar {
-        display: none;
+        display: none !important;
     }
     
     /* Reduce padding on main container for mobile */
@@ -161,6 +161,13 @@ aside {
     .table-sm th {
         padding: 0.3rem;
         font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    
+    /* Ensure table takes full width */
+    .table {
+        width: 100% !important;
+        min-width: auto !important;
     }
 }
 
@@ -203,6 +210,16 @@ aside {
     
     #transactionsTable input {
         min-width: 80px;
+        font-size: 0.75rem;
+    }
+    
+    /* Make the add transaction row more compact on mobile */
+    #transactionsTable tbody tr:first-child td {
+        padding: 0.2rem !important;
+    }
+    
+    #transactionsTable .form-control-sm {
+        padding: 0.25rem 0.5rem;
         font-size: 0.75rem;
     }
 }
