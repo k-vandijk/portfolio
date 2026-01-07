@@ -68,13 +68,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Configure static file options for PWA support
-var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
-provider.Mappings[".webmanifest"] = "application/manifest+json";
-app.UseStaticFiles(new StaticFileOptions
-{
-    ContentTypeProvider = provider
-});
+app.UseStaticFiles();
 
 app.UseRouting();
 
