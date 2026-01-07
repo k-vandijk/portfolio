@@ -33,9 +33,9 @@
                             <th class="text-center">#</th>
                             <th>@SharedLocalizer["Date"]</th>
                             <th>@SharedLocalizer["Ticker"]</th>
-                            <th class="d-none d-md-table-cell">@SharedLocalizer["Amount"]</th>
-                            <th class="d-none d-lg-table-cell">@SharedLocalizer["PurchasePrice"]</th>
-                            <th class="d-none d-lg-table-cell">@SharedLocalizer["TransactionCosts"]</th>
+                            <th>@SharedLocalizer["Amount"]</th>
+                            <th>@SharedLocalizer["PurchasePrice"]</th>
+                            <th>@SharedLocalizer["TransactionCosts"]</th>
                             <th>@SharedLocalizer["TotalCosts"]</th>
                             <th class="text-center"><i class="fas fa-trash-alt"></i></th>
                         </tr>
@@ -45,9 +45,9 @@
                             <td class="text-center align-middle"><i class="fas fa-plus text-success"></i></td>
                             <td><input class="form-control form-control-sm" id="dateInput" type="text" /></td>
                             <td><input class="form-control form-control-sm" id="tickerInput" list="tickerList" autocomplete="off" /></td>
-                            <td class="d-none d-md-table-cell"><input class="form-control form-control-sm" id="amountInput" /></td>
-                            <td class="d-none d-lg-table-cell"><input class="form-control form-control-sm" id="purchasePriceInput" /></td>
-                            <td class="d-none d-lg-table-cell"><input class="form-control form-control-sm" id="transactionCostsInput" /></td>
+                            <td><input class="form-control form-control-sm" id="amountInput" /></td>
+                            <td><input class="form-control form-control-sm" id="purchasePriceInput" /></td>
+                            <td><input class="form-control form-control-sm" id="transactionCostsInput" /></td>
                             <td><input class="form-control form-control-sm" id="totalCostsInput" readonly /></td>
                             <td></td>
                         </tr>
@@ -57,9 +57,9 @@
                                 <td class="text-center">@(i + 1)</td>
                                 <td>@Model[i].Date.ToString("yyyy-MM-dd")</td>
                                 <td>@Model[i].Ticker</td>
-                                <td class="text-end d-none d-md-table-cell">@Model[i].Amount</td>
-                                <td class="text-end d-none d-lg-table-cell">@Model[i].PurchasePrice.ToString("C2")</td>
-                                <td class="text-end d-none d-lg-table-cell">@Model[i].TransactionCosts.ToString("C2")</td>
+                                <td class="text-end">@Model[i].Amount</td>
+                                <td class="text-end">@Model[i].PurchasePrice.ToString("C2")</td>
+                                <td class="text-end">@Model[i].TransactionCosts.ToString("C2")</td>
                                 <td class="text-end fw-bold">
                                     <span class="@(Model[i].TotalCosts >= 0 ? "text-success" : "text-danger")">
                                         @Model[i].TotalCosts.ToString("C2")

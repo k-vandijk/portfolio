@@ -165,19 +165,19 @@ aside {
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        display: block;
     }
     
     .table-sm td,
     .table-sm th {
-        padding: 0.3rem;
+        padding: 0.4rem 0.5rem;
         font-size: 0.8rem;
         white-space: nowrap;
     }
     
-    /* Ensure table takes full width */
+    /* Allow table to be wider than viewport for scrolling */
     .table {
-        width: 100% !important;
-        min-width: auto !important;
+        min-width: max-content;
     }
 }
 
@@ -218,18 +218,15 @@ aside {
         min-height: 400px;
     }
     
-    #transactionsTable input {
-        min-width: 80px;
+    /* Transactions table inputs on mobile */
+    #transactionsTable input.form-control-sm {
+        min-width: 90px;
         font-size: 0.75rem;
+        padding: 0.3rem 0.4rem;
     }
     
     /* Make the add transaction row more compact on mobile */
     #transactionsTable tbody tr:first-child td {
-        padding: 0.2rem !important;
-    }
-    
-    #transactionsTable .form-control-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.3rem 0.4rem !important;
     }
 }

@@ -123,11 +123,11 @@
                         <thead>
                             <tr>
                                 <th>@SharedLocalizer["Ticker"]</th>
-                                <th class="d-none d-md-table-cell">@SharedLocalizer["PortfolioPct"]</th>
-                                <th class="d-none d-lg-table-cell">@SharedLocalizer["Amount"]</th>
-                                <th class="d-none d-lg-table-cell">@SharedLocalizer["TotalInvestment"]</th>
+                                <th>@SharedLocalizer["PortfolioPct"]</th>
+                                <th>@SharedLocalizer["Amount"]</th>
+                                <th>@SharedLocalizer["TotalInvestment"]</th>
                                 <th>@SharedLocalizer["Worth"]</th>
-                                <th class="d-none d-md-table-cell">@SharedLocalizer["ProfitEur"]</th>
+                                <th>@SharedLocalizer["ProfitEur"]</th>
                                 <th>@SharedLocalizer["ProfitPct"]</th>
                             </tr>
                         </thead>
@@ -151,11 +151,11 @@
                                        class="stretched-link">
                                     </a>
                                 </td>
-                                <td class="d-none d-md-table-cell">@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
-                                <td class="d-none d-lg-table-cell">@row.Amount</td>
-                                <td class="d-none d-lg-table-cell" data-order="@row.TotalInvestment.ToString(CultureInfo.InvariantCulture)">@row.TotalInvestment.ToString("C2")</td>
+                                <td>@((row.PortfolioPercentage * 100).ToString("F2") + "%")</td>
+                                <td>@row.Amount</td>
+                                <td data-order="@row.TotalInvestment.ToString(CultureInfo.InvariantCulture)">@row.TotalInvestment.ToString("C2")</td>
                                 <td data-order="@row.Worth.ToString(CultureInfo.InvariantCulture)">@row.Worth.ToString("C2")</td>
-                                <td class="d-none d-md-table-cell" data-order="@row.Profit.ToString(CultureInfo.InvariantCulture)">
+                                <td data-order="@row.Profit.ToString(CultureInfo.InvariantCulture)">
                                     <span class="fw-bold @(row.Profit >= 0 ? "text-success" : "text-danger")">
                                         @row.Profit.ToString("C2")
                                     </span>
@@ -171,11 +171,11 @@
                         <tfoot>
                         <tr>
                             <th>@SharedLocalizer["Total"]</th>
-                            <th class="d-none d-md-table-cell"></th>
-                            <th class="d-none d-lg-table-cell"></th>
-                            <th class="d-none d-lg-table-cell">@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
+                            <th></th>
+                            <th></th>
+                            <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
                             <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2")</th>
-                            <th class="d-none d-md-table-cell">@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
+                            <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
                             <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
                         </tr>
                         </tfoot>
