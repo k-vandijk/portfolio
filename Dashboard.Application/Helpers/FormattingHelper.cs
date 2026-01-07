@@ -9,40 +9,13 @@ public static class FormattingHelper
         if (string.IsNullOrWhiteSpace(input))
             return 0m;
 
-        // If the input contains a comma, it's likely nl-NL format (comma as decimal separator)
-        // Parse with nl-NL culture first to handle cases like "1.234,56" or "1,234"
-        if (input.Contains(','))
-        {
-            if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.GetCultureInfo("nl-NL"), out var nl))
-                return nl;
-        }
-
-        // Try parsing with InvariantCulture for standard formats like "123.45"
+        // We slaan op met InvariantCulture, dus eerst (en eigenlijk: uitsluitend) zo parsen
         if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var inv))
-        {
-            // If it parsed successfully but looks like it might be a thousands separator (e.g., "1.234"),
-            // try nl-NL parsing as well to see if it gives a more appropriate result
-            // In nl-NL, "1.234" with exactly 3 digits after the dot is typically a thousands separator
-            var trimmedInput = input.Trim().TrimStart('+', '-');
-            if (trimmedInput.Contains('.') && !trimmedInput.Contains(','))
-            {
-                var parts = trimmedInput.Split('.');
-                // If we have exactly 3 digits after the dot and no more dots, it might be thousands separator
-                if (parts.Length == 2 && parts[1].Length == 3)
-                {
-                    if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.GetCultureInfo("nl-NL"), out var nlResult))
-                    {
-                        // Use nl-NL result as it's likely a thousands separator
-                        return nlResult;
-                    }
-                }
-            }
             return inv;
-        }
 
-        // Final fallback to nl-NL for any remaining cases
-        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.GetCultureInfo("nl-NL"), out var nlFallback))
-            return nlFallback;
+        // Optionele fallback naar nl-NL voor oude/handmatig ingevoerde data met komma
+        if (decimal.TryParse(input, NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign, CultureInfo.GetCultureInfo("nl-NL"), out var nl))
+            return nl;
 
         return 0m;
     }
