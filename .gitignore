@@ -487,3 +487,4 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+/Dashboard.Web/Properties/launchSettings.json

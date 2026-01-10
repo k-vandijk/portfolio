@@ -16,8 +16,8 @@ public static class DependencyInjection
         services.AddSingleton<TableClient>(sp =>
         {
             var cfg = sp.GetRequiredService<IConfiguration>();
-            var cs = cfg["Secrets:TransactionsTableConnectionString"]!;
-            var tableClient = new TableServiceClient(cs).GetTableClient(StaticDetails.TableName);
+            var connectionString = Environment.GetEnvironmentVariable("TRANSACTIONS_TABLE_CONNECTION_STRING")!;
+            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.TableName);
             tableClient.CreateIfNotExists();
             return tableClient;
         });
