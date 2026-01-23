@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <Content Include="properties\launchSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="wwwroot\SharedResource.en-US.resx" />
     <EmbeddedResource Include="wwwroot\SharedResource.nl-NL.resx" />
   </ItemGroup>
