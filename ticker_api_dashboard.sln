@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.2.11408.102 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Web", "Dashboard.Web\Dashboard.Web.csproj", "{70D5CC52-8AA0-44D9-B63D-7B0E83A39193}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard._Web", "src\Dashboard._Web\Dashboard._Web.csproj", "{70D5CC52-8AA0-44D9-B63D-7B0E83A39193}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,17 +14,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Domain", "Dashboard.Domain\Dashboard.Domain.csproj", "{C766DB8C-480F-49B3-B22D-C3F5ACAA97CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Domain", "src\Dashboard.Domain\Dashboard.Domain.csproj", "{C766DB8C-480F-49B3-B22D-C3F5ACAA97CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Application", "Dashboard.Application\Dashboard.Application.csproj", "{B03BECE3-8EDB-4662-A8DB-767F089F8F92}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Application", "src\Dashboard.Application\Dashboard.Application.csproj", "{B03BECE3-8EDB-4662-A8DB-767F089F8F92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Infrastructure", "Dashboard.Infrastructure\Dashboard.Infrastructure.csproj", "{0FA8802A-39AB-4EE9-84FE-0ABC088506B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Infrastructure", "src\Dashboard.Infrastructure\Dashboard.Infrastructure.csproj", "{0FA8802A-39AB-4EE9-84FE-0ABC088506B2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2A8EDA6A-D2D9-456D-B005-5616A41848B4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E95F272F-3919-43A3-8D88-BA831A33EF0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "Dashboard.Tests\Dashboard.Tests.csproj", "{3598958E-D868-41D4-8ED3-72C7F43CC957}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashboard.Tests", "tests\Dashboard.Tests\Dashboard.Tests.csproj", "{3598958E-D868-41D4-8ED3-72C7F43CC957}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
