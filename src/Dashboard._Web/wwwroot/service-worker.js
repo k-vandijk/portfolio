@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ticker-dashboard-v1';
+const CACHE_NAME = 'ticker-dashboard-v2';
 const urlsToCache = [
   '/',
   '/css/site.css',
@@ -43,7 +43,7 @@ self.addEventListener('activate', event => {
   return self.clients.claim();
 });
 
-// Fetch event - serve from cache when possible, fallback to network
+// Fetch event - use network-first for data, cache-first for static assets
 self.addEventListener('fetch', event => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
@@ -63,26 +63,40 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response from cache
-        if (response) {
-          // Also fetch from network to update cache in background
-          fetch(event.request).then(networkResponse => {
+  const url = new URL(event.request.url);
+  const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|jpeg|svg|gif|webp|woff|woff2|ttf|eot|ico)$/);
+  
+  // Use cache-first for static assets only
+  if (isStaticAsset) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          if (response) {
+            return response;
+          }
+          
+          return fetch(event.request).then(networkResponse => {
             if (networkResponse && networkResponse.status === 200) {
+              const responseToCache = networkResponse.clone();
               caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
+                cache.put(event.request, responseToCache);
               });
             }
-          }).catch(() => {
-            // Network fetch failed, but we have cached version
+            return networkResponse;
           });
-          return response;
-        }
-
-        // Not in cache - fetch from network
-        return fetch(event.request).then(networkResponse => {
+        })
+        .catch(() => {
+          return new Response('Asset unavailable offline', {
+            status: 503,
+            statusText: 'Service Unavailable'
+          });
+        })
+    );
+  } else {
+    // Use network-first for HTML and data endpoints
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
           // Check if valid response
           if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === 'error') {
             return networkResponse;
@@ -91,7 +105,7 @@ self.addEventListener('fetch', event => {
           // Clone the response
           const responseToCache = networkResponse.clone();
 
-          // Cache the new response
+          // Cache the response for offline fallback
           caches.open(CACHE_NAME).then(cache => {
             // Only cache same-origin requests
             if (event.request.url.startsWith(self.location.origin)) {
@@ -100,18 +114,24 @@ self.addEventListener('fetch', event => {
           });
 
           return networkResponse;
-        });
-      })
-      .catch(() => {
-        // Both cache and network failed
-        // Return a custom offline page if you have one
-        return new Response('Offline - no cached version available', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({
-            'Content-Type': 'text/plain'
-          })
-        });
-      })
-  );
+        })
+        .catch(() => {
+          // Network failed, try to return cached version as fallback
+          return caches.match(event.request).then(response => {
+            if (response) {
+              return response;
+            }
+            
+            // No cache available either
+            return new Response('Offline - no cached version available', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
+            });
+          });
+        })
+    );
+  }
 });
