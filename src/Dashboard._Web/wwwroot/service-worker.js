@@ -1,7 +1,11 @@
-const CACHE_NAME = 'ticker-dashboard-v2';
+const CACHE_NAME = 'ticker-dashboard-v3';
 const urlsToCache = [
   '/',
-  '/css/site.css',
+  '/css/variables.css',
+  '/css/layout.css',
+  '/css/components.css',
+  '/css/utilities.css',
+  '/css/responsive.css',
   '/js/site.js',
   '/js/alerts.js',
   '/js/skeleton.js',
