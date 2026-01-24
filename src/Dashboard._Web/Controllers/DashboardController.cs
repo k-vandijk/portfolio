@@ -4,6 +4,7 @@ using Dashboard.Application.Interfaces;
 using Dashboard._Web.ViewModels;
 using Dashboard.Application.Helpers;
 using kvandijk.Common.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -104,19 +105,22 @@ public class DashboardController : Controller
         return PartialView("_DashboardContent", viewModel);
     }
 
+    [AllowAnonymous]
     [SkipRequestTiming]
-    [HttpGet("/dashboard/linechart.png")]
-    public async Task<IActionResult> LineChartImage(
+    [HttpGet("/dashboard/lineonly.png")]
+    public async Task<IActionResult> LineOnlyImage(
         [FromQuery] string? mode = "profit",
         [FromQuery] string? tickers = null,
         [FromQuery] string? timerange = null,
         [FromQuery] int? year = null,
         [FromQuery] int width = 1200,
-        [FromQuery] int height = 500)
+        [FromQuery] int height = 400,
+        [FromQuery] int padding = 16,
+        [FromQuery] bool transparent = true)
     {
-        // Basic bounds to prevent abuse / accidental huge images
-        width = Math.Clamp(width, 300, 4000);
-        height = Math.Clamp(height, 200, 2000);
+        width = Math.Clamp(width, 150, 4000);
+        height = Math.Clamp(height, 60, 2000);
+        padding = Math.Clamp(padding, 0, 200);
 
         var transactions = await _azureTableService.GetTransactionsAsync();
 
@@ -151,14 +155,16 @@ public class DashboardController : Controller
 
         chart.DataPoints = FilterHelper.FilterLineChartDataPoints(chart.DataPoints, startDate, endDate);
         chart.DataPoints = NormalizeSeries(chart.DataPoints, mode);
-        chart.Profit = GetPeriodDelta(chart.DataPoints, mode);
 
-        var pngBytes = LineChartRenderer.RenderPng(chart, width, height);
+        var png = LineOnlyRenderer.RenderPng(
+            chart.DataPoints,
+            width,
+            height,
+            padding,
+            transparentBackground: transparent);
 
-        // Optional caching if your underlying data doesn’t change often:
         Response.Headers.CacheControl = "private, max-age=60";
-
-        return File(pngBytes, "image/png");
+        return File(png, "image/png");
     }
 
     private async Task<List<MarketHistoryDataPoint>> GetMarketHistoryDataPoints(List<string> tickers)
