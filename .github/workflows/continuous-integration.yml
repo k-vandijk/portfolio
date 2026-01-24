@@ -1,31 +1,40 @@
-name: Continuous Integration - Build & Test
+name: Continuous Integration
+
+env:
+  DOTNET_VERSION: '10.x'
 
 on:
   pull_request:
     branches: [main, master, dev]
   workflow_dispatch:
 
+# Least privilege for CI + allow PR check annotations and report publishing.
 permissions:
   contents: read
   checks: write
   pull-requests: read
 
 concurrency:
+  # Cancel outdated runs for the same PR/ref to save minutes and reduce noise.
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-test:
+  ci-build-test:
+    name: Build and test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
+      # Fetch full history + tags (useful for version tooling and consistent builds).
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Cache NuGet
+      # Speed up restores by caching global NuGet packages.
+      - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
@@ -33,37 +42,42 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      - name: Setup .NET
+      # Install the targeted .NET SDK.
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "10.x"
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore
+      # Restore dependencies.
+      - name: Restore dependencies
         run: dotnet restore
 
+      # Compile in Release configuration.
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test with TRX output
+      # Run tests and emit TRX results for reporting.
+      - name: Test (TRX output)
         run: |
           dotnet test --configuration Release --no-build --verbosity normal \
             --logger "trx;LogFileName=test_results.trx" \
             --results-directory ./TestResults
 
+      # Always upload raw test result files for troubleshooting.
       - name: Upload test results artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ./TestResults/*.trx
+          path: ./TestResults/**/*.trx
           if-no-files-found: warn
 
-      # Publish test results to the Checks tab (nice UX for PRs)
+      # Publish a PR-friendly test report and annotations from TRX files.
       - name: Publish test report
         if: always()
         uses: dorny/test-reporter@v1
         with:
           name: .NET Tests
-          path: ./TestResults/*.trx
+          path: ./TestResults/**/*.trx
           reporter: dotnet-trx
           fail-on-error: true
