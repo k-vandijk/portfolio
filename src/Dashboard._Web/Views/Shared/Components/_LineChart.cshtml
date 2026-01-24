@@ -3,36 +3,6 @@
     var chartId = (string?)ViewData["ChartId"] ?? "chart_" + Guid.NewGuid().ToString("N");
 }
 
-<style>
-    /* Ensure the parent container defines its own height (flex or px/vh based) */
-    .chart-container {
-        position: relative;
-        width: 100%;
-        height: 100%; /* Fill parent’s height */
-    }
-
-    .chart-container > .chart-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100% !important;
-        height: 100% !important; /* Force the canvas to fill container height */
-    }
-</style>
-
-<div class="card">
-    @if (!string.IsNullOrEmpty(Model.Title))
-    {
-        <div class="card-header d-flex gap-1">
-            @Model.Title
-
-            @if (Model.Profit is decimal profit)
-            {
-                var isPositive = profit >= 0;
-                var cssClass = isPositive ? "text-success" : "text-danger";
-                var icon = isPositive ? "fa-caret-up" : "fa-caret-down";
-                var formatted = Model.Format == "percentage" ? profit.ToString("F2") + "%" : profit.ToString("C2");
-                <span class="@($"{cssClass} fw-bold small mx-2")"><i class="fa-solid @icon"></i> @formatted</span>
-            }
         </div>
     }
     <div class="card-body">
