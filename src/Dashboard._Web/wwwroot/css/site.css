@@ -98,6 +98,7 @@ hr {
 @media (max-width: 767.98px) {
     .btn-group {
         flex-wrap: wrap;
+        gap: 0.25rem; /* Add gap between buttons */
     }
     
     .btn-ticker {
@@ -105,10 +106,36 @@ hr {
         padding: 0.5rem 0.75rem !important;
     }
     
+    /* Smaller buttons in filter cards */
+    .btn-ticker.btn-sm {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem !important;
+    }
+    
     /* Allow buttons to wrap to multiple lines */
     .btn-group .btn {
         flex: 0 1 auto;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0;
+    }
+    
+    /* Reduce card body padding in filter cards */
+    .card-body.d-flex.flex-column {
+        padding: 0.75rem !important;
+    }
+    
+    /* Reduce spacing between filter sections */
+    .card-body.d-flex.flex-column > div {
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-body.d-flex.flex-column > div:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Smaller label text in filters */
+    .filter-label {
+        font-size: 0.7rem;
+        margin-bottom: 0.25rem !important;
     }
 }
 
@@ -171,7 +198,7 @@ aside {
 @media (max-width: 767.98px) {
     /* Reduce padding in table cells on mobile */
     .table > :not(caption) > * > * {
-        padding: 0.25rem 0.5rem;
+        padding: 0.25rem 0.5rem !important;
     }
     
     /* Prevent text wrapping in table cells */
@@ -182,7 +209,18 @@ aside {
     
     /* Tighter spacing for table rows on mobile */
     .table-sm > :not(caption) > * > * {
-        padding: 0.2rem 0.4rem;
+        padding: 0.2rem 0.4rem !important;
+    }
+    
+    /* Remove extra padding from table card bodies */
+    .card-body.p-0 {
+        padding: 0 !important;
+    }
+    
+    /* Ensure table-responsive has no extra padding */
+    .table-responsive.h-100 {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 }
 
@@ -242,6 +280,28 @@ aside {
     /* Ensure cards in rows stack properly */
     .row > [class*="col-"] {
         margin-bottom: 1rem;
+    }
+    
+    /* Make metric cards stack vertically on mobile */
+    .row .col-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Reduce metric card text size on mobile */
+    .card.text-center .card-title {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card.text-center h4 {
+        font-size: 1.25rem;
+    }
+    
+    /* Reduce card body padding for metric cards */
+    .card.text-center .card-body {
+        padding: 0.75rem !important;
     }
 }
 
