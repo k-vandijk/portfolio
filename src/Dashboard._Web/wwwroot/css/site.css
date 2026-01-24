@@ -189,17 +189,28 @@ aside {
     }
 }
 
-/* Mobile: natural scrolling */
+/* Mobile: natural scrolling and layout fixes */
 @media (max-width: 767.98px) {
     #main-content {
         width: 100%;
         padding-bottom: 80px !important; /* Space for bottom navigation */
+    }
+    
+    /* Fix for rows with fixed vh heights - make them auto on mobile */
+    .row[style*="height"] {
+        height: auto !important;
+        min-height: auto !important;
+    }
+    
+    /* Ensure cards in rows stack properly */
+    .row > [class*="col-"] {
+        margin-bottom: 1rem;
     }
 }
 
 /* Hide sidebar entirely on screens smaller than Bootstrap's md breakpoint */
 @media (max-width: 767.98px) {
     #sidebar {
-        display: none;
+        display: none !important; /* Use !important to override any inline styles */
     }
 }

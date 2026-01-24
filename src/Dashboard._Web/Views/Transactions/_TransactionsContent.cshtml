@@ -92,8 +92,29 @@
           }
         };
 
-        var dtLangUrl = '@dtLangUrl';
-        if (dtLangUrl) { dtLanguage.url = dtLangUrl; }
+        // Only try to load external language file if we have a URL
+        // Using async: false is deprecated, so we'll initialize without external language file
+        // and use inline translations instead
+        var currentCulture = '@currentCulture';
+        if (currentCulture === 'nl-NL') {
+            dtLanguage = {
+                paginate: {
+                    previous: '<i class="fa-solid fa-angle-left" aria-hidden="true"></i>',
+                    next: '<i class="fa-solid fa-angle-right" aria-hidden="true"></i>',
+                    first: 'Eerste',
+                    last: 'Laatste'
+                },
+                emptyTable: 'Geen gegevens beschikbaar in tabel',
+                info: '_START_ tot _END_ van _TOTAL_ resultaten',
+                infoEmpty: '0 tot 0 van 0 resultaten',
+                infoFiltered: ' (gefilterd uit _MAX_ resultaten)',
+                lengthMenu: '_MENU_ resultaten weergeven',
+                loadingRecords: 'Laden...',
+                processing: 'Bezig...',
+                search: 'Zoeken:',
+                zeroRecords: 'Geen resultaten gevonden'
+            };
+        }
 
         $('#transactionsTable').DataTable({
             paging: true,
