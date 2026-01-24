@@ -3,11 +3,6 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
-financien*.csv
-venv/
-_venv/
-settings.json
-
 # dotenv files
 .env
 
@@ -488,6 +483,4 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-/Dashboard.Web/Properties/launchSettings.json
-/src/Dashboard._Web/Properties/launchSettings.json
 launchSettings.json

@@ -11,11 +11,11 @@ public class FilterHelperTests
     public void FilterTransactions_ReturnsAll_WhenNoFilters()
     {
         // Arrange
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
-            new Transaction { Ticker = "", Date = new DateOnly(2025, 3, 1) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
+            new TransactionDto { Ticker = "", Date = new DateOnly(2025, 3, 1) },
         };
 
         // Act
@@ -31,10 +31,10 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_IgnoresFiltering_WhenTickersStringIsLiteralNull()
     {
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
         };
 
         var result = FilterHelper.FilterTransactions(tx, tickers: "null");
@@ -45,11 +45,11 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_FiltersByTickers_CaseInsensitive_CommaSeparated()
     {
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2025, 1, 2) },
-            new Transaction { Ticker = "GOOG", Date = new DateOnly(2025, 1, 3) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2025, 1, 2) },
+            new TransactionDto { Ticker = "GOOG", Date = new DateOnly(2025, 1, 3) },
         };
 
         var result = FilterHelper.FilterTransactions(tx, tickers: "msft, AaPl");
@@ -63,11 +63,11 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_ExcludesNullOrWhitespaceTickers_WhenFilteringByTickers()
     {
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = " ", Date = new DateOnly(2025, 1, 2) },
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 3) },
+            new TransactionDto { Ticker = "", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = " ", Date = new DateOnly(2025, 1, 2) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 3) },
         };
 
         var result = FilterHelper.FilterTransactions(tx, tickers: "AAPL");
@@ -79,11 +79,11 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_FiltersByStartAndEndDate_Inclusive()
     {
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2025, 1, 15) },
-            new Transaction { Ticker = "GOOG", Date = new DateOnly(2025, 2, 1) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2025, 1, 15) },
+            new TransactionDto { Ticker = "GOOG", Date = new DateOnly(2025, 2, 1) },
         };
 
         var start = new DateOnly(2025, 1, 1);
@@ -98,10 +98,10 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_FiltersOnlyStart_WhenOnlyStartProvided()
     {
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
         };
 
         var result = FilterHelper.FilterTransactions(tx, tickers: null, startDate: new DateOnly(2025, 2, 1));
@@ -113,10 +113,10 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_FiltersOnlyEnd_WhenOnlyEndProvided()
     {
-        var tx = new List<Transaction>
+        var tx = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2025, 2, 1) },
         };
 
         var result = FilterHelper.FilterTransactions(tx, tickers: null, endDate: new DateOnly(2025, 1, 31));

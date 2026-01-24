@@ -1,6 +1,4 @@
-﻿using Dashboard.Application;
-using Dashboard.Domain;
-using Dashboard.Infrastructure;
+﻿using Dashboard.Infrastructure;
 using kvandijk.Common.Diagnostics;
 using kvandijk.Common.Extensions;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -32,8 +30,6 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "wwwroot");
 builder.Services.AddControllersWithViews().AddViewLocalization();
 
 // Add application services
-builder.Services.AddApplication();
-builder.Services.AddDomain();
 builder.Services.AddInfrastructure();
 
 var app = builder.Build();

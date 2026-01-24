@@ -1,4 +1,4 @@
-﻿@model Dashboard.Web.ViewModels.InvestmentViewModel
+﻿@model InvestmentViewModel
 @{
     var currentTickersString =
         Context.Request.Query.TryGetValue("tickers", out var tickersVal) && !string.IsNullOrWhiteSpace(tickersVal)

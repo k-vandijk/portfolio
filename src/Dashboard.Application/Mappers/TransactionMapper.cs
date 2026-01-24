@@ -1,13 +1,14 @@
 ﻿using Azure;
 using Dashboard.Application.Dtos;
+using Dashboard.Application.Helpers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
 
-namespace Dashboard.Application.Helpers;
+namespace Dashboard.Application.Mappers;
 
 public static class TransactionMapper
 {
-    public static TransactionEntity ToEntity(this Transaction t)
+    public static TransactionEntity ToEntity(this TransactionDto t)
     {
         return new TransactionEntity
         {
@@ -22,9 +23,9 @@ public static class TransactionMapper
         };
     }
 
-    public static Transaction ToModel(this TransactionEntity e)
+    public static TransactionDto ToModel(this TransactionEntity e)
     {
-        return new Transaction
+        return new TransactionDto
         {
             RowKey = e.RowKey,
             Date = FormattingHelper.ParseDateOnly(e.Date),

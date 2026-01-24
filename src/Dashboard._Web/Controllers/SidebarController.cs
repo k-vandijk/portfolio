@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dashboard.Web.Controllers;
+namespace Dashboard._Web.Controllers;
 
 public class SidebarController : Controller
 {

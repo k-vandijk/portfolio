@@ -1,6 +1,6 @@
 ﻿namespace Dashboard.Application.Dtos;
 
-public class MarketHistoryResponse
+public class MarketHistoryResponseDto
 {
     public string Ticker { get; set; } = string.Empty;
     public string Currency { get; set; } = string.Empty;

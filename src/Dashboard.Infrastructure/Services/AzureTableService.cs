@@ -1,8 +1,8 @@
 ﻿using Azure;
 using Azure.Data.Tables;
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Helpers;
 using Dashboard.Application.Interfaces;
+using Dashboard.Application.Mappers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.Caching.Memory;
@@ -22,14 +22,14 @@ public class AzureTableService : IAzureTableService
         _cache = cache;
     }
 
-    public async Task<List<Transaction>> GetTransactionsAsync()
+    public async Task<List<TransactionDto>> GetTransactionsAsync()
     {
-        if (_cache.TryGetValue(CacheKey, out List<Transaction>? cached))
+        if (_cache.TryGetValue(CacheKey, out List<TransactionDto>? cached))
             return cached!;
 
         var transactionsPageable = _table.QueryAsync<TransactionEntity>(filter: "PartitionKey eq 'transactions'");
 
-        var transactions = new List<Transaction>();
+        var transactions = new List<TransactionDto>();
         await foreach (var entity in transactionsPageable)
         {
             transactions.Add(entity.ToModel());
@@ -46,7 +46,7 @@ public class AzureTableService : IAzureTableService
         return orderedTransactions;
     }
 
-    public async Task AddTransactionAsync(Transaction transaction)
+    public async Task AddTransactionAsync(TransactionDto transaction)
     {
         var entity = transaction.ToEntity();
 

@@ -1,11 +1,11 @@
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard.Application.Interfaces;
-using Dashboard.Web.ViewModels;
+using Dashboard._Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
-namespace Dashboard.Web.Controllers;
+namespace Dashboard._Web.Controllers;
 
 public class InvestmentController : Controller
 {
@@ -48,7 +48,7 @@ public class InvestmentController : Controller
         return PartialView("_InvestmentContent", viewModel);
     }
 
-    private LineChartViewModel GetLineChartViewModel(List<Transaction> transactions)
+    private LineChartViewModel GetLineChartViewModel(List<TransactionDto> transactions)
     {
         var cumulativeSum = 0m;
         var groupedTransactions = transactions
@@ -75,7 +75,7 @@ public class InvestmentController : Controller
         return lineChartViewModel;
     }
 
-    private PieChartViewModel GetPieChartViewModel(List<Transaction> transactions)
+    private PieChartViewModel GetPieChartViewModel(List<TransactionDto> transactions)
     {
         var groupedTransactions = transactions
             .GroupBy(t => t.Ticker)
@@ -95,7 +95,7 @@ public class InvestmentController : Controller
         return pieChartViewModel;
     }
 
-    private BarChartViewModel GetBarChartViewModel(List<Transaction> transactions)
+    private BarChartViewModel GetBarChartViewModel(List<TransactionDto> transactions)
     {
         var groupedTransactions = transactions
             .GroupBy(t => new { t.Date.Year, t.Date.Month })

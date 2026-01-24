@@ -9,13 +9,13 @@ public class YearFilterIntegrationTests
     public void YearFilter_FiltersTransactionsToSpecificYear()
     {
         // Arrange
-        var transactions = new List<Transaction>
+        var transactions = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2022, 6, 15), Amount = 10, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2023, 3, 20), Amount = 5, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "GOOG", Date = new DateOnly(2023, 8, 10), Amount = 3, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "TSLA", Date = new DateOnly(2024, 1, 5), Amount = 2, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "AMZN", Date = new DateOnly(2024, 12, 31), Amount = 1, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2022, 6, 15), Amount = 10, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2023, 3, 20), Amount = 5, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "GOOG", Date = new DateOnly(2023, 8, 10), Amount = 3, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "TSLA", Date = new DateOnly(2024, 1, 5), Amount = 2, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AMZN", Date = new DateOnly(2024, 12, 31), Amount = 1, PurchasePrice = 100, TransactionCosts = 0 },
         };
 
         // Act - Filter to year 2023
@@ -33,12 +33,12 @@ public class YearFilterIntegrationTests
     public void YearFilter_WorksWithTickerFilter()
     {
         // Arrange
-        var transactions = new List<Transaction>
+        var transactions = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2023, 6, 15), Amount = 10, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2023, 12, 20), Amount = 5, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2023, 8, 10), Amount = 3, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2024, 1, 5), Amount = 2, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2023, 6, 15), Amount = 10, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2023, 12, 20), Amount = 5, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2023, 8, 10), Amount = 3, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2024, 1, 5), Amount = 2, PurchasePrice = 100, TransactionCosts = 0 },
         };
 
         // Act - Filter to year 2023 and ticker AAPL
@@ -81,10 +81,10 @@ public class YearFilterIntegrationTests
     public void YearFilter_HandlesEdgeCasesCorrectly()
     {
         // Arrange
-        var transactions = new List<Transaction>
+        var transactions = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2023, 1, 1), Amount = 1, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2023, 12, 31), Amount = 1, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2023, 1, 1), Amount = 1, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2023, 12, 31), Amount = 1, PurchasePrice = 100, TransactionCosts = 0 },
         };
 
         // Act - Filter to year 2023
@@ -99,10 +99,10 @@ public class YearFilterIntegrationTests
     public void YearFilter_ReturnsEmptyForYearWithNoTransactions()
     {
         // Arrange
-        var transactions = new List<Transaction>
+        var transactions = new List<TransactionDto>
         {
-            new Transaction { Ticker = "AAPL", Date = new DateOnly(2023, 6, 15), Amount = 10, PurchasePrice = 100, TransactionCosts = 0 },
-            new Transaction { Ticker = "MSFT", Date = new DateOnly(2024, 3, 20), Amount = 5, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2023, 6, 15), Amount = 10, PurchasePrice = 100, TransactionCosts = 0 },
+            new TransactionDto { Ticker = "MSFT", Date = new DateOnly(2024, 3, 20), Amount = 5, PurchasePrice = 100, TransactionCosts = 0 },
         };
 
         // Act - Filter to year 2022 (no transactions)

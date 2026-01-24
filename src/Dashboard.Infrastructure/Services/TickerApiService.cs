@@ -18,7 +18,7 @@ public class TickerApiService : ITickerApiService
         _cache = cache;
     }
 
-    public async Task<MarketHistoryResponse?> GetMarketHistoryResponseAsync(
+    public async Task<MarketHistoryResponseDto?> GetMarketHistoryResponseAsync(
         string ticker,
         string? period = null,
         string? interval = "1d")
@@ -29,7 +29,7 @@ public class TickerApiService : ITickerApiService
         period ??= PeriodHelper.GetDefaultPeriod();
 
         var cacheKey = $"history:{ticker}:{period}:{interval}";
-        if (_cache.TryGetValue(cacheKey, out MarketHistoryResponse? cached))
+        if (_cache.TryGetValue(cacheKey, out MarketHistoryResponseDto? cached))
             return cached;
 
         var requestUrl = $"{tickerApiUrl}/get_history?code={tickerApiCode}&ticker={ticker}&period={period}&interval={interval}";
@@ -38,7 +38,7 @@ public class TickerApiService : ITickerApiService
         response.EnsureSuccessStatusCode();
 
         var responseContent = await response.Content.ReadAsStringAsync();
-        var marketHistory = JsonSerializer.Deserialize<MarketHistoryResponse>(responseContent, new JsonSerializerOptions
+        var marketHistory = JsonSerializer.Deserialize<MarketHistoryResponseDto>(responseContent, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

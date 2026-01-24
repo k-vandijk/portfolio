@@ -1,6 +1,6 @@
 ﻿using Azure;
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Helpers;
+using Dashboard.Application.Mappers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
 
@@ -11,7 +11,7 @@ public class TransactionMapperTests
     [Fact]
     public void Maps_All_Fields_Including_Invariant_Formats()
     {
-        var model = new Transaction
+        var model = new TransactionDto
         {
             RowKey = "rk-123",
             Date = new DateOnly(2024, 05, 17),
@@ -39,7 +39,7 @@ public class TransactionMapperTests
     [InlineData("   ")]
     public void Generates_New_RowKey_When_Missing(string? rowKey)
     {
-        var model = new Transaction
+        var model = new TransactionDto
         {
             RowKey = rowKey,
             Date = new DateOnly(2024, 1, 1),
@@ -59,7 +59,7 @@ public class TransactionMapperTests
     [Fact]
     public void Default_Date_Becomes_Empty_String()
     {
-        var model = new Transaction
+        var model = new TransactionDto
         {
             RowKey = "rk",
             Date = default,
@@ -123,7 +123,7 @@ public class TransactionMapperTests
     [Fact]
     public void Model_ToEntity_ToModel_Roundtrips_When_RowKey_Provided()
     {
-        var original = new Transaction
+        var original = new TransactionDto
         {
             RowKey = "rk-provided",
             Date = new DateOnly(2024, 09, 30),
@@ -150,7 +150,7 @@ public class TransactionMapperTests
     [InlineData("   ")]
     public void Generates_RowKey_And_Roundtrips_When_RowKey_Missing(string? rowKey)
     {
-        var original = new Transaction
+        var original = new TransactionDto
         {
             RowKey = rowKey,
             Date = new DateOnly(2024, 03, 15),
@@ -175,7 +175,7 @@ public class TransactionMapperTests
     [Fact]
     public void Default_Date_Roundtrips_As_Default()
     {
-        var original = new Transaction
+        var original = new TransactionDto
         {
             RowKey = "rk",
             Date = default,

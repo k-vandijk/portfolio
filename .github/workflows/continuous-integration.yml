@@ -41,10 +41,10 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Build (Release)
+      - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Test (Release) with TRX output
+      - name: Test with TRX output
         run: |
           dotnet test --configuration Release --no-build --verbosity normal \
             --logger "trx;LogFileName=test_results.trx" \

@@ -2,7 +2,7 @@
 
 namespace Dashboard.Application.Dtos;
 
-public class Transaction
+public class TransactionDto
 {
     public string? RowKey { get; set; }
 
