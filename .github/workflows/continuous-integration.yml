@@ -4,8 +4,8 @@ env:
   DOTNET_VERSION: '10.x'
 
 on:
-  pull_request:
-    branches: [main, master, dev]
+  # pull_request:
+  #   branches: [main, master, dev]
   workflow_dispatch:
 
 permissions:
