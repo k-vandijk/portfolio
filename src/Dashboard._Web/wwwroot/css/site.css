@@ -97,25 +97,31 @@ hr {
 /* Mobile button group improvements */
 @media (max-width: 767.98px) {
     .btn-group {
+        display: flex;
         flex-wrap: wrap;
         gap: 0.25rem; /* Add gap between buttons */
+        width: 100%;
     }
     
     .btn-ticker {
         font-size: 0.875rem;
-        padding: 0.5rem 0.75rem !important;
+        padding: 0.5rem 0.5rem !important; /* Reduced horizontal padding */
+        flex: 1 1 auto; /* Allow buttons to grow and fill available space */
+        min-width: 0; /* Allow buttons to shrink below content size */
+        text-align: center;
     }
     
     /* Smaller buttons in filter cards */
     .btn-ticker.btn-sm {
         font-size: 0.75rem;
-        padding: 0.375rem 0.5rem !important;
+        padding: 0.375rem 0.375rem !important; /* Reduced horizontal padding */
     }
     
-    /* Allow buttons to wrap to multiple lines */
+    /* Make buttons in filter cards fill the available space */
     .btn-group .btn {
-        flex: 0 1 auto;
+        flex: 1 1 auto; /* Allow buttons to grow equally */
         margin-bottom: 0;
+        min-width: 0; /* Allow buttons to shrink */
     }
     
     /* Reduce card body padding in filter cards */
