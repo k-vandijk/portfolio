@@ -225,7 +225,7 @@ The application uses Serilog for structured logging:
 - Request/response logging for debugging
 
 ### Localization
-- Resources stored in `wwwroot/` directory as `.resx` files
+- Resources stored in `wwwroot/` directory as `.resx` files (configured via `ResourcesPath` in Program.cs)
 - Supported UI cultures: nl-NL (default), en-US
 - Supported formatting culture: nl-NL
 - Use `IStringLocalizer<SharedResource>` for localized strings
