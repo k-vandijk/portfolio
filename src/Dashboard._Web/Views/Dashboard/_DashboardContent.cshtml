@@ -37,7 +37,7 @@
     }
 }
 
-<div class="row" style="height: 25vh;">
+<div class="row h-25vh">
     <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-4 mb-3">
         <div class="card">
             <div class="card-body d-flex flex-column justify-content-evenly">
@@ -139,7 +139,7 @@
                                 ? string.Join(',', currentTickers.Where(t => !t.Equals(row.Ticker, StringComparison.OrdinalIgnoreCase)))
                                 : (string.IsNullOrWhiteSpace(currentTickersString) ? row.Ticker : currentTickersString + "," + row.Ticker);
 
-                            <tr class="position-relative @rowClass" style="cursor:pointer">
+                            <tr class="position-relative cursor-pointer @rowClass">
                                 <td>
                                     @row.Ticker
                                     <a asp-controller="Dashboard" asp-action="Index"
@@ -185,7 +185,7 @@
     </div>
 </div>
 
-<div class="row mb-3" style="height: 70vh;">
+<div class="row mb-3 h-70vh">
     <div class="col-md-12">
         <partial name="Components/_LineChart" model="Model.LineChart" />
     </div>

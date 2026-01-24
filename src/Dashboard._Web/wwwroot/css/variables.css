@@ -1,0 +1,22 @@
+/* CSS Custom Properties - Color scheme and design tokens */
+:root {
+    --accent-1: #1560BD; /* Denim Blue */
+    --accent-1-hover: #104E8B; /* Darker shade for hover effect */
+    --accent-2: #264653; /* Donker teal - koel en modern, perfecte aanvulling */
+    --accent-3: #E9C46A; /* Goud/mosterd - warme, vriendelijke accentkleur */
+    --accent-4: #F4A261; /* Zachte terracotta - warm, uitnodigend en goed contrasterend */
+
+    --accent-1-light: #EBF3FC; /* brand wash for subtle backgrounds */
+    --accent-4-light: #FAFAFA; /* neutral wash for gradients */
+
+    --card-color: #F5F5F5; /* DevOps-like grey card (Fluent neutralLighter) */
+    --text-color: #242424; /* Fluent neutralPrimary for body text */
+
+    --border-color: #E0E0E0; /* Fluent neutralQuaternaryAlt */
+    --border-radius: 12px;
+    --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.08);
+    
+    /* Loading bar color for top progress indicator */
+    --kvandijk-loading-bar-color: var(--accent-1);
+}

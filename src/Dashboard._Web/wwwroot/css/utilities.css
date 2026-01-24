@@ -1,0 +1,61 @@
+/* Utility classes - Height helpers, filter labels, placeholders, and other helpers */
+
+/* Height utility classes for common vh values */
+.h-15vh {
+    height: 15vh;
+}
+
+.h-25vh {
+    height: 25vh;
+}
+
+.h-47vh {
+    height: 47vh;
+}
+
+.h-48vh {
+    height: 48vh;
+}
+
+.h-70vh {
+    height: 70vh;
+}
+
+.h-80vh {
+    height: 80vh;
+}
+
+.h-95vh {
+    height: 95vh;
+}
+
+/* Cursor utilities */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Icon size utility */
+.icon-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Brand text color utility */
+.text-brand {
+    color: var(--accent-1);
+}
+
+/* Filter label styling */
+.filter-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--accent-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+/* Placeholder styling */
+.placeholder {
+    border-radius: var(--border-radius) !important;
+}
