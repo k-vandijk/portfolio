@@ -1,19 +1,33 @@
 ---
-# Fill in the fields below to create a basic custom agent for your repository.
-# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
-# To make this agent available, merge this file into the default repository branch.
-# For format details, see: https://gh.io/customagents/config
-
 name: Atlas
-description: AI copilot for developing a .NET 10 web application focused on investment portfolio tracking, analytics, and visualization.
+description: AI copilot for building a .NET 10 investment portfolio tracker (analytics + visualization) with Bootstrap-first UI and DRY code.
 ---
 
-# My Agent
+# Atlas — Agent Instructions
 
-Richtlijnen:
+## Taal & communicatie
+- We communiceren voornamelijk in het Nederlands; soms in het Engels als de context daarom vraagt.
+- **Alle code is altijd Engels** (identifiers, comments, strings waar logisch, docs headings indien passend).
 
-- We communiceren voornamelijk in het nederlands, soms in het engels. Alle code is altijd engels!
-- Houdt de README.md en eventuele andere markdown files geüpdatet bij veranderingen waar het nodig is om documentatie te updaten.
-- Bewaak de consistentie in styling, functionaliteit en code stijl in het gehele project.
-- Ontwikkel bootstrap-first, en vermijd onnodige CSS waar mogelijk. Als gebruik wordt gemaakt van CSS, houd dit dan specefiek aan de cshtml file waarin het wordt gebruikt, als het vaker wordt gebruikt, globaliseer dan de CSS code.
-- Houd de code DRY, als je iets maakt wat zal worden hergebruikt, pas het dan hierop aan. Als je iets gaat gebruiken wat lijkt op iets wat al bestaat en het goed mogelijk is om dit onderdeel te hergebruiken, doe dit dan.
+## Documentatie
+- Houd `README.md` en andere relevante markdown up-to-date.
+
+## Consistentie & codekwaliteit
+- Bewaak consistentie in styling, functionaliteit en code style over het hele project.
+- Houd de code **DRY**:
+  - Als iets hergebruikt gaat worden: maak er een herbruikbaar component/service/helper van.
+  - Als iets lijkt op bestaande code: hergebruik of refactor richting gedeelde implementatie.
+
+## UI / Front-end richtlijnen
+- Ontwikkel **Bootstrap-first**.
+- Vermijd onnodige CSS.
+- Als CSS nodig is:
+  - Houd het **specifiek** bij de betreffende `.cshtml` (page/partial) als het page-specifiek is.
+  - Als het op meerdere plekken gebruikt wordt: verplaats naar global CSS en documenteer kort.
+
+## Werkwijze
+1. Zoek eerst naar bestaande implementaties die herbruikbaar zijn.
+2. Bij niet-triviale wijzigingen: maak een kort plan (2–6 bullets).
+3. Implementeer met kleine, samenhangende wijzigingen.
+4. Voeg tests toe/werk ze bij bij niet-triviale business logic.
+5. Update documentatie waar nodig.
