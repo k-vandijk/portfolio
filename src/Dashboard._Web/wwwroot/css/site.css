@@ -94,6 +94,24 @@ hr {
         box-shadow: var(--shadow-hover);
     }
 
+/* Mobile button group improvements */
+@media (max-width: 767.98px) {
+    .btn-group {
+        flex-wrap: wrap;
+    }
+    
+    .btn-ticker {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    /* Allow buttons to wrap to multiple lines */
+    .btn-group .btn {
+        flex: 0 1 auto;
+        margin-bottom: 0.25rem;
+    }
+}
+
 /* Filter label styling */
 .filter-label {
     font-size: 0.75rem;
@@ -146,6 +164,25 @@ aside {
 @media (max-width: 375px) {
     .table {
         min-width: 500px;
+    }
+}
+
+/* Mobile table improvements */
+@media (max-width: 767.98px) {
+    /* Reduce padding in table cells on mobile */
+    .table > :not(caption) > * > * {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    /* Prevent text wrapping in table cells */
+    .table td,
+    .table th {
+        white-space: nowrap;
+    }
+    
+    /* Tighter spacing for table rows on mobile */
+    .table-sm > :not(caption) > * > * {
+        padding: 0.2rem 0.4rem;
     }
 }
 

@@ -12,8 +12,8 @@
     /* Bottom navigation - only visible on mobile */
     #bottom-nav {
         display: none;
-        position: fixed;
-        bottom: 0;
+        position: fixed !important; /* Ensure fixed positioning */
+        bottom: 0 !important;
         left: 0;
         right: 0;
         background-color: var(--card-color);
@@ -25,7 +25,7 @@
 
     @@media (max-width: 767.98px) {
         #bottom-nav {
-            display: block;
+            display: block !important; /* Force display on mobile */
         }
     }
 
