@@ -131,6 +131,24 @@ aside {
     --bs-table-bg: transparent !important;
 }
 
+/* Table responsive wrapper - add smooth scrolling for touch devices */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent table from breaking layout on small screens */
+.table {
+    min-width: 600px; /* Minimum width to keep tables readable */
+}
+
+/* On very small screens, allow even narrower tables */
+@media (max-width: 375px) {
+    .table {
+        min-width: 500px;
+    }
+}
+
 /* Main content area styling */
 #main-content {
     width: 100%;
