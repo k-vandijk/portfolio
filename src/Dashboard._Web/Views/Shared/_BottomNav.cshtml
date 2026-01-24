@@ -1,0 +1,107 @@
+@using Dashboard.Domain.Utils
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@functions {
+    public bool IsActive(string controllerName)
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        return string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<style>
+    /* Bottom navigation - only visible on mobile */
+    #bottom-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--card-color);
+        border-top: 2px solid var(--border-color);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        padding: 0.5rem 0;
+    }
+
+    @@media (max-width: 767.98px) {
+        #bottom-nav {
+            display: block;
+        }
+    }
+
+    #bottom-nav .nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    #bottom-nav .nav-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    #bottom-nav .nav-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    #bottom-nav .nav-link i {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    #bottom-nav .nav-link span {
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    #bottom-nav .nav-link.active {
+        color: var(--accent-1);
+    }
+
+    #bottom-nav .nav-link.active i {
+        color: var(--accent-1);
+    }
+
+    #bottom-nav .nav-link:hover {
+        color: var(--accent-1-hover);
+    }
+</style>
+
+<nav id="bottom-nav">
+    <ul class="nav">
+        <li class="nav-item">
+            <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(IsActive("Dashboard") ? "active" : "")">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>@SharedLocalizer["Dashboard"]</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-controller="Investment" asp-action="Index" class="nav-link @(IsActive("Investment") ? "active" : "")">
+                <i class="fas fa-chart-line"></i>
+                <span>@SharedLocalizer["Investment"]</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-controller="MarketHistory" asp-action="Index" class="nav-link @(IsActive("MarketHistory") ? "active" : "")">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span>@SharedLocalizer["MarketHistory"]</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-controller="Transactions" asp-action="Index" class="nav-link @(IsActive("Transactions") ? "active" : "")">
+                <i class="fas fa-receipt"></i>
+                <span>@SharedLocalizer["Transactions"]</span>
+            </a>
+        </li>
+    </ul>
+</nav>

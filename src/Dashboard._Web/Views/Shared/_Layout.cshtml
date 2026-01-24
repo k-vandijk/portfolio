@@ -33,6 +33,8 @@
         </main>
     </div>
 
+    <partial name="_BottomNav" />
+
     <partial name="_Scripts" />
     @await RenderSectionAsync("Scripts", required: false)
     @if (TempData["ErrorMessage"] is string error && !string.IsNullOrWhiteSpace(error))
