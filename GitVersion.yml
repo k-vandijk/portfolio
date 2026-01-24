@@ -1,8 +1,33 @@
 mode: ContinuousDelivery
+
 branches:
   master:
-    regex: ^master$
+    regex: ^master$|^main$
+    label: ''
     increment: Patch
-    is-mainline: true
+    is-release-branch: true
+
+  dev:
+    regex: ^dev(elop)?(ment)?$
+    label: alpha
+    increment: Minor
+
+  feature:
+    regex: ^feat(ure)?s?[/-]
+    label: useBranchName
+    increment: Inherit
+
+  fix:
+    regex: ^fix(es)?[/-]
+    label: fix
+    increment: Patch
+
 ignore:
   sha: []
+
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+
+commit-message-incrementing: Enabled
