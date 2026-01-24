@@ -1,8 +1,6 @@
 name: Continuous Integration - Build & Test
 
 on:
-  push:
-    branches: [dev]
   pull_request:
     branches: [main, master, dev]
   workflow_dispatch:
