@@ -1,4 +1,4 @@
-name: Continuous Integration - Build & Test
+name: Continuous Integration
 
 on:
   pull_request:
@@ -15,16 +15,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-test:
+  ci-build-test:
     runs-on: ubuntu-latest
 
     steps:
+      
+      # Checks out the repository source code with full history and tags
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
 
+      # Caches NuGet packages to speed up dependency restore in future runs
       - name: Cache NuGet
         uses: actions/cache@v4
         with:
@@ -33,23 +36,28 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
+      # Installs the required .NET SDK version on the runner
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.x"
 
+      # Restores all NuGet dependencies for the solution
       - name: Restore
         run: dotnet restore
 
+      # Builds the solution in Release configuration without restoring again
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      # Runs automated tests and outputs results in TRX format
       - name: Test with TRX output
         run: |
           dotnet test --configuration Release --no-build --verbosity normal \
             --logger "trx;LogFileName=test_results.trx" \
             --results-directory ./TestResults
 
+      # Uploads test result files as a workflow artifact, even on failure
       - name: Upload test results artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -58,7 +66,7 @@ jobs:
           path: ./TestResults/*.trx
           if-no-files-found: warn
 
-      # Publish test results to the Checks tab (nice UX for PRs)
+      # Publishes parsed test results to the GitHub Checks tab for PR visibility
       - name: Publish test report
         if: always()
         uses: dorny/test-reporter@v1
