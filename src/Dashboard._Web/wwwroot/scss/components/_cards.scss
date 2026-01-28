@@ -1,0 +1,19 @@
+// Card components
+
+.card {
+    background-color: var(--card-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-default);
+    height: 100%;
+}
+
+.card-header {
+    background-color: var(--card-color);
+    border: none;
+    border-top-left-radius: var(--border-radius) !important;
+    border-top-right-radius: var(--border-radius) !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    font-weight: bold;
+}

@@ -7,9 +7,19 @@
 @use "../../../../node_modules/bootstrap/scss/bootstrap";
 
 // base (typography/helpers/utilites)
+@use "base/utilities";
+@use "base/responsive";
 
 // layout
+@use "layout/base";
+@use "layout/sidebar";
+@use "layout/bottom-nav";
 
 // components
+@use "components/navigation";
+@use "components/cards";
+@use "components/buttons";
+@use "components/tables";
+@use "components/charts";
 
 // pages

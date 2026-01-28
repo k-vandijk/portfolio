@@ -1,6 +1,6 @@
-/* Utility classes - Height helpers, filter labels, placeholders, and other helpers */
+// Utility classes - Height helpers, filter labels, placeholders, and other helpers
 
-/* Height utility classes for common vh values */
+// Height utility classes for common vh values
 .h-15vh {
     height: 15vh;
 }
@@ -29,23 +29,23 @@
     height: 95vh;
 }
 
-/* Cursor utilities */
+// Cursor utilities
 .cursor-pointer {
     cursor: pointer;
 }
 
-/* Icon size utility */
+// Icon size utility
 .icon-sm {
     width: 1rem;
     height: 1rem;
 }
 
-/* Brand text color utility */
+// Brand text color utility
 .text-brand {
     color: var(--accent-1);
 }
 
-/* Filter label styling */
+// Filter label styling
 .filter-label {
     font-size: 0.75rem;
     font-weight: bold;
@@ -55,7 +55,7 @@
     display: block;
 }
 
-/* Placeholder styling */
+// Placeholder styling
 .placeholder {
     border-radius: var(--border-radius) !important;
 }
