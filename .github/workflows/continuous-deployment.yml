@@ -42,6 +42,21 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # Setup Node.js for building SCSS files
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Install npm dependencies for SCSS compilation
+      - name: Install npm dependencies
+        run: npm ci
+
+      # Build SCSS to CSS
+      - name: Build SCSS
+        run: npm run sass:build
+
       # Restores all NuGet dependencies for the solution
       - name: Restore dependencies
         run: dotnet restore
