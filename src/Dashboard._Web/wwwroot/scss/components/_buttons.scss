@@ -1,0 +1,24 @@
+// Button styling
+
+.btn-ticker {
+    border-radius: var(--border-radius);
+    border: none;
+    background: var(--card-color);
+    color: var(--accent-1);
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        background: var(--accent-1-light);
+        box-shadow: var(--shadow-hover);
+        color: var(--accent-1);
+    }
+
+    &.active,
+    &:focus,
+    &:active {
+        background: var(--accent-1);
+        color: #fff;
+        box-shadow: var(--shadow-hover);
+    }
+}

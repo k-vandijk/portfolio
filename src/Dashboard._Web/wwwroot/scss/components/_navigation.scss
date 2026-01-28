@@ -1,0 +1,25 @@
+// Navigation styling
+
+// Horizontal rule styling
+hr {
+    border: none;
+    border-top: 3px solid var(--accent-1);
+    margin: 1rem 0;
+}
+
+// Sidebar styling
+aside {
+    background-color: var(--card-color);
+    box-shadow: var(--shadow-default);
+    border-right: 1px solid var(--border-color);
+}
+
+.nav-link {
+    color: var(--text-color);
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--accent-1);
+    color: #fff !important;
+    border-radius: var(--border-radius);
+}
