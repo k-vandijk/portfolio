@@ -1,0 +1,19 @@
+// Chart containers
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    > .chart-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+// Ensure chart cards fill their containers
+.card-body .chart-container {
+    min-height: 200px; // Minimum height for readability
+}
