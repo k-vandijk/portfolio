@@ -1,6 +1,5 @@
 ﻿@using System.Globalization
 @using Dashboard.Domain.Utils
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @functions {
     public bool IsActive(string controllerName)
@@ -15,8 +14,8 @@
     var currentCulture = CultureInfo.CurrentUICulture.Name;
     var cultureItems = new List<SelectListItem>
     {
-        new SelectListItem { Value = "nl-NL", Text = "🇳🇱  Nederlands", Selected = currentCulture == "nl-NL" },
-        new SelectListItem { Value = "en-US", Text = "🇺🇸  English",    Selected = currentCulture == "en-US" }
+        new() { Value = "nl-NL", Text = "🇳🇱  Nederlands", Selected = currentCulture == "nl-NL" },
+        new() { Value = "en-US", Text = "🇺🇸  English",    Selected = currentCulture == "en-US" }
     };
 
     bool isCollapsed = Context.Request.Cookies[StaticDetails.SidebarStateCookie] == "true";
