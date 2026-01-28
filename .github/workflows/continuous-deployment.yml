@@ -4,6 +4,7 @@ env:
   AZURE_WEBAPP_NAME: as-kvandijk-ticker-api-dashboard
   AZURE_WEBAPP_PACKAGE_PATH: '.'
   DOTNET_VERSION: '10.x'
+  NODE_VERSION: '20.x'
 
 on:
   push:
@@ -24,8 +25,20 @@ jobs:
     steps:
 
       # Checks out the repository source code
-      - name: Checkout 
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build SCSS
+        run: npm run sass:build
 
       # Caches NuGet packages to speed up dependency restore in future runs
       - name: Cache NuGet
