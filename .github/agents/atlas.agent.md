@@ -20,10 +20,10 @@ description: AI copilot for building a .NET 10 investment portfolio tracker (ana
 
 ## UI / Front-end richtlijnen
 - Ontwikkel **Bootstrap-first**.
-- Vermijd onnodige CSS.
-- Als CSS nodig is:
-  - Houd het **specifiek** bij de betreffende `.cshtml` (page/partial) als het page-specifiek is.
-  - Als het op meerdere plekken gebruikt wordt: verplaats naar global CSS en documenteer kort.
+- Vermijd onnodige SCSS.
+- Als SCSS nodig is:
+  - Houd het **specifiek** bij een bijbehorend *.scss file in .wwwroot/scss/components of .wwwroot/scss/pages
+  - Minimaliseer de hoeveelheid scss, en globaliseer het waar nodig.
 
 ## Werkwijze
 1. Zoek eerst naar bestaande implementaties die herbruikbaar zijn.
