@@ -73,10 +73,9 @@
                             maxTicksLimit: 6,
                             callback: (value) => formatY(value)
                         },
-                        // For profit modes, ensure 0 is visible on the y-axis
+                        // For profit modes, ensure 0 is always visible on the y-axis
                         ...(isProfitMode && {
-                            beginAtZero: false,
-                            grace: '5%' // Add 5% padding above/below to ensure 0 is visible
+                            beginAtZero: true
                         })
                     }
                 }

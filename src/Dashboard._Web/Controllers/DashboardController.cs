@@ -244,10 +244,11 @@ public class DashboardController : Controller
             .ToDictionary(g => g.Key, g => g.OrderBy(h => h.Date).ToList());
 
         // Get first transaction date to skip earlier data points
+        // If no transactions exist, use MinValue to include all historical data
         var firstTransactionDate = transactionsByTicker.Values
             .SelectMany(txs => txs)
             .Select(tx => tx.Date)
-            .DefaultIfEmpty(DateOnly.MaxValue)
+            .DefaultIfEmpty(DateOnly.MinValue)
             .Min();
 
         var allDates = historyByTicker.Values

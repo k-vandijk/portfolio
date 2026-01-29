@@ -51,7 +51,9 @@ public class LineChartHelperTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(0m, result.Value); // last - first = 100 - 100 = 0
+        // For a single point, delta is 0 (no change over time)
+        // This is semantically correct: last - first = 100 - 100 = 0
+        Assert.Equal(0m, result.Value);
     }
 
     [Fact]
