@@ -39,75 +39,89 @@
 
 <div class="row h-25vh">
     <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-4 mb-3">
-        <div class="card">
-            <div class="card-body d-flex flex-column justify-content-evenly">
-                <!-- Mode Filter -->
-                <div>
-                    <label class="filter-label mb-1">Weergave</label>
-                    <div class="btn-group w-100" role="group">
-                        @foreach (var mode in modes)
-                        {
-                            <a asp-controller="Dashboard" asp-action="Index"
-                               asp-route-timerange="@(currentYear.HasValue ? null : currentTimerange)"
-                               asp-route-tickers="@currentTickersString"
-                               asp-route-year="@currentYear"
-                               asp-route-mode="@mode.Key"
-                               class="btn btn-ticker btn-sm px-2 py-1 @(mode.Key == currentMode ? "active" : "")">
-                                @mode.Value
-                            </a>
-                        }
-                    </div>
-                </div>
-                
-                <!-- Timerange Filter (hidden when year is selected) -->
-                @if (!currentYear.HasValue)
-                {
+        <!-- Mobile: Filter toggle button -->
+        <button class="btn btn-filter-toggle d-md-none w-100 mb-3" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#dashboardFilters" 
+                aria-expanded="false" 
+                aria-controls="dashboardFilters">
+            <span class="filter-toggle-text">Filters</span>
+            <i class="fas fa-filter ms-2"></i>
+        </button>
+
+        <!-- Filter content (always visible on desktop, collapsible on mobile) -->
+        <div class="collapse d-md-block" id="dashboardFilters">
+            <div class="card">
+                <div class="card-body d-flex flex-column justify-content-evenly">
+                    <!-- Mode Filter -->
                     <div>
-                        <label class="filter-label mb-1">Periode</label>
+                        <label class="filter-label mb-1">Weergave</label>
                         <div class="btn-group w-100" role="group">
-                            @foreach (var t in FilterHelper.TIMERANGES)
+                            @foreach (var mode in modes)
                             {
                                 <a asp-controller="Dashboard" asp-action="Index"
-                                   asp-route-timerange="@t"
+                                   asp-route-timerange="@(currentYear.HasValue ? null : currentTimerange)"
                                    asp-route-tickers="@currentTickersString"
-                                   asp-route-mode="@currentMode"
-                                   class="btn btn-ticker btn-sm px-2 py-1 @(t == currentTimerange ? "active" : "")">
-                                    @t
+                                   asp-route-year="@currentYear"
+                                   asp-route-mode="@mode.Key"
+                                   class="btn btn-ticker btn-sm px-2 py-1 @(mode.Key == currentMode ? "active" : "")">
+                                    @mode.Value
                                 </a>
                             }
                         </div>
                     </div>
-                }
-                
-                <!-- Year Filter -->
-                <div>
-                    <label class="filter-label mb-1">Jaar</label>
-                    <div class="btn-group w-100" role="group">
-                        @{
-                            var allYearUrl = Url.Action("Index", "Dashboard", new 
-                            { 
-                                timerange = "ALL", 
-                                tickers = currentTickersString, 
-                                mode = currentMode 
-                                // year is intentionally omitted
-                            });
-                        }
-                        <a href="@allYearUrl" class="btn btn-ticker btn-sm px-2 py-1 @(currentYear == null ? "active" : "")">
-                            ALL
-                        </a>
-                        @foreach (var y in Model.Years)
-                        {
-                            var yearUrl = Url.Action("Index", "Dashboard", new 
-                            { 
-                                tickers = currentTickersString, 
-                                year = y, 
-                                mode = currentMode 
-                                // timerange is intentionally omitted when year is selected
-                            });
-                            <a href="@yearUrl" class="btn btn-ticker btn-sm px-2 py-1 @(y == currentYear ? "active" : "")">
-                                @y
+                    
+                    <!-- Timerange Filter (hidden when year is selected) -->
+                    @if (!currentYear.HasValue)
+                    {
+                        <div>
+                            <label class="filter-label mb-1">Periode</label>
+                            <div class="btn-group w-100" role="group">
+                                @foreach (var t in FilterHelper.TIMERANGES)
+                                {
+                                    <a asp-controller="Dashboard" asp-action="Index"
+                                       asp-route-timerange="@t"
+                                       asp-route-tickers="@currentTickersString"
+                                       asp-route-mode="@currentMode"
+                                       class="btn btn-ticker btn-sm px-2 py-1 @(t == currentTimerange ? "active" : "")">
+                                        @t
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Year Filter -->
+                    <div>
+                        <label class="filter-label mb-1">Jaar</label>
+                        <div class="btn-group w-100" role="group">
+                            @{
+                                var allYearUrl = Url.Action("Index", "Dashboard", new 
+                                { 
+                                    timerange = "ALL", 
+                                    tickers = currentTickersString, 
+                                    mode = currentMode 
+                                    // year is intentionally omitted
+                                });
+                            }
+                            <a href="@allYearUrl" class="btn btn-ticker btn-sm px-2 py-1 @(currentYear == null ? "active" : "")">
+                                ALL
                             </a>
-                        }
+                            @foreach (var y in Model.Years)
+                            {
+                                var yearUrl = Url.Action("Index", "Dashboard", new 
+                                { 
+                                    tickers = currentTickersString, 
+                                    year = y, 
+                                    mode = currentMode 
+                                    // timerange is intentionally omitted when year is selected
+                                });
+                                <a href="@yearUrl" class="btn btn-ticker btn-sm px-2 py-1 @(y == currentYear ? "active" : "")">
+                                    @y
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

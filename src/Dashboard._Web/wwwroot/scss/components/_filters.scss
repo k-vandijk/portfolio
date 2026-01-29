@@ -1,0 +1,54 @@
+// Filter section styling
+
+.filter-wrapper {
+    width: 100%;
+}
+
+.btn-filter-toggle {
+    border-radius: var(--border-radius);
+    border: 2px solid var(--accent-1);
+    background: var(--card-color);
+    color: var(--accent-1);
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 1rem;
+
+    &:hover {
+        background: var(--accent-1-light);
+        box-shadow: var(--shadow-hover);
+        color: var(--accent-1);
+        border-color: var(--accent-1);
+    }
+
+    &:focus,
+    &:active,
+    &[aria-expanded="true"] {
+        background: var(--accent-1);
+        color: #fff;
+        box-shadow: var(--shadow-hover);
+        border-color: var(--accent-1);
+    }
+
+    .filter-toggle-text {
+        font-size: 1rem;
+    }
+
+    i {
+        font-size: 1rem;
+    }
+}
+
+// Ensure smooth collapse animation
+.filter-wrapper .collapse {
+    transition: height 0.35s ease;
+}
+
+// On mobile, add margin to collapsed content
+@media (max-width: 767.98px) {
+    .filter-wrapper .collapse.show {
+        margin-bottom: 1rem;
+    }
+}

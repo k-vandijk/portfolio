@@ -17,44 +17,58 @@
 
 <div class="row h-47vh">
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-6 mb-3">
-        <div class="card">
-            <div class="card-body d-flex flex-column justify-content-evenly">
-                <div class="btn-group w-100" role="group">
-                    @foreach (var t in Model.Tickers)
-                    {
-                        var isActive = selectedTickers.Contains(t, StringComparer.OrdinalIgnoreCase);
+        <!-- Mobile: Filter toggle button -->
+        <button class="btn btn-filter-toggle d-md-none w-100 mb-3" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#investmentFilters" 
+                aria-expanded="false" 
+                aria-controls="investmentFilters">
+            <span class="filter-toggle-text">Filters</span>
+            <i class="fas fa-filter ms-2"></i>
+        </button>
 
-                        // Toggle behavior:
-                        // - If currently active, clicking removes it.
-                        // - If currently inactive, clicking adds it.
-                        var nextSelection = isActive
-                            ? selectedTickers.Where(x => !x.Equals(t, StringComparison.OrdinalIgnoreCase))
-                            : selectedTickers.Concat(new[] { t });
+        <!-- Filter content (always visible on desktop, collapsible on mobile) -->
+        <div class="collapse d-md-block" id="investmentFilters">
+            <div class="card">
+                <div class="card-body d-flex flex-column justify-content-evenly">
+                    <div class="btn-group w-100" role="group">
+                        @foreach (var t in Model.Tickers)
+                        {
+                            var isActive = selectedTickers.Contains(t, StringComparer.OrdinalIgnoreCase);
 
-                        // If the toggle would result in an empty set, pass null so the URL omits "tickers"
-                        // and we fall back to "all selected" again.
-                        var route = nextSelection.Any()
-                            ? string.Join(',', nextSelection.Distinct(StringComparer.OrdinalIgnoreCase))
-                            : null;
+                            // Toggle behavior:
+                            // - If currently active, clicking removes it.
+                            // - If currently inactive, clicking adds it.
+                            var nextSelection = isActive
+                                ? selectedTickers.Where(x => !x.Equals(t, StringComparison.OrdinalIgnoreCase))
+                                : selectedTickers.Concat(new[] { t });
 
-                        <a asp-controller="Investment" asp-action="Index"
-                           asp-route-tickers="@route"
-                           asp-route-year="@currentYear"
-                           class="btn btn-ticker px-3 py-2 @(isActive ? "active" : "")">
-                            @t
-                        </a>
-                    }
-                </div>
-                <div class="btn-group w-100" role="group">
-                    @foreach (var y in Model.Years)
-                    {
-                        <a asp-controller="Investment" asp-action="Index"
-                           asp-route-tickers="@currentTickersString"
-                           asp-route-year="@y"
-                           class="btn btn-ticker px-3 py-2 @(y == currentYear ? "active" : "")">
-                            @y
-                        </a>
-                    }
+                            // If the toggle would result in an empty set, pass null so the URL omits "tickers"
+                            // and we fall back to "all selected" again.
+                            var route = nextSelection.Any()
+                                ? string.Join(',', nextSelection.Distinct(StringComparer.OrdinalIgnoreCase))
+                                : null;
+
+                            <a asp-controller="Investment" asp-action="Index"
+                               asp-route-tickers="@route"
+                               asp-route-year="@currentYear"
+                               class="btn btn-ticker px-3 py-2 @(isActive ? "active" : "")">
+                                @t
+                            </a>
+                        }
+                    </div>
+                    <div class="btn-group w-100" role="group">
+                        @foreach (var y in Model.Years)
+                        {
+                            <a asp-controller="Investment" asp-action="Index"
+                               asp-route-tickers="@currentTickersString"
+                               asp-route-year="@y"
+                               class="btn btn-ticker px-3 py-2 @(y == currentYear ? "active" : "")">
+                                @y
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

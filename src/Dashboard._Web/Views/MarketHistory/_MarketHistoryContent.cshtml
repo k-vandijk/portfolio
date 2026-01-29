@@ -6,16 +6,30 @@
 
 <div class="row h-15vh">
     <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-4 mb-3">
-        <div class="card">
-            <div class="card-body d-flex align-items-center">
-                <div class="btn-group w-100" role="group">
-                    @foreach (var t in Model.Tickers)
-                    {
-                        <a asp-controller="MarketHistory" asp-action="Index" asp-route-ticker="@t"
-                           class="btn btn-ticker px-3 py-2 @(t == currentTicker ? "active" : "")">
-                            @t
-                        </a>
-                    }
+        <!-- Mobile: Filter toggle button -->
+        <button class="btn btn-filter-toggle d-md-none w-100 mb-3" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#marketHistoryFilters" 
+                aria-expanded="false" 
+                aria-controls="marketHistoryFilters">
+            <span class="filter-toggle-text">Filters</span>
+            <i class="fas fa-filter ms-2"></i>
+        </button>
+
+        <!-- Filter content (always visible on desktop, collapsible on mobile) -->
+        <div class="collapse d-md-block" id="marketHistoryFilters">
+            <div class="card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="btn-group w-100" role="group">
+                        @foreach (var t in Model.Tickers)
+                        {
+                            <a asp-controller="MarketHistory" asp-action="Index" asp-route-ticker="@t"
+                               class="btn btn-ticker px-3 py-2 @(t == currentTicker ? "active" : "")">
+                                @t
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
