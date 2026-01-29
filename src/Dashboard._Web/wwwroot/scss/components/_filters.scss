@@ -37,6 +37,14 @@
     }
 }
 
+// Ensure collapse takes full height on desktop
+@media (min-width: 768px) {
+    .card > .collapse {
+        height: 100%;
+        display: block !important;
+    }
+}
+
 // On mobile, add margin to expanded filter content
 @media (max-width: 767.98px) {
     .collapse.show {
