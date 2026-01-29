@@ -36,3 +36,16 @@
         font-size: 1rem;
     }
 }
+
+// Responsive utilities for filters
+@media (min-width: 768px) {
+    // Apply h-100 only on desktop
+    .h-md-100 {
+        height: 100% !important;
+    }
+    
+    // Apply justify-content-evenly only on desktop
+    .justify-content-md-evenly {
+        justify-content: space-evenly !important;
+    }
+}
