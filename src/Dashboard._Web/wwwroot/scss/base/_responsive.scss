@@ -98,13 +98,9 @@
         margin-bottom: 1rem;
     }
     
-    // Ensure collapsed filter cards have consistent spacing
-    .collapse:not(.show) {
+    // Ensure collapsed filter cards don't add extra spacing on mobile
+    .collapse:not(.show).card {
         margin-bottom: 0 !important;
-    }
-    
-    .collapse.show .card {
-        margin-bottom: 1rem;
     }
     
     // Make metric cards stack vertically on mobile
