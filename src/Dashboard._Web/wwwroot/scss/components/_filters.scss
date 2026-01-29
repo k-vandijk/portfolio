@@ -1,9 +1,5 @@
 // Filter section styling
 
-.filter-wrapper {
-    width: 100%;
-}
-
 .btn-filter-toggle {
     border-radius: var(--border-radius);
     border: 2px solid var(--accent-1);
@@ -41,14 +37,9 @@
     }
 }
 
-// Ensure smooth collapse animation
-.filter-wrapper .collapse {
-    transition: height 0.35s ease;
-}
-
-// On mobile, add margin to collapsed content
+// On mobile, add margin to expanded filter content
 @media (max-width: 767.98px) {
-    .filter-wrapper .collapse.show {
+    .collapse.show {
         margin-bottom: 1rem;
     }
 }
