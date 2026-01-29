@@ -71,15 +71,20 @@ public class DashboardController : Controller
 
         // Apply time range or year filter to line chart
         DateOnly startDate, endDate;
+        bool isFiltered = false; // Track if user applied a specific filter
+        
         if (year.HasValue)
         {
             // When year is specified, show data for that entire year
             (startDate, endDate) = FilterHelper.GetMinMaxDatesFromYear(year.Value);
+            isFiltered = true; // Year filter is active
         }
         else
         {
             // Use timerange filter when no year is specified
-            (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(timerange ?? "ALL");
+            var effectiveTimerange = timerange ?? "ALL";
+            (startDate, endDate) = FilterHelper.GetMinMaxDatesFromTimeRange(effectiveTimerange);
+            isFiltered = effectiveTimerange != "ALL"; // Filtered if not showing all data
         }
 
         // Limit startDate to first transaction date to avoid empty charts
@@ -88,8 +93,12 @@ public class DashboardController : Controller
 
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
         
-        // Normalize profit modes to start at zero (shows growth relative to filtered period start)
-        lineChartViewModel.DataPoints = LineChartHelper.NormalizeSeries(lineChartViewModel.DataPoints, mode);
+        // Normalize profit modes only when filtered (shows growth relative to filtered period start)
+        // For ALL data, keep absolute values to match table totals
+        if (isFiltered)
+        {
+            lineChartViewModel.DataPoints = LineChartHelper.NormalizeSeries(lineChartViewModel.DataPoints, mode);
+        }
         
         lineChartViewModel.Profit = LineChartHelper.CalculatePeriodDelta(lineChartViewModel.DataPoints);
 
