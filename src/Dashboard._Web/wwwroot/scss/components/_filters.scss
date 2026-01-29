@@ -37,23 +37,32 @@
     }
 }
 
-// Responsive utilities for filters
+// Desktop: Full height and evenly spaced filters
 @media (min-width: 768px) {
-    // Apply h-100 only on desktop
-    .h-md-100 {
+    // Ensure filter card takes full height on desktop
+    .card.collapse {
         height: 100% !important;
+        display: block !important; // Override Bootstrap collapse behavior on desktop
     }
     
-    // Apply justify-content-evenly only on desktop  
-    .justify-content-md-evenly {
-        justify-content: space-evenly !important;
+    // Ensure card-body takes full height and spaces content evenly
+    .card.collapse .card-body {
+        height: 100%;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-evenly;
     }
 }
 
-// Mobile spacing for filter cards
+// Mobile: Proper spacing and animation
 @media (max-width: 767.98px) {
-    // Add consistent margin to collapsed filter cards when shown
-    .card.collapse {
+    // Add margin below the collapsed filter card when expanded
+    .card.collapse.show {
         margin-bottom: 1rem;
+    }
+    
+    // No margin when collapsed (hidden)
+    .card.collapse:not(.show) {
+        margin-bottom: 0;
     }
 }
