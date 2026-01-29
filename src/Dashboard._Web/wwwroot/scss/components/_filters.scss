@@ -44,8 +44,16 @@
         height: 100% !important;
     }
     
-    // Apply justify-content-evenly only on desktop
+    // Apply justify-content-evenly only on desktop  
     .justify-content-md-evenly {
         justify-content: space-evenly !important;
+    }
+}
+
+// Mobile spacing for filter cards
+@media (max-width: 767.98px) {
+    // Add consistent margin to collapsed filter cards when shown
+    .card.collapse {
+        margin-bottom: 1rem;
     }
 }
