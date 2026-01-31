@@ -77,7 +77,8 @@ public class MarketHistoryController : Controller
         using var scope = _scopeFactory.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
 
-        return await service.GetMarketHistoryResponseAsync(ticker);
+        // For single ticker market history view, fetch all available data
+        return await service.GetMarketHistoryResponseAsync(ticker, period: null);
     }
 
     private LineChartViewModel GetMarketHistoryViewModel(MarketHistoryResponseDto marketHistory)

@@ -45,8 +45,19 @@ public class DashboardController : Controller
             .Distinct()
             .ToList();
 
+        // Determine optimal period based on filters
+        string period;
+        if (year.HasValue)
+        {
+            period = PeriodHelper.GetPeriodFromYear(year.Value);
+        }
+        else
+        {
+            period = PeriodHelper.GetPeriodFromTimeRange(timerange);
+        }
+
         var msBeforeMarketHistory = sw.ElapsedMilliseconds;
-        var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx);
+        var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx, period);
         var msAfterMarketHistory = sw.ElapsedMilliseconds;
 
         var tableViewModel = GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
@@ -99,10 +110,10 @@ public class DashboardController : Controller
         return PartialView("_DashboardContent", viewModel);
     }
 
-    private async Task<List<MarketHistoryDataPointDto>> GetMarketHistoryDataPoints(List<string> tickers)
+    private async Task<List<MarketHistoryDataPointDto>> GetMarketHistoryDataPoints(List<string> tickers, string period)
     {
         // Kick off all requests concurrently
-        var fetchTasks = tickers.Select(GetMarketHistoryForTickerAsync).ToArray();
+        var fetchTasks = tickers.Select(ticker => GetMarketHistoryForTickerAsync(ticker, period)).ToArray();
         var results = await Task.WhenAll(fetchTasks);
 
         // Log failures (if any)
@@ -129,7 +140,7 @@ public class DashboardController : Controller
         return allDataPoints;
     }
 
-    private async Task<(string Ticker, MarketHistoryResponseDto? Data, Exception? Error)> GetMarketHistoryForTickerAsync(string ticker)
+    private async Task<(string Ticker, MarketHistoryResponseDto? Data, Exception? Error)> GetMarketHistoryForTickerAsync(string ticker, string period)
     {
         using var scope = _scopeFactory.CreateScope();
         var api = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
@@ -137,11 +148,11 @@ public class DashboardController : Controller
 
         try
         {
-            logger.LogInformation("Fetching market history for ticker {Ticker}", ticker);
+            logger.LogInformation("Fetching market history for ticker {Ticker} with period {Period}", ticker, period);
 
 
 
-            var data = await api.GetMarketHistoryResponseAsync(ticker);
+            var data = await api.GetMarketHistoryResponseAsync(ticker, period);
             logger.LogInformation("Fetched market history for ticker {Ticker} with {Count} data points", ticker, data?.History.Count ?? 0);
             return (ticker, data, null);
         }

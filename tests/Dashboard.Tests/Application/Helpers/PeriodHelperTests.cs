@@ -51,4 +51,69 @@ public class PeriodHelperTests
 
         Assert.Matches(@"^\d+y$", period);
     }
+
+    [Theory]
+    [InlineData("1W", "7d")]
+    [InlineData("1w", "7d")]
+    [InlineData("1M", "1mo")]
+    [InlineData("1m", "1mo")]
+    [InlineData("3M", "3mo")]
+    [InlineData("3m", "3mo")]
+    [InlineData("YTD", "ytd")]
+    [InlineData("ytd", "ytd")]
+    [InlineData("ALL", null)] // Will use default period calculation
+    [InlineData("all", null)]
+    [InlineData(null, null)]
+    [InlineData("", null)]
+    [InlineData("unknown", null)]
+    public void GetPeriodFromTimeRange_ReturnsCorrectPeriod(string? timerange, string? expectedPeriod)
+    {
+        var result = PeriodHelper.GetPeriodFromTimeRange(timerange);
+
+        if (expectedPeriod != null)
+        {
+            Assert.Equal(expectedPeriod, result);
+        }
+        else
+        {
+            // For ALL, null, or unknown values, should return default period (Xy format)
+            Assert.Matches(@"^\d+y$", result);
+        }
+    }
+
+    [Fact]
+    public void GetPeriodFromYear_CurrentYear_Returns2y()
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var currentYear = today.Year;
+
+        var result = PeriodHelper.GetPeriodFromYear(currentYear);
+
+        Assert.Equal("2y", result);
+    }
+
+    [Fact]
+    public void GetPeriodFromYear_LastYear_Returns3y()
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var lastYear = today.Year - 1;
+
+        var result = PeriodHelper.GetPeriodFromYear(lastYear);
+
+        Assert.Equal("3y", result);
+    }
+
+    [Theory]
+    [InlineData(0, 2)]  // current year -> 2y (includes buffer)
+    [InlineData(1, 3)]  // 1 year ago -> 3y
+    [InlineData(2, 4)]  // 2 years ago -> 4y
+    public void GetPeriodFromYear_VariousYears_ReturnsCorrectPeriod(int yearsAgo, int expectedYears)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var year = today.Year - yearsAgo;
+
+        var result = PeriodHelper.GetPeriodFromYear(year);
+
+        Assert.Equal($"{expectedYears}y", result);
+    }
 }
