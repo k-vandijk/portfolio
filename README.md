@@ -81,7 +81,7 @@ Portfolio Insight Dashboard is an ASP.NET Core MVC application that enables inve
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Node.js 20.x](https://nodejs.org/) (for SCSS compilation)
 - Azure Active Directory tenant
-- Azure Table Storage account
+- Azure Table Storage account (for Release mode only)
 - Ticker API or a similar market data provider
 
 ### Setup Steps
@@ -101,7 +101,9 @@ npm install
 
 **3. Configure Environment Variables**
 
-Set the following environment variables or update `appsettings.json`:
+> **Note**: For Debug mode development, you can skip Azure Table Storage configuration. The application will use generated dummy data instead.
+
+For **Release mode** (production), set the following environment variables or update `appsettings.json`:
 
 ```bash
 export TRANSACTIONS_TABLE_CONNECTION_STRING="your-azure-storage-connection-string"
@@ -336,6 +338,32 @@ export AzureAd__ClientSecret="your-client-secret"
 - **Azure Key Vault**: Recommended for production secrets
 
 ## Development
+
+### Environment-Based Data Loading
+
+The application supports two data loading modes based on build configuration:
+
+#### Debug Mode (Development)
+- Uses `DummyTransactionService` with generated DCA (Dollar Cost Averaging) transactions
+- No Azure Table Storage connection required
+- Generates realistic test data for 5 tickers (AAPL, MSFT, GOOGL, NVDA, TSLA)
+- Monthly purchases from 2020-2022 to present
+- Realistic prices with 2% compound monthly growth and ±15% volatility
+- Fixed random seed (42) for consistent data across runs
+- Thread-safe with static shared data for optimal performance
+
+#### Release Mode (Production)
+- Uses `AzureTableService` with Azure Table Storage
+- Requires `TRANSACTIONS_TABLE_CONNECTION_STRING` environment variable
+- Persists real transaction data
+- Caching enabled for performance
+
+To switch between modes, simply build in Debug or Release configuration:
+
+```bash
+dotnet build --configuration Debug   # Uses dummy data
+dotnet build --configuration Release # Uses Azure Table Storage
+```
 
 ### Development Commands
 
