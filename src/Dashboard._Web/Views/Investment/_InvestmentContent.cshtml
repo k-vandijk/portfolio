@@ -23,7 +23,7 @@
                 <div>
                     <label class="filter-label mb-1">@SharedLocalizer["Ticker"]</label>
                     <div class="btn-group w-100" role="group">
-                        @foreach (var t in Model.Tickers)
+                        @foreach (var t in Model.Tickers.Where(t => Model.PieChart.Data.Any(dp => dp.Label == t))) // filter out tickers that are not invested in that year.
                         {
                             var isActive = selectedTickers.Contains(t, StringComparer.OrdinalIgnoreCase);
 
