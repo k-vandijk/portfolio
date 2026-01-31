@@ -81,7 +81,7 @@ public class DashboardController : Controller
         if (startDate < firstTransactionDate) startDate = firstTransactionDate;
 
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
-        //lineChartViewModel.DataPoints = NormalizeSeries(lineChartViewModel.DataPoints, mode);
+        lineChartViewModel.DataPoints = NormalizeSeries(lineChartViewModel.DataPoints, mode);
         lineChartViewModel.Profit = GetPeriodDelta(lineChartViewModel.DataPoints, mode);
 
         var viewModel = new DashboardViewModel
