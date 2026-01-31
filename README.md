@@ -2,8 +2,8 @@
 
 A .NET 10 Progressive Web App for tracking and visualizing investment portfolio performance with real-time market data analytics.
 
-[![Build Status](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/ci.yml)
-[![Deployment Status](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/cd.yml/badge.svg)](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/cd.yml)
+[![Build Status](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-integration.yml)
+[![Deployment Status](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-deployment.yml/badge.svg)](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-deployment.yml)
 
 ## Table of Contents
 
