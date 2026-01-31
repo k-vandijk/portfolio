@@ -1,50 +1,115 @@
-# Ticker API Dashboard
+# Portfolio Insight Dashboard
 
-A .NET 10 web application for tracking and visualizing investment portfolio performance. The dashboard provides real-time portfolio analytics, historical market data visualization, and transaction management capabilities.
+A .NET 10 Progressive Web App for tracking and visualizing investment portfolio performance with real-time market data analytics.
 
-## 📋 Overview
+[![Build Status](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-integration.yml)
+[![Deployment Status](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-deployment.yml/badge.svg)](https://github.com/k-vandijk/portfolio-insight-dashboard/actions/workflows/continuous-deployment.yml)
 
-The Ticker API Dashboard is an ASP.NET Core MVC application that helps investors track their stock portfolio performance. It integrates with an external Ticker API to fetch market data and stores transaction history in Azure Table Storage. The application features interactive charts, portfolio analytics, and supports multiple display modes including value, profit, and profit percentage views.
+## Table of Contents
 
-## 🏗️ Architecture
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [Installation & Setup](#installation--setup)
+- [Ticker API Reference](#ticker-api-reference)
+- [Progressive Web App (PWA)](#progressive-web-app-pwa)
+- [Environment Variables](#environment-variables)
+- [Development](#development)
+- [CI/CD](#cicd)
 
-The solution follows Clean Architecture principles with clear separation of concerns:
+## Overview
 
-```
-├── Dashboard._Web          # ASP.NET Core MVC web application (UI layer)
-├── Dashboard.Application   # Business logic and DTOs
-├── Dashboard.Domain        # Domain models and core entities
-├── Dashboard.Infrastructure # External integrations (API clients, Azure Table Storage)
-└── Dashboard.Tests         # Unit tests
-```
+Portfolio Insight Dashboard is an ASP.NET Core MVC application that enables investors to track stock portfolio performance through interactive visualizations and real-time market data. Built with Clean Architecture principles, the application integrates with a custom Ticker API for market data via Yahoo Finance and uses Azure Table Storage for transaction persistence.
 
-### Key Components
+## Key Features
 
-- **Dashboard._Web**: Controllers, Views, ViewModels, and web-specific configuration
-- **Dashboard.Application**: Application services, DTOs, helpers, mappers, and interfaces
-- **Dashboard.Domain**: Domain models (TransactionEntity) and domain utilities
-- **Dashboard.Infrastructure**: External service implementations (TickerApiService, AzureTableService)
-- **Dashboard.Tests**: xUnit test suite
+### 📊 Portfolio Analytics
+- **Real-time Valuation**: Current portfolio worth with profit/loss calculations
+- **Multiple Display Modes**: Switch between absolute values, profit amounts, and profit percentages
+- **Interactive Charts**: Line charts with adjustable time ranges (1M, 6M, 1Y, ALL)
+- **Ticker Breakdown**: Detailed per-ticker analysis with investment percentages
 
-## 🔧 Prerequisites
+### 💼 Transaction Management
+- Add, view, and delete stock transactions with transaction costs
+- Historical transaction tracking with Azure Table Storage persistence
+- Transaction filtering by ticker and year
+- DataTables integration for advanced table functionality
+
+### 📈 Market Data Integration
+- **Custom Ticker API**: Proprietary API supplying market data via Yahoo Finance
+- **Concurrent Fetching**: Parallel API calls for multiple tickers
+- **Smart Caching**: Memory caching with sliding and absolute expiration
+- **Historical Data**: Comprehensive market history with configurable periods
+
+### 🌍 Localization & UX
+- Multi-language support (nl-NL default, en-US)
+- Currency and date formatting per locale
+- Responsive Bootstrap 5 design
+- Dark theme with Fluent Design-inspired colors
+- Skeleton loaders and loading indicators
+
+### 🔐 Security
+- Azure AD authentication (OpenID Connect)
+- Enterprise SSO integration
+- HTTPS enforcement and HSTS
+- Secure secret management
+
+## Technology Stack
+
+**Backend:**
+- .NET 10 (C# 12) with ASP.NET Core MVC
+- Azure.Data.Tables for Table Storage
+- Microsoft.Identity.Web for Azure AD
+
+**Frontend:**
+- Bootstrap 5.3.3 (primary UI framework)
+- SCSS with modular design tokens
+- Chart.js for data visualization
+- DataTables 2.3.4 for table rendering
+- jQuery, Flatpickr, SweetAlert2, Font Awesome
+
+**Architecture:**
+- Clean Architecture (Web → Application → Domain → Infrastructure)
+- Dependency Injection
+- Repository Pattern
+- DTO/ViewModel separation
+
+## Installation & Setup
+
+### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Azure Active Directory tenant (for authentication)
-- Azure Table Storage account (for transaction storage)
-- Access to the Ticker API endpoint
+- [Node.js 20.x](https://nodejs.org/) (for SCSS compilation)
+- Azure Active Directory tenant
+- Azure Table Storage account
+- Ticker API or a similar market data provider
 
-## 🚀 Getting Started
+### Setup Steps
 
-### 1. Clone the Repository
+**1. Clone the Repository**
 
 ```bash
-git clone https://github.com/k-vandijk/ticker-dashboard.git
-cd ticker-dashboard
+git clone https://github.com/k-vandijk/portfolio-insight-dashboard.git
+cd portfolio-insight-dashboard
 ```
 
-### 2. Configure Application Settings
+**2. Install npm Dependencies**
 
-Update `Dashboard._Web/appsettings.json` with your configuration:
+```bash
+npm install
+```
+
+**3. Configure Environment Variables**
+
+Set the following environment variables or update `appsettings.json`:
+
+```bash
+export TRANSACTIONS_TABLE_CONNECTION_STRING="your-azure-storage-connection-string"
+export TICKER_API_URL="your-ticker-api-url"
+export TICKER_API_CODE="your-api-authentication-code"
+```
+
+Configure Azure AD in `src/Dashboard._Web/appsettings.json`:
 
 ```json
 {
@@ -54,242 +119,306 @@ Update `Dashboard._Web/appsettings.json` with your configuration:
     "ClientId": "your-client-id",
     "ClientSecret": "your-client-secret",
     "CallbackPath": "/signin-oidc"
-  },
-  "Secrets": {
-    "TickerApiurl": "your-ticker-api-url",
-    "TickerApiCode": "your-api-key",
-    "TransactionsTableConnectionString": "your-azure-storage-connection-string"
   }
 }
 ```
 
-> **⚠️ Security Note**: Never commit secrets to source control. Use Azure Key Vault, user secrets, or environment variables in production.
+> **⚠️ Security**: Never commit secrets. Use Azure Key Vault, User Secrets, or environment variables in production.
 
-### 3. Restore Dependencies
+**4. Build Frontend Assets**
+
+```bash
+npm run sass:build
+```
+
+**5. Restore and Build**
 
 ```bash
 dotnet restore
-```
-
-### 4. Build the Solution
-
-```bash
 dotnet build
 ```
 
-### 5. Run the Application
+**6. Run the Application**
 
 ```bash
 cd src/Dashboard._Web
 dotnet run
 ```
 
-The application will start and display the listening URLs in the console (typically `https://localhost:5001`).
+The application starts at `https://localhost:5001`
 
-## 🧪 Running Tests
+## Ticker API Reference
 
-Run all unit tests:
+The Ticker API is a custom-built API that provides real-time and historical market data for any stock ticker using Yahoo Finance as the data source. The dashboard integrates with this API to fetch market information.
+
+### Base Configuration
+
+- **Base URL**: Configured via `TICKER_API_URL` environment variable
+- **Authentication**: API code passed via `TICKER_API_CODE` environment variable
+- **Caching**: Memory caching with sliding (5 min) and absolute (15 min) expiration
+
+### Endpoint: Get Market History
+
+Fetches historical price data for a specific ticker symbol.
+
+**HTTP Request:**
+```http
+GET {TICKER_API_URL}/market-history?ticker={ticker}&period={period}&interval={interval}
+```
+
+**Request Parameters:**
+
+| Parameter  | Type   | Required | Description                                              | Example Values        |
+|------------|--------|----------|----------------------------------------------------------|-----------------------|
+| `ticker`   | string | Yes      | Stock ticker symbol                                      | `AAPL`, `GOOGL`, `MSFT` |
+| `period`   | string | No       | Time period for historical data                          | `1mo`, `1y`, `max`    |
+| `interval` | string | No       | Data interval (default: `1d`)                            | `1d`, `1wk`, `1mo`    |
+
+**Response Structure:**
+
+```json
+{
+  "ticker": "AAPL",
+  "currency": "USD",
+  "history": [
+    {
+      "ticker": "AAPL",
+      "date": "2024-01-15",
+      "open": 185.50,
+      "close": 187.25
+    },
+    {
+      "ticker": "AAPL",
+      "date": "2024-01-16",
+      "open": 187.30,
+      "close": 189.10
+    }
+  ]
+}
+```
+
+**Response Fields:**
+
+- `ticker` (string): The stock ticker symbol
+- `currency` (string): Currency code (e.g., USD, EUR)
+- `history` (array): Array of historical data points
+  - `ticker` (string): Stock ticker symbol
+  - `date` (string): Date in ISO format (YYYY-MM-DD)
+  - `open` (decimal): Opening price
+  - `close` (decimal): Closing price
+
+**Usage Example (C#):**
+
+```csharp
+// Injected via ITickerApiService
+var response = await _tickerApiService.GetMarketHistoryResponseAsync(
+    ticker: "AAPL",
+    period: "1y",
+    interval: "1d"
+);
+
+if (response?.History != null)
+{
+    foreach (var dataPoint in response.History)
+    {
+        Console.WriteLine($"{dataPoint.Date}: {dataPoint.Close}");
+    }
+}
+```
+
+**Error Handling:**
+
+- Returns `null` if the API call fails
+- Errors are logged via Serilog but don't block the application
+- Failed ticker requests are logged with details for debugging
+
+**Performance Features:**
+
+- Concurrent API calls for multiple tickers using `Task.WhenAll`
+- Memory caching reduces redundant API calls
+- Request timing logged for performance monitoring
+
+## Progressive Web App (PWA)
+
+Portfolio Insight Dashboard is installable as a Progressive Web App, providing an app-like experience with offline capabilities.
+
+### PWA Features
+
+- ✅ **Installable**: Add to home screen on iOS and Android
+- ✅ **Standalone Mode**: Runs without browser UI
+- ✅ **Offline Support**: Static assets cached for offline access
+- ✅ **Fast Performance**: Service worker caching for instant loads
+- ✅ **Responsive Design**: Optimized for mobile and desktop
+
+### Installing on Mobile
+
+#### iOS (iPhone/iPad)
+
+1. Open Safari and navigate to the dashboard URL
+2. Tap the **Share** button (square with arrow pointing up)
+3. Scroll down and tap **Add to Home Screen**
+4. Customize the name if desired
+5. Tap **Add** in the top right corner
+6. The app icon appears on your home screen
+
+#### Android
+
+1. Open Chrome and navigate to the dashboard URL
+2. Tap the **three-dot menu** in the top right
+3. Select **Add to Home screen** or **Install app**
+4. Confirm the installation in the dialog
+5. The app icon appears in your app drawer
+
+### PWA Configuration
+
+The PWA is configured via `wwwroot/manifest.json`:
+
+```json
+{
+  "name": "Ticker API Dashboard",
+  "short_name": "Ticker Dashboard",
+  "description": "Track and visualize investment portfolio performance",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1560BD",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```
+
+### Service Worker Strategy
+
+The service worker (`wwwroot/service-worker.js` v3) implements a smart caching strategy:
+
+- **Cache-First** for static assets (CSS, JS, images, fonts) - instant loading
+- **Network-First** for HTML and API endpoints - fresh data with offline fallback
+- Automatic versioning and cache cleanup
+- Skips authentication and extension requests
+
+## Environment Variables
+
+### Required Variables
+
+| Variable                              | Description                                    | Example                                      |
+|---------------------------------------|------------------------------------------------|----------------------------------------------|
+| `TRANSACTIONS_TABLE_CONNECTION_STRING` | Azure Table Storage connection string          | `DefaultEndpointsProtocol=https;Account...`  |
+| `TICKER_API_URL`                      | Base URL for the Ticker API                    | `https://api.example.com/ticker`             |
+| `TICKER_API_CODE`                     | Authentication code/key for Ticker API         | `your-api-key-here`                          |
+
+### Azure AD Configuration
+
+Configure in `appsettings.json` or via environment variables:
 
 ```bash
-dotnet test
+export AzureAd__TenantId="your-tenant-id"
+export AzureAd__ClientId="your-client-id"
+export AzureAd__ClientSecret="your-client-secret"
 ```
 
-Run tests with coverage:
+### Configuration Methods
+
+- **Environment Variables**: Direct system environment variables
+- **appsettings.json**: Application configuration file (non-sensitive only)
+- **User Secrets**: For local development (`dotnet user-secrets`)
+- **Azure Key Vault**: Recommended for production secrets
+
+## Development
+
+### Development Commands
 
 ```bash
-dotnet test --collect:"XPlat Code Coverage"
+# Frontend
+npm run sass:build          # Build SCSS → CSS once
+npm run sass:watch          # Watch SCSS files for changes
+npm run dotnet:watch        # .NET hot reload
+npm run dev                 # Concurrent SCSS watch + dotnet watch
+
+# Backend
+dotnet restore              # Restore NuGet packages
+dotnet build                # Build solution
+dotnet test                 # Run all tests
+dotnet test --collect:"XPlat Code Coverage"  # Tests with coverage
 ```
 
-Run tests for a specific project:
-
-```bash
-dotnet test tests/Dashboard.Tests/Dashboard.Tests.csproj
-```
-
-## ✨ Key Features
-
-### Portfolio Dashboard
-- **Real-time Portfolio Valuation**: View current portfolio worth and performance
-- **Multiple Display Modes**:
-  - Portfolio value over time
-  - Absolute profit/loss in EUR
-  - Profit/loss percentage
-- **Interactive Charts**: Historical performance visualization with adjustable time ranges
-- **Portfolio Breakdown**: Detailed ticker-by-ticker analysis
-
-### Transaction Management
-- Add, view, and manage stock transactions
-- Track buy/sell history with dates and costs
-- Azure Table Storage integration for reliable data persistence
-
-### Market Data Integration
-- Real-time price data from external Ticker API
-- Historical market data for charting
-- Concurrent API calls for optimal performance
-
-### Localization
-- Multi-language support (Dutch/English)
-- Locale-specific formatting for currency and dates (defaults to nl-NL)
-- Cookie-based culture selection via sidebar
-- Resource files for internationalization (SharedResource.nl-NL.resx, SharedResource.en-US.resx)
-
-### Authentication & Security
-- Azure AD authentication via OpenID Connect
-- Secure user authentication required by default
-- Microsoft Identity integration
-
-### User Interface
-- Responsive Bootstrap-first design
-- Mobile-friendly with bottom navigation for smaller screens
-- Collapsible sidebar for desktop with state persistence
-- Interactive components with skeleton loaders for better UX
-- Dark theme support
-
-## 🔑 Configuration
-
-### Central Package Management
-The solution uses Central Package Management (CPM) with `Directory.Packages.props` for consistent dependency versions across all projects.
-
-### Build Configuration
-Global build properties are defined in `Directory.Build.props`:
-- Target Framework: .NET 10
-- Nullable reference types enabled
-- Implicit usings enabled
-- Warnings treated as errors
-
-### Key Dependencies
-- **ASP.NET Core**: Web framework
-- **Azure.Data.Tables**: Azure Table Storage client
-- **Microsoft.Identity.Web**: Azure AD authentication
-- **Serilog**: Structured logging
-- **xUnit**: Testing framework
-
-## 📁 Project Structure
+### Architecture Overview
 
 ```
-Dashboard._Web/
-├── Controllers/           # MVC controllers
-│   ├── DashboardController.cs      # Main dashboard logic
-│   ├── TransactionsController.cs   # Transaction management
-│   ├── InvestmentController.cs     # Investment views
-│   ├── MarketHistoryController.cs  # Market data endpoints
-│   └── SidebarController.cs        # Sidebar state and culture management
-├── Views/                 # Razor views
-│   ├── Dashboard/                  # Dashboard views
-│   ├── Transactions/               # Transaction views
-│   ├── MarketHistory/              # Market history views
-│   ├── Investment/                 # Investment views
-│   └── Shared/                     # Shared components and layouts
-│       ├── _Layout.cshtml
-│       ├── _Sidebar.cshtml
-│       ├── _BottomNav.cshtml
-│       └── Components/             # Reusable chart and metric components
-├── ViewModels/            # View-specific models
-├── wwwroot/              # Static files (CSS, JS, images)
-│   ├── SharedResource.nl-NL.resx   # Dutch localization
-│   └── SharedResource.en-US.resx   # English localization
-└── Program.cs            # Application entry point
+src/
+├── Dashboard._Web/           # Presentation Layer (MVC)
+├── Dashboard.Application/    # Business Logic Layer
+├── Dashboard.Domain/         # Domain Layer
+└── Dashboard.Infrastructure/ # Infrastructure Layer (External services)
 
-Dashboard.Application/
-├── Dtos/                 # Data transfer objects
-├── Helpers/              # Utility classes
-│   ├── FilterHelper.cs
-│   ├── FormattingHelper.cs
-│   └── PeriodHelper.cs
-├── Mappers/              # Object mapping
-│   └── TransactionMapper.cs
-└── Interfaces/           # Service contracts
-
-Dashboard.Domain/
-├── Models/               # Domain entities
-└── Utils/               # Domain utilities
-
-Dashboard.Infrastructure/
-└── Services/            # External service implementations
-    ├── TickerApiService.cs
-    └── AzureTableService.cs
+tests/
+└── Dashboard.Tests/          # xUnit test suite
 ```
-
-## 🛠️ Development
 
 ### Coding Standards
+
 - C# 12 with nullable reference types
-- Follow Clean Architecture principles
-- Warnings are treated as errors
-- Use dependency injection for service management
+- Clean Architecture principles
+- Warnings treated as errors
+- Dependency Injection for all services
+- Bootstrap-first UI development
+- DRY principle: create reusable components
 
-### Branching Strategy & Workflow
+### Project Structure
 
-The project follows a structured Git workflow with three main branch types:
+- **Controllers**: MVC controllers for each feature area
+- **Views**: Razor views with partial views and components
+- **ViewModels**: View-specific data models
+- **Dtos**: Data transfer objects for API communication
+- **Services**: External integrations (Ticker API, Azure Storage)
+- **wwwroot**: Static assets (compiled CSS, JS, icons, PWA files)
 
-**Branch Structure:**
-- **`main`**: Production-ready code, always stable and deployed to Azure
-- **`dev`**: Default development branch for integration testing
-- **`feat-*` / `fix-*`**: Feature and bugfix branches for active development
+## CI/CD
 
-**Development Workflow:**
-1. Create a feature or fix branch from `dev` (e.g., `feat-portfolio-analytics` or `fix-chart-rendering`)
-2. Develop and commit changes in the feature/fix branch
-3. Create a Pull Request (PR) to merge into `dev`
-4. After merge to `dev`, test changes in the development environment
-5. When ready for production, create a rebase PR from `dev` to `main` (keeps history linear)
+### Continuous Integration
 
-**CI/CD Pipeline:**
-- **Build Validation**: Automated on all PRs to `main` and `dev` (must pass to merge)
-- **Testing**: Unit and integration tests run on all PRs (required for merge)
-- **Deployment**: Push to `main` automatically triggers CD pipeline deploying to Azure production environment
+**Workflow**: `.github/workflows/continuous-integration.yml`
 
-### Logging
-The application uses Serilog for structured logging:
-- Console logging enabled
-- Log levels configured per namespace
-- Request/response logging for debugging
+- Triggers on Pull Requests to `main` branch
+- Builds the solution
+- Runs all unit tests
+- Validates code quality
+- Caches dependencies for faster builds
 
-### Localization
-- Resources stored in `wwwroot/` directory as `.resx` files (configured via `ResourcesPath` in Program.cs)
-- Supported UI cultures: nl-NL (default), en-US
-- Supported formatting culture: nl-NL
-- Use `IStringLocalizer<SharedResource>` for localized strings
-- Culture selection persisted in cookies
+### Continuous Deployment
 
-## 📊 Performance Considerations
+**Workflow**: `.github/workflows/continuous-deployment.yml`
 
-- Market history API calls are executed concurrently for multiple tickers
-- Failed API calls are logged but don't block the entire request
-- Caching strategy can be implemented for frequently accessed data
-- Consider rate limiting for external API calls
+- Triggers on push to `main` branch
+- Builds frontend assets (SCSS → CSS)
+- Restores .NET dependencies
+- Publishes release build
+- Deploys to Azure Web App (`as-kvandijk-ticker-api-dashboard`)
 
-## 🔒 Security
+### Branching Strategy
 
-- All routes require authentication by default
-- Azure AD integration with OpenID Connect
-- Secrets should be stored in Azure Key Vault or environment variables
-- HTTPS enforced in non-development environments
-- HSTS enabled for production
+- **`main`**: Production branch, automatically deployed to Azure
+- **`feat-*` / `fix-*`**: Feature and bugfix branches
 
-## 🐛 Troubleshooting
+**Workflow:**
+1. Create feature branch from `main`
+2. Develop and test changes
+3. Create PR to merge into `main`
+4. Merge to `main` triggers automatic deployment
 
-### Common Issues
+---
 
-1. **Authentication Errors**: Verify Azure AD configuration in `appsettings.json`
-2. **API Connection Issues**: Check Ticker API URL and access code
-3. **Storage Connection Issues**: Verify Azure Table Storage connection string
-4. **Build Errors**: Ensure .NET 10 SDK is installed
-
-### Logging
-Check console output for detailed error messages and request timings. Logs include:
-- API call timings
-- Transaction retrieval performance
-- Failed ticker API requests
-
-## 📝 License
-
-This project is private. Contact the repository owner for licensing information.
-
-## 👥 Contributing
-
-This is a private repository. Contact the repository owner for contribution guidelines.
-
-## 📞 Support
-
-For issues or questions, please open an issue in the GitHub repository.
+**Repository**: [github.com/k-vandijk/portfolio-insight-dashboard](https://github.com/k-vandijk/portfolio-insight-dashboard)  
+**Author**: Kevin van Dijk  
+**Deployment**: Azure Web App
