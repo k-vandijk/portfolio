@@ -1,13 +1,14 @@
 ﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
 @using System.Globalization
 @using Dashboard.Application.Helpers
+@using Dashboard.Domain.Utils
 @model DashboardViewModel
 @{
     var modes = new Dictionary<string, string>
     {
-        { "profit", SharedLocalizer["ProfitEur"] },
-        { "profit-percentage", SharedLocalizer["ProfitPct"] },
-        { "value", SharedLocalizer["Worth"] }
+        { DashboardPresentationModes.Profit, SharedLocalizer["ProfitEur"] },
+        { DashboardPresentationModes.ProfitPercentage, SharedLocalizer["ProfitPct"] },
+        { DashboardPresentationModes.Value, SharedLocalizer["Worth"] }
     };
 
     var currentTimerange = 

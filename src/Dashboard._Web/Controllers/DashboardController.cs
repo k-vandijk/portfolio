@@ -3,6 +3,7 @@ using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard.Application.Interfaces;
 using Dashboard._Web.ViewModels;
+using Dashboard.Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -28,7 +29,7 @@ public class DashboardController : Controller
 
     [HttpGet("/dashboard/content")]
     public async Task<IActionResult> DashboardContent(
-        [FromQuery] string? mode = "profit", // mode = value | profit | profit-percentage
+        [FromQuery] string? mode = DashboardPresentationModes.Profit,
         [FromQuery] string? tickers = null,
         [FromQuery] string? timerange = null,
         [FromQuery] int? year = null)
@@ -66,9 +67,9 @@ public class DashboardController : Controller
 
         LineChartViewModel lineChartViewModel = mode switch
         {
-            "value" => GetPortfolioWorthLineChart(filteredTransactions, marketHistoryDataPoints),
-            "profit" => GetPortfolioProfitLineChart(filteredTransactions, marketHistoryDataPoints),
-            "profit-percentage" => GetPortfolioProfitPercentageLineChart(filteredTransactions, marketHistoryDataPoints),
+            DashboardPresentationModes.Value => GetPortfolioWorthLineChart(filteredTransactions, marketHistoryDataPoints),
+            DashboardPresentationModes.Profit => GetPortfolioProfitLineChart(filteredTransactions, marketHistoryDataPoints),
+            DashboardPresentationModes.ProfitPercentage => GetPortfolioProfitPercentageLineChart(filteredTransactions, marketHistoryDataPoints),
             _ => throw new InvalidOperationException("mode cannot be null")
         };
 
@@ -90,7 +91,12 @@ public class DashboardController : Controller
         if (startDate < firstTransactionDate) startDate = firstTransactionDate;
 
         lineChartViewModel.DataPoints = FilterHelper.FilterLineChartDataPoints(lineChartViewModel.DataPoints, startDate, endDate);
-        lineChartViewModel.DataPoints = NormalizeSeries(lineChartViewModel.DataPoints, mode);
+        
+        if (mode is DashboardPresentationModes.Profit or DashboardPresentationModes.ProfitPercentage)
+        {
+            lineChartViewModel.DataPoints = NormalizeSeries(lineChartViewModel.DataPoints).ToList();
+        }
+        
         lineChartViewModel.Profit = GetPeriodDelta(lineChartViewModel.DataPoints, mode);
 
         var viewModel = new DashboardViewModel
@@ -149,9 +155,6 @@ public class DashboardController : Controller
         try
         {
             logger.LogInformation("Fetching market history for ticker {Ticker} with period {Period}", ticker, period);
-
-
-
             var data = await api.GetMarketHistoryResponseAsync(ticker, period);
             logger.LogInformation("Fetched market history for ticker {Ticker} with {Count} data points", ticker, data?.History.Count ?? 0);
             return (ticker, data, null);
@@ -180,7 +183,7 @@ public class DashboardController : Controller
 
             var amount = transactionsByTicker.Sum(tr => tr.Amount);
             var investment = transactionsByTicker.Sum(tr => tr.TotalCosts);
-            var currentPrice = latestClose.TryGetValue(ticker.ToUpperInvariant(), out var p) ? p : 0m;
+            var currentPrice = latestClose.GetValueOrDefault(ticker.ToUpperInvariant(), 0m);
             var worth = currentPrice * amount;
             var profit = worth - investment;
             var profitPercentage = investment > 0 ? profit / investment : 0m;
@@ -313,30 +316,36 @@ public class DashboardController : Controller
         };
     }
 
-    private static List<DataPointDto> NormalizeSeries(IReadOnlyList<DataPointDto> points, string? mode)
+    /// <summary>
+    /// Normalizes a series of data points by subtracting the value of the first point from each point in the series.
+    /// This is used to show profit or profit percentage relative to the starting point.
+    /// </summary>
+    private static IReadOnlyList<DataPointDto> NormalizeSeries(IReadOnlyList<DataPointDto> points)
     {
-        // If 'profit' or 'profit-percentage', normalize to start at zero
-
-        if (mode == "profit" || mode == "profit-percentage")
+        var first = points.FirstOrDefault()?.Value ?? 0m;
+        return points.Select(p => new DataPointDto
         {
-            var first = points.FirstOrDefault()?.Value ?? 0m;
-
-            return points.Select(p => new DataPointDto
-            {
-                Label = p.Label,
-                Value = p.Value - first
-            }).ToList();
-        }
-
-        return points.ToList();
+            Label = p.Label,
+            Value = p.Value - first
+        }).ToList();
     }
 
-    private static decimal? GetPeriodDelta(List<DataPointDto> points, string mode)
+    /// <summary>
+    /// Calculates the period delta based on the specified mode and a list of data points.
+    /// </summary>
+    private static decimal? GetPeriodDelta(IReadOnlyList<DataPointDto> points, string mode)
     {
-        return points.Count > 0
-            ? mode == "value"
-                ? points[^1].Value - points[0].Value
-                : points[^1].Value
-            : null;
+        if (points.Count == 0) return null;
+
+        var first = points[0].Value;
+        var last = points[^1].Value;
+
+        return mode switch
+        {
+            DashboardPresentationModes.Value => last - first,
+            DashboardPresentationModes.Profit => last,
+            DashboardPresentationModes.ProfitPercentage => last,
+            _ => null
+        };
     }
 }
