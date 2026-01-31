@@ -409,15 +409,13 @@ tests/
 ### Branching Strategy
 
 - **`main`**: Production branch, automatically deployed to Azure
-- **`dev`**: Development integration branch
 - **`feat-*` / `fix-*`**: Feature and bugfix branches
 
 **Workflow:**
-1. Create feature branch from `dev`
+1. Create feature branch from `main`
 2. Develop and test changes
-3. Create PR to merge into `dev`
-4. After testing in dev, create rebase PR to `main`
-5. Merge to `main` triggers automatic deployment
+3. Create PR to merge into `main`
+4. Merge to `main` triggers automatic deployment
 
 ---
 
