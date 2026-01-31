@@ -61,7 +61,7 @@ public class PeriodHelperTests
     [InlineData("3m", "3mo")]
     [InlineData("YTD", "ytd")]
     [InlineData("ytd", "ytd")]
-    [InlineData("ALL", null)] // Will use default period calculation
+    [InlineData("ALL", null)] // Will use default period calculation (ny format)
     [InlineData("all", null)]
     [InlineData(null, null)]
     [InlineData("", null)]
@@ -76,7 +76,7 @@ public class PeriodHelperTests
         }
         else
         {
-            // For ALL, null, or unknown values, should return default period (Xy format)
+            // For ALL, null, or unknown values, should return default period (ny format where n is a digit)
             Assert.Matches(@"^\d+y$", result);
         }
     }

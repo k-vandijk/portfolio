@@ -19,7 +19,7 @@ public static class PeriodHelper
     /// </summary>
     /// <param name="timerange">Timerange value (1W, 1M, 3M, YTD, ALL)</param>
     /// <param name="firstTransactionDate">Optional first transaction date for ALL period</param>
-    /// <returns>API period parameter (7d, 1mo, 3mo, ytd, or calculated years)</returns>
+    /// <returns>API period parameter (7d, 1mo, 3mo, ytd, or calculated years in 'ny' format)</returns>
     public static string GetPeriodFromTimeRange(string? timerange, DateOnly? firstTransactionDate = null)
     {
         return timerange?.ToUpperInvariant() switch
@@ -36,7 +36,7 @@ public static class PeriodHelper
     /// Gets the API period parameter for a specific year
     /// </summary>
     /// <param name="year">The year to fetch data for</param>
-    /// <returns>API period parameter (1y plus buffer for year boundaries)</returns>
+    /// <returns>API period parameter in format 'ny' where n is (today's year - target year + 2)</returns>
     public static string GetPeriodFromYear(int year)
     {
         // Get period that covers the specified year plus some buffer
