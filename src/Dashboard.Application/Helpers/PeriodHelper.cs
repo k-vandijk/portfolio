@@ -7,47 +7,35 @@ public static class PeriodHelper
     public static string GetDefaultPeriod(DateOnly? firstTransactionDate = null)
     {
         firstTransactionDate ??= DateOnly.Parse(StaticDetails.FirstTransactionDate);
-
-        // Get the difference in months between the first transaction date and today in years and add 1
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yearsDifference = today.Year - firstTransactionDate.Value.Year;
-        return $"{yearsDifference + 1}y";
+        return $"{yearsDifference * 365 + StaticDetails.TickerApiBufferDays}d";
     }
 
-    /// <summary>
-    /// Converts a timerange filter to an API period parameter
-    /// </summary>
-    /// <param name="timerange">Timerange value (1W, 1M, 3M, YTD, ALL)</param>
-    /// <param name="firstTransactionDate">Optional first transaction date for ALL period</param>
-    /// <returns>API period parameter (14d for 1W, 1mo, 3mo, 2mo for YTD to include previous year data, or calculated years in 'ny' format)</returns>
     public static string GetPeriodFromTimeRange(string? timerange, DateOnly? firstTransactionDate = null)
     {
         return timerange?.ToUpperInvariant() switch
         {
-            // 1W: fetch 14 days (2 weeks) to ensure we have enough data coverage
-            "1W" => "14d",
-            "1M" => "1mo",
-            "3M" => "3mo",
-            // YTD: fetch 2 months to ensure we have data from end of previous year
-            // This prevents gaps in early January when market data isn't available yet
-            "YTD" => "2mo",
+            "1W" => $"{7 + StaticDetails.TickerApiBufferDays}d",
+            "1M" => $"{31 + StaticDetails.TickerApiBufferDays}d",
+            "3M" => $"{31 * 3 + StaticDetails.TickerApiBufferDays}d",
+            "YTD" => GetYtdPeriod(),
             "ALL" or _ => GetDefaultPeriod(firstTransactionDate)
         };
     }
 
-    /// <summary>
-    /// Gets the API period parameter for a specific year
-    /// </summary>
-    /// <param name="year">The year to fetch data for</param>
-    /// <returns>API period parameter in format 'ny' where n is (today's year - target year + 2)</returns>
     public static string GetPeriodFromYear(int year)
     {
-        // Get period that covers the specified year plus some buffer
-        // We need to fetch slightly more to ensure we have data for the entire year
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yearsDifference = today.Year - year;
-        
-        // Add 2 to ensure we have enough data coverage (yearsDifference + 2)
-        return $"{yearsDifference + 2}y";
+        return $"{yearsDifference * 365 + StaticDetails.TickerApiBufferDays}d";
+    }
+
+    public static string GetYtdPeriod()
+    {
+        var today = DateTime.UtcNow;
+        var startOfYear = new DateTime(today.Year, 1, 1);
+        var daysDifference = (today - startOfYear).Days;
+        return $"{daysDifference + StaticDetails.TickerApiBufferDays}d";
     }
 }

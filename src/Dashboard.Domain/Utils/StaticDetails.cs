@@ -11,4 +11,6 @@ public static class StaticDetails
     public const int AbsoluteExpirationMinutes = 60;
 
     public const string SidebarStateCookie = "SidebarState";
+
+    public const int TickerApiBufferDays = 7;
 }

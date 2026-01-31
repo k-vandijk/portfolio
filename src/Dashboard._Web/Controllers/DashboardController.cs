@@ -47,15 +47,9 @@ public class DashboardController : Controller
             .ToList();
 
         // Determine optimal period based on filters
-        string period;
-        if (year.HasValue)
-        {
-            period = PeriodHelper.GetPeriodFromYear(year.Value);
-        }
-        else
-        {
-            period = PeriodHelper.GetPeriodFromTimeRange(timerange);
-        }
+        string period = year.HasValue
+            ? PeriodHelper.GetPeriodFromYear(year.Value)
+            : PeriodHelper.GetPeriodFromTimeRange(timerange);
 
         var msBeforeMarketHistory = sw.ElapsedMilliseconds;
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx, period);
