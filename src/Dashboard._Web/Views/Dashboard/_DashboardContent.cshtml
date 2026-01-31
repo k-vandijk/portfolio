@@ -155,12 +155,12 @@
                                 <td data-order="@row.TotalInvestment.ToString(CultureInfo.InvariantCulture)">@row.TotalInvestment.ToString("C2")</td>
                                 <td data-order="@row.Worth.ToString(CultureInfo.InvariantCulture)">@row.Worth.ToString("C2")</td>
                                 <td data-order="@row.Profit.ToString(CultureInfo.InvariantCulture)">
-                                    <span class="fw-bold @(row.Profit >= 0 ? "text-success" : "text-danger")">
+                                    <span class="fw-bold @(row.Profit >= 0 ? "u-text-accent-1" : "text-danger")">
                                         @row.Profit.ToString("C2")
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold @(row.ProfitPercentage >= 0 ? "text-success" : "text-danger")">
+                                    <span class="fw-bold @(row.ProfitPercentage >= 0 ? "u-text-accent-1" : "text-danger")">
                                         @((row.ProfitPercentage * 100).ToString("F2") + "%")
                                     </span>
                                 </td>

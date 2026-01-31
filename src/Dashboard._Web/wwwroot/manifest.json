@@ -4,8 +4,8 @@
   "description": "Track and visualize investment portfolio performance",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1560BD",
+  "background_color": "#EAF7F0",
+  "theme_color": "#4CAF7A",
   "orientation": "portrait-primary",
   "icons": [
     {

@@ -39,7 +39,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td class="text-center align-middle"><i class="fas fa-plus text-success"></i></td>
+                            <td class="text-center align-middle"><i class="fas fa-plus u-text-accent-1"></i></td>
                             <td><input class="form-control form-control-sm" id="dateInput" type="text" /></td>
                             <td><input class="form-control form-control-sm" id="tickerInput" list="tickerList" autocomplete="off" /></td>
                             <td><input class="form-control form-control-sm" id="amountInput" /></td>
@@ -58,7 +58,7 @@
                                 <td class="text-end">@Model[i].PurchasePrice.ToString("C2")</td>
                                 <td class="text-end">@Model[i].TransactionCosts.ToString("C2")</td>
                                 <td class="text-end fw-bold">
-                                    <span class="@(Model[i].TotalCosts >= 0 ? "text-success" : "text-danger")">
+                                    <span class="@(Model[i].TotalCosts >= 0 ? "u-text-accent-1" : "text-danger")">
                                         @Model[i].TotalCosts.ToString("C2")
                                     </span>
                                 </td>

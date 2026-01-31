@@ -2,6 +2,7 @@
 @use "abstracts/tokens";
 
 // vendor overrides
+@use "vendor/datatables";
 
 // bootstrap
 @use "../../../../node_modules/bootstrap/scss/bootstrap";
@@ -9,6 +10,7 @@
 // base (typography/helpers/utilites)
 @use "base/utilities";
 @use "base/responsive";
+@use "base/typography";
 
 // layout
 @use "layout/base";

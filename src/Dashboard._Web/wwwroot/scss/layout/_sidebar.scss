@@ -50,6 +50,15 @@
         margin-right: .5rem;
         color: inherit; // follow link color by default
     }
+
+    // Hover state for all nav links
+    &:hover:not(.active) {
+        color: var(--accent-1) !important;
+
+        i {
+            color: var(--accent-1) !important;
+        }
+    }
 }
 
 // Hide brand and divider when collapsed (but keep the nav visible)
