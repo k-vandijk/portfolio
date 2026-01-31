@@ -6,10 +6,10 @@ namespace Dashboard._Web.Controllers;
 
 public class TransactionsController : Controller
 {
-    private readonly IAzureTableService _service;
+    private readonly ITransactionService _service;
     private readonly ILogger<TransactionsController> _logger;
 
-    public TransactionsController(IAzureTableService service, ILogger<TransactionsController> logger)
+    public TransactionsController(ITransactionService service, ILogger<TransactionsController> logger)
     {
         _service = service;
         _logger = logger;

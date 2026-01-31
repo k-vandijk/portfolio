@@ -10,14 +10,14 @@ namespace Dashboard._Web.Controllers;
 
 public class DashboardController : Controller
 {
-    private readonly IAzureTableService _azureTableService;
+    private readonly ITransactionService _transactionService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DashboardController> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DashboardController(IAzureTableService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer)
+    public DashboardController(ITransactionService transactionService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer)
     {
-        _azureTableService = azureTableService;
+        _transactionService = transactionService;
         _scopeFactory = scopeFactory;
         _logger = logger;
         _localizer = localizer;
@@ -36,7 +36,7 @@ public class DashboardController : Controller
         var sw = Stopwatch.StartNew();
 
         var msBeforeTransactions = sw.ElapsedMilliseconds;
-        var transactions = await _azureTableService.GetTransactionsAsync();
+        var transactions = await _transactionService.GetTransactionsAsync();
         var msAfterTransactions = sw.ElapsedMilliseconds;
 
         // Named tx because tickers it already used as parameter name

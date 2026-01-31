@@ -9,7 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Dashboard.Infrastructure.Services;
 
-public class AzureTableService : IAzureTableService
+public class AzureTableService : ITransactionService
 {
     private readonly TableClient _table;
     private readonly IMemoryCache _cache;

@@ -9,11 +9,11 @@ namespace Dashboard._Web.Controllers;
 
 public class InvestmentController : Controller
 {
-    private readonly IAzureTableService _service;
+    private readonly ITransactionService _service;
     private readonly ILogger<InvestmentController> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public InvestmentController(IAzureTableService service, ILogger<InvestmentController> logger, IStringLocalizer<SharedResource> localizer)
+    public InvestmentController(ITransactionService service, ILogger<InvestmentController> logger, IStringLocalizer<SharedResource> localizer)
     {
         _service = service;
         _logger = logger;

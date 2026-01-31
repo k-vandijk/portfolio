@@ -12,6 +12,11 @@ public static class DependencyInjection
     {
         services.AddMemoryCache();
 
+#if DEBUG
+        // Debug mode: use dummy data service (scoped for consistency with Release mode)
+        services.AddScoped<ITransactionService, DummyTransactionService>();
+#else
+        // Release mode: use Azure Table Storage
         services.AddSingleton<TableClient>(sp =>
         {
             var connectionString = Environment.GetEnvironmentVariable("TRANSACTIONS_TABLE_CONNECTION_STRING")!;
@@ -20,7 +25,9 @@ public static class DependencyInjection
             return tableClient;
         });
 
-        services.AddScoped<IAzureTableService, AzureTableService>();
+        services.AddScoped<ITransactionService, AzureTableService>();
+#endif
+
         services.AddScoped<ITickerApiService, TickerApiService>();
 
         return services;
