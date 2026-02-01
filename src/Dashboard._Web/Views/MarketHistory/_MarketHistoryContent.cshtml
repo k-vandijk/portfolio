@@ -4,7 +4,7 @@
 @{
     var currentTicker = Context.Request.Query["ticker"].ToString();
 
-    var filtersModel = new MarketHistoryFiltersContentViewModel
+    var filtersViewModel = new MarketHistoryFiltersContentViewModel
     {
         SharedLocalizer = SharedLocalizer,
         Tickers = Model.Tickers,
@@ -12,42 +12,37 @@
         SystemUrlMarketHistory = SharedLocalizer["SystemUrl_MarketHistory"]
     };
 
-    var mobileFabModel = new MobileFilterFabDropdownViewModel
+    var mobileFabViewModel = new MobileFilterFabDropdownViewModel
     {
         ButtonId = "marketHistoryFiltersFab",
         AriaLabel = SharedLocalizer["Filters"],
         ContentPartial = "_MarketHistoryFiltersContent",
-        ContentModel = filtersModel
+        ContentModel = filtersViewModel
     };
 }
 
-<!-- Mobile floating filter button -->
-@await Html.PartialAsync("Components/_MobileFilterFabDropdown", mobileFabModel)
+@await Html.PartialAsync("Components/_MobileFilterFabDropdown", mobileFabViewModel)
 
 <div class="d-flex flex-column">
 
-    <!-- Line chart: FIRST on mobile, SECOND on md+ -->
     <div class="row h-80vh order-1 order-md-2">
         <div class="col-12 mb-3">
             <partial name="Components/_LineChart" model="Model.LineChart" />
         </div>
     </div>
 
-    <!-- Top row (filters + metrics): SECOND on mobile, FIRST on md+ -->
     <div class="row h-15vh order-2 order-md-1">
 
-        <!-- Desktop filters card (hidden on mobile) -->
         <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-4 mb-3 d-none d-md-block">
             <div class="card">
                 <div class="card-body d-flex align-items-center">
                     <div class="flex-grow-1">
-                        @await Html.PartialAsync("_MarketHistoryFiltersContent", filtersModel)
+                        @await Html.PartialAsync("_MarketHistoryFiltersContent", filtersViewModel)
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Metrics (always visible) -->
         <div class="col-12 col-xs-12 col-md-12 col-lg-6 col-xl-8 mb-3 d-flex">
             <div class="row flex-fill">
                 <div class="col-4">

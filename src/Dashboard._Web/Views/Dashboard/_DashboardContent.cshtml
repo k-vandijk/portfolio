@@ -38,7 +38,7 @@
         }
     }
 
-    var filtersModel = new DashboardFiltersContentViewModel
+    var filtersViewModel = new DashboardFiltersContentViewModel
     {
         SharedLocalizer = SharedLocalizer,
         Modes = modes,
@@ -51,35 +51,32 @@
         CurrentYear = currentYear
     };
 
-    var mobileFabModel = new MobileFilterFabDropdownViewModel
+    var mobileFabViewModel = new MobileFilterFabDropdownViewModel
     {
         ButtonId = "dashboardFiltersFab",
         AriaLabel = SharedLocalizer["Filters"],
         ContentPartial = "_DashboardFiltersContent",
-        ContentModel = filtersModel
+        ContentModel = filtersViewModel
     };
 }
 
-<!-- Mobile floating filter button (top-right) -->
-@await Html.PartialAsync("Components/_MobileFilterFabDropdown", mobileFabModel)
+@await Html.PartialAsync("Components/_MobileFilterFabDropdown", mobileFabViewModel)
 
 <div class="d-flex flex-column">
 
-    <!-- Chart: first on mobile, second on md+ -->
     <div class="row mb-3 h-70vh order-1 order-md-2">
         <div class="col-12">
             <partial name="Components/_LineChart" model="Model.LineChart" />
         </div>
     </div>
 
-    <!-- Filters + Table row: second on mobile, first on md+ -->
     <div class="row h-25vh order-2 order-md-1">
 
         <!-- Desktop filters card (hidden on mobile) -->
         <div class="col-12 col-md-12 col-lg-6 col-xl-4 mb-3 d-none d-md-block">
             <div class="card">
                 <div class="card-body d-flex flex-column justify-content-evenly">
-                    @await Html.PartialAsync("_DashboardFiltersContent", filtersModel)
+                    @await Html.PartialAsync("_DashboardFiltersContent", filtersViewModel)
                 </div>
             </div>
         </div>
