@@ -41,6 +41,33 @@
     white-space: nowrap;
 }
 
+// Brand logo styling
+#sidebar .brand-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 60px;
+    object-fit: contain;
+}
+
+// Signature at the bottom of sidebar
+#sidebar .signature-container {
+    opacity: 0.6;
+    transition: opacity .25s ease;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    
+    .signature-logo {
+        width: 100%;
+        height: auto;
+        max-height: 50px;
+        object-fit: contain;
+    }
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
 // Base link layout (expanded)
 #sidebar .nav-link {
     display: flex;
@@ -116,11 +143,32 @@
     color: var(--accent-1) !important;
 }
 
-#sidebar .language-selector {
-    margin-top: auto;
+// (Optional) subtle hover cue when collapsed
+#sidebar.collapsed .nav-link:hover {
+    color: var(--accent-1) !important;
 }
 
-// Hide the language selector when the sidebar is collapsed
-#sidebar.collapsed .language-selector {
+// Signature at the bottom
+#sidebar .signature-container {
+    opacity: 0.6;
+    transition: opacity .25s ease;
+    padding-top: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-top: 1px solid var(--border-color);
+    
+    .signature-logo {
+        width: 100%;
+        height: auto;
+        max-height: 50px;
+        object-fit: contain;
+    }
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+// Hide the signature when the sidebar is collapsed
+#sidebar.collapsed .signature-container {
     display: none !important;
 }
