@@ -45,8 +45,8 @@ public class TickerApiService : ITickerApiService
 
         _cache.Set(cacheKey, marketHistory, new MemoryCacheEntryOptions
         {
-            SlidingExpiration = TimeSpan.FromMinutes(StaticDetails.SlidingExpirationMinutes),
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(StaticDetails.AbsoluteExpirationMinutes)
+            SlidingExpiration = TimeSpan.FromMinutes(StaticDetails.SlidingCacheExpirationMinutes),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(StaticDetails.AbsoluteCacheExpirationMinutes)
         });
 
         return marketHistory;

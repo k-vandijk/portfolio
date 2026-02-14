@@ -39,8 +39,8 @@ public class AzureTableService : IAzureTableService
 
         _cache.Set(CacheKey, orderedTransactions, new MemoryCacheEntryOptions
         {
-            SlidingExpiration = TimeSpan.FromMinutes(StaticDetails.SlidingExpirationMinutes),
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(StaticDetails.AbsoluteExpirationMinutes)
+            SlidingExpiration = TimeSpan.FromMinutes(StaticDetails.SlidingCacheExpirationMinutes),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(StaticDetails.AbsoluteCacheExpirationMinutes)
         });
 
         return orderedTransactions;
@@ -67,7 +67,7 @@ public class AzureTableService : IAzureTableService
 
         // ETag.All = skip concurrency check; if you want optimistic concurrency,
         // fetch entity first and pass its ETag instead.
-        await _table.DeleteEntityAsync(StaticDetails.PartitionKey, rowKey, ETag.All);
+        await _table.DeleteEntityAsync(StaticDetails.TransactionsPartitionKey, rowKey, ETag.All);
 
         // Invalidate cache
         _cache.Remove(CacheKey);
