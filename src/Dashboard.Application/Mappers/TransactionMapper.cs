@@ -12,7 +12,7 @@ public static class TransactionMapper
     {
         return new TransactionEntity
         {
-            PartitionKey = StaticDetails.PartitionKey,
+            PartitionKey = StaticDetails.TransactionsPartitionKey,
             RowKey = string.IsNullOrWhiteSpace(t.RowKey) ? Guid.NewGuid().ToString("N") : t.RowKey,
             Date = FormattingHelper.FormatDate(t.Date),
             Ticker = t.Ticker,

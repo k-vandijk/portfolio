@@ -1,4 +1,4 @@
-﻿using Azure.Data.Tables;
+using Azure.Data.Tables;
 using Dashboard.Application.Interfaces;
 using Dashboard.Domain.Utils;
 using Dashboard.Infrastructure.Services;
@@ -15,13 +15,26 @@ public static class DependencyInjection
         services.AddSingleton<TableClient>(sp =>
         {
             var connectionString = Environment.GetEnvironmentVariable("TRANSACTIONS_TABLE_CONNECTION_STRING")!;
-            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.TableName);
+            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.TransactionsTableName);
+            tableClient.CreateIfNotExists();
+            return tableClient;
+        });
+
+        services.AddKeyedSingleton<TableClient>(StaticDetails.PushSubscriptionsTableName, (sp, _) =>
+        {
+            var connectionString = Environment.GetEnvironmentVariable("TRANSACTIONS_TABLE_CONNECTION_STRING")!;
+            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.PushSubscriptionsTableName);
             tableClient.CreateIfNotExists();
             return tableClient;
         });
 
         services.AddScoped<IAzureTableService, AzureTableService>();
         services.AddScoped<ITickerApiService, TickerApiService>();
+        services.AddScoped<IPushSubscriptionService, PushSubscriptionService>();
+        services.AddScoped<IPushNotificationService, PushNotificationService>();
+        services.AddScoped<IPortfolioValueService, PortfolioValueService>();
+
+        services.AddHostedService<PortfolioMonitorService>();
 
         return services;
     }

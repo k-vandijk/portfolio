@@ -23,7 +23,7 @@ public class TransactionMapperTests
 
         var entity = model.ToEntity();
 
-        Assert.Equal(StaticDetails.PartitionKey, entity.PartitionKey);
+        Assert.Equal(StaticDetails.TransactionsPartitionKey, entity.PartitionKey);
         Assert.Equal("rk-123", entity.RowKey);
         Assert.Equal("2024-05-17", entity.Date);            // FormatDate => yyyy-MM-dd
         Assert.Equal("MSFT", entity.Ticker);
@@ -79,7 +79,7 @@ public class TransactionMapperTests
     {
         var entity = new TransactionEntity
         {
-            PartitionKey = StaticDetails.PartitionKey,
+            PartitionKey = StaticDetails.TransactionsPartitionKey,
             RowKey = "rk-xyz",
             Date = "2024-05-17",
             Ticker = "MSFT",
