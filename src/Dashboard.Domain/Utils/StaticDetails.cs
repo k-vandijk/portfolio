@@ -23,11 +23,11 @@ public static class StaticDetails
     /// <summary>
     /// Represents the percentage change in portfolio value that triggers alerts or actions when exceeded.
     /// </summary>
-    public const decimal PortfolioChangeThresholdPercent = 0m;
+    public const decimal PortfolioChangeThresholdPercent = 3.0m;
 
     /// <summary>
     /// Specifies the interval, in minutes, at which the portfolio is checked for significant changes in value.
     /// This is used by the PortfolioMonitorService to determine how frequently to perform checks.
     /// </summary>
-    public const int PortfolioCheckIntervalMinutes = 1;
+    public const int PortfolioCheckIntervalMinutes = 60;
 }
