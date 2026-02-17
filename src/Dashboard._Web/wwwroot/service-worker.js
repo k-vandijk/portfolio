@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ticker-dashboard-v4';
+const CACHE_NAME = 'ticker-dashboard-v5';
 const urlsToCache = [
   '/',
   '/css/variables.css',
@@ -59,7 +59,8 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     if (url.protocol === 'chrome-extension:' || 
         url.hostname === 'login.microsoftonline.com' ||
-        url.pathname.includes('/signin-oidc')) {
+        url.pathname.includes('/signin-oidc') ||
+        url.pathname.startsWith('/notifications/')) {
       return;
     }
   } catch (e) {
