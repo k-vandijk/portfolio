@@ -21,13 +21,18 @@ public static class StaticDetails
     public const int TickerApiBufferDays = 7;
 
     /// <summary>
-    /// Represents the percentage change in portfolio value that triggers alerts or actions when exceeded.
-    /// </summary>
-    public const decimal PortfolioChangeThresholdPercent = 3.0m;
-
-    /// <summary>
     /// Specifies the interval, in minutes, at which the portfolio is checked for significant changes in value.
     /// This is used by the PortfolioMonitorService to determine how frequently to perform checks.
     /// </summary>
-    public const int PortfolioCheckIntervalMinutes = 60;
+    public const int PortfolioCheckIntervalMinutes = 60 * 2;
+
+    /// <summary>
+    /// The hour (0-23) when scheduled portfolio notifications should start being sent.
+    /// </summary>
+    public const int NotificationStartHour = 8;
+
+    /// <summary>
+    /// The hour (0-23) when scheduled portfolio notifications should stop being sent.
+    /// </summary>
+    public const int NotificationEndHour = 20;
 }

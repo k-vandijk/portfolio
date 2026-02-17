@@ -1,3 +1,4 @@
+using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,7 @@ public class PortfolioValueService : IPortfolioValueService
         _logger = logger;
     }
 
-    public async Task<decimal> GetCurrentPortfolioWorthAsync()
+    public async Task<List<HoldingInfo>> GetTopHoldingsByValueAsync(int count = 3)
     {
         var transactions = await _azureTableService.GetTransactionsAsync();
 
@@ -29,7 +30,7 @@ public class PortfolioValueService : IPortfolioValueService
             .Distinct()
             .ToList();
 
-        // Fetch latest close prices concurrently (same pattern as DashboardController)
+        // Fetch latest close prices concurrently
         var fetchTasks = tickers.Select(async ticker =>
         {
             using var scope = _scopeFactory.CreateScope();
@@ -53,12 +54,22 @@ public class PortfolioValueService : IPortfolioValueService
         var prices = await Task.WhenAll(fetchTasks);
         var priceMap = prices.ToDictionary(p => p.Ticker, p => p.Price);
 
-        var totalWorth = transactions.Sum(t =>
-        {
-            var price = priceMap.GetValueOrDefault(t.Ticker.ToUpperInvariant(), 0m);
-            return t.Amount * price;
-        });
+        // Calculate total quantity per ticker
+        var holdings = transactions
+            .GroupBy(t => t.Ticker.ToUpperInvariant())
+            .Select(g =>
+            {
+                var ticker = g.Key;
+                var quantity = g.Sum(t => t.Amount);
+                var currentPrice = priceMap.GetValueOrDefault(ticker, 0m);
+                var totalValue = quantity * currentPrice;
+                return new HoldingInfo(ticker, quantity, currentPrice, totalValue);
+            })
+            .Where(h => h.Quantity > 0) // Only active holdings
+            .OrderByDescending(h => h.TotalValue)
+            .Take(count)
+            .ToList();
 
-        return totalWorth;
+        return holdings;
     }
 }
