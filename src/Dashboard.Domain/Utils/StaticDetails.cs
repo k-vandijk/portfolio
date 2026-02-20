@@ -24,7 +24,7 @@ public static class StaticDetails
     /// Specifies the interval, in minutes, at which the portfolio is checked for significant changes in value.
     /// This is used by the PortfolioMonitorService to determine how frequently to perform checks.
     /// </summary>
-    public const int PortfolioCheckIntervalMinutes = 60 * 2;
+    public const int PortfolioCheckIntervalMinutes = 60 * 3;
 
     /// <summary>
     /// The hour (0-23) when scheduled portfolio notifications should start being sent.
@@ -35,4 +35,21 @@ public static class StaticDetails
     /// The hour (0-23) when scheduled portfolio notifications should stop being sent.
     /// </summary>
     public const int NotificationEndHour = 20;
+
+    /// <summary>
+    /// A collection of greeting phrases that can be randomly selected when sending portfolio updates or notifications.
+    /// </summary>
+    public static readonly string[] NotificationGreetings =
+    [
+        "Market check-in",
+        "Your stocks called",
+        "Portfolio pulse",
+        "Numbers are in",
+        "Market moves",
+        "Here's the vibe",
+        "Stonks report",
+        "Daily digits",
+        "Chart check",
+        "Money moves"
+    ];
 }
