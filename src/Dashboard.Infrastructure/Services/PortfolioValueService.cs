@@ -39,20 +39,20 @@ public class PortfolioValueService : IPortfolioValueService
             try
             {
                 var data = await api.GetMarketHistoryResponseAsync(ticker);
-                var latestClose = data?.History
-                    .OrderByDescending(h => h.Date)
-                    .FirstOrDefault()?.Close ?? 0m;
-                return (Ticker: ticker, Price: latestClose);
+                var ordered = data?.History.OrderByDescending(h => h.Date).ToList();
+                var latestClose = ordered?.FirstOrDefault()?.Close ?? 0m;
+                var prevDayClose = ordered?.Skip(1).FirstOrDefault()?.Close ?? latestClose;
+                return (Ticker: ticker, Price: latestClose, PrevClose: prevDayClose);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to fetch price for {Ticker}", ticker);
-                return (Ticker: ticker, Price: 0m);
+                return (Ticker: ticker, Price: 0m, PrevClose: 0m);
             }
         }).ToArray();
 
         var prices = await Task.WhenAll(fetchTasks);
-        var priceMap = prices.ToDictionary(p => p.Ticker, p => p.Price);
+        var priceMap = prices.ToDictionary(p => p.Ticker, p => (p.Price, p.PrevClose));
 
         // Calculate total quantity per ticker
         var holdings = transactions
@@ -61,9 +61,9 @@ public class PortfolioValueService : IPortfolioValueService
             {
                 var ticker = g.Key;
                 var quantity = g.Sum(t => t.Amount);
-                var currentPrice = priceMap.GetValueOrDefault(ticker, 0m);
+                var (currentPrice, prevClose) = priceMap.GetValueOrDefault(ticker, (0m, 0m));
                 var totalValue = quantity * currentPrice;
-                return new HoldingInfo(ticker, quantity, currentPrice, totalValue);
+                return new HoldingInfo(ticker, quantity, currentPrice, totalValue, prevClose);
             })
             .Where(h => h.Quantity > 0) // Only active holdings
             .OrderByDescending(h => h.TotalValue)

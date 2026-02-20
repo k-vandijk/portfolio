@@ -24,7 +24,7 @@ public static class StaticDetails
     /// Specifies the interval, in minutes, at which the portfolio is checked for significant changes in value.
     /// This is used by the PortfolioMonitorService to determine how frequently to perform checks.
     /// </summary>
-    public const int PortfolioCheckIntervalMinutes = 60 * 2;
+    public const int PortfolioCheckIntervalMinutes = 1;
 
     /// <summary>
     /// The hour (0-23) when scheduled portfolio notifications should start being sent.
