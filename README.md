@@ -99,36 +99,16 @@ cd portfolio-insight-dashboard
 npm install
 ```
 
-**3. Configure Environment Variables**
-
-Set the following environment variables or update `appsettings.json`:
-
-```bash
-export TRANSACTIONS_TABLE_CONNECTION_STRING="your-azure-storage-connection-string"
-export TICKER_API_URL="your-ticker-api-url"
-export TICKER_API_CODE="your-api-authentication-code"
-```
-
-Configure Azure AD in `src/Dashboard._Web/appsettings.json`:
-
-```json
-{
-  "AzureAd": {
-    "Instance": "https://login.microsoftonline.com/",
-    "TenantId": "your-tenant-id",
-    "ClientId": "your-client-id",
-    "ClientSecret": "your-client-secret",
-    "CallbackPath": "/signin-oidc"
-  }
-}
-```
-
-> **⚠️ Security**: Never commit secrets. Use Azure Key Vault, User Secrets, or environment variables in production.
-
-**4. Build Frontend Assets**
+**3. Build Frontend Assets**
 
 ```bash
 npm run sass:build
+```
+
+**4. Log into Azure CLI**
+
+```bash
+az login
 ```
 
 **5. Restore and Build**
@@ -145,7 +125,7 @@ cd src/Dashboard._Web
 dotnet run
 ```
 
-The application starts at `https://localhost:5001`
+The application starts at `https://localhost:61277`
 
 ## Ticker API Reference
 
