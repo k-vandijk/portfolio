@@ -34,7 +34,7 @@ public class PortfolioMonitorService : BackgroundService
 
             try
             {
-                await CheckAndSendScheduledUpdateAsync(stoppingToken);
+                await CheckAndSendScheduledUpdateAsync();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -42,8 +42,11 @@ public class PortfolioMonitorService : BackgroundService
             }
         }
     }
+    
+    private static string PickRandomGreeting() =>
+        StaticDetails.NotificationGreetings[Random.Shared.Next(StaticDetails.NotificationGreetings.Length)];
 
-    internal static DateTime GetNextScheduledTime(DateTime now)
+    private static DateTime GetNextScheduledTime(DateTime now)
     {
         var interval = StaticDetails.PortfolioCheckIntervalMinutes / 60;
         var startHour = StaticDetails.NotificationStartHour;
@@ -61,7 +64,7 @@ public class PortfolioMonitorService : BackgroundService
         return now.Date.AddDays(1).AddHours(startHour);
     }
 
-    private async Task CheckAndSendScheduledUpdateAsync(CancellationToken stoppingToken)
+    private async Task CheckAndSendScheduledUpdateAsync()
     {
         using var scope = _scopeFactory.CreateScope();
         var portfolioService = scope.ServiceProvider.GetRequiredService<IPortfolioValueService>();
@@ -78,19 +81,36 @@ public class PortfolioMonitorService : BackgroundService
         }
 
         // Build notification message
-        var title = "Portfolio update";
+        var title = PickRandomGreeting();
         var bodyLines = new List<string>();
+
+        var totalPrevValue = 0m;
+        var totalCurrentValue = 0m;
 
         foreach (var holding in topHoldings)
         {
+            var prevValue = holding.PreviousDayClose * holding.Quantity;
+            var currentValue = holding.TotalValue;
+            totalPrevValue += prevValue;
+            totalCurrentValue += currentValue;
+
             var changePercent = holding.PreviousDayClose != 0m
                 ? (holding.CurrentPrice - holding.PreviousDayClose) / holding.PreviousDayClose * 100m
                 : 0m;
+            var absChange = (holding.CurrentPrice - holding.PreviousDayClose) * holding.Quantity;
 
-            var direction = changePercent >= 0 ? "+" : "";
-            var line = $"{holding.Ticker}: {direction}{Math.Round(changePercent, 1)}% ({holding.TotalValue:C})";
-            bodyLines.Add(line);
+            var sign = absChange >= 0 ? "+" : "";
+            bodyLines.Add($"{holding.Ticker}: {sign}{Math.Round(changePercent, 1)}% ({sign}{absChange:C})");
         }
+
+        var totalAbsChange = totalCurrentValue - totalPrevValue;
+        var totalChangePercent = totalPrevValue != 0m
+            ? (totalCurrentValue - totalPrevValue) / totalPrevValue * 100m
+            : 0m;
+        var totalSign = totalAbsChange >= 0 ? "+" : "";
+
+        bodyLines.Add($"━━━━━━━━━━━━━━━━━━");
+        bodyLines.Add($"Total: {totalSign}{Math.Round(totalChangePercent, 1)}% ({totalSign}{totalAbsChange:C})");
 
         var body = string.Join("\n", bodyLines);
 
