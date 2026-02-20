@@ -483,6 +483,5 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-launchSettings.json
 /src/Dashboard._Web/wwwroot/css/site.css
 /src/Dashboard._Web/wwwroot/css/site.css.map

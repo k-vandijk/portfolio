@@ -8,17 +8,22 @@ public class NotificationsController : Controller
 {
     private readonly IPushSubscriptionService _subscriptionService;
     private readonly ILogger<NotificationsController> _logger;
+    private readonly IConfiguration _config;
 
-    public NotificationsController(IPushSubscriptionService subscriptionService, ILogger<NotificationsController> logger)
+    public NotificationsController(
+        IPushSubscriptionService subscriptionService, 
+        ILogger<NotificationsController> logger, 
+        IConfiguration config)
     {
         _subscriptionService = subscriptionService;
         _logger = logger;
+        _config = config;
     }
 
     [HttpGet("/notifications/vapid-public-key")]
     public IActionResult GetVapidPublicKey()
     {
-        var publicKey = Environment.GetEnvironmentVariable("VAPID_PUBLIC_KEY");
+        var publicKey = _config["vapid-public-key"];
 
         if (string.IsNullOrEmpty(publicKey))
         {

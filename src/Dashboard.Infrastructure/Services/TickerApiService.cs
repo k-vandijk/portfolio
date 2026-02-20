@@ -4,6 +4,7 @@ using System.Text.Json;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard.Domain.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace Dashboard.Infrastructure.Services;
 
@@ -11,11 +12,13 @@ public class TickerApiService : ITickerApiService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMemoryCache _cache;
+    private readonly IConfiguration _config;
 
-    public TickerApiService(IHttpClientFactory httpFactory, IMemoryCache cache)
+    public TickerApiService(IHttpClientFactory httpFactory, IMemoryCache cache, IConfiguration config)
     {
         _httpClientFactory = httpFactory;
         _cache = cache;
+        _config = config;
     }
 
     public async Task<MarketHistoryResponseDto?> GetMarketHistoryResponseAsync(
@@ -23,8 +26,8 @@ public class TickerApiService : ITickerApiService
         string? period = null,
         string? interval = "1d")
     {
-        var tickerApiUrl = Environment.GetEnvironmentVariable("TICKER_API_URL")!;
-        var tickerApiCode = Environment.GetEnvironmentVariable("TICKER_API_CODE")!;
+        var tickerApiUrl = _config["ticker-api-url"];
+        var tickerApiCode = _config["ticker-api-code"];
 
         period ??= PeriodHelper.GetDefaultPeriod();
 

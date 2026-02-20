@@ -11,12 +11,12 @@ namespace Dashboard._Web.Controllers;
 
 public class DashboardController : Controller
 {
-    private readonly IAzureTableService _azureTableService;
+    private readonly ITransactionService _azureTableService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DashboardController> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DashboardController(IAzureTableService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer)
+    public DashboardController(ITransactionService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer)
     {
         _azureTableService = azureTableService;
         _scopeFactory = scopeFactory;

@@ -6,17 +6,18 @@ using Dashboard.Application.Mappers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dashboard.Infrastructure.Services;
 
-public class AzureTableService : IAzureTableService
+public class TransactionService : ITransactionService
 {
     private readonly TableClient _table;
     private readonly IMemoryCache _cache;
 
     private const string CacheKey = "transactions";
 
-    public AzureTableService(TableClient table, IMemoryCache cache)
+    public TransactionService([FromKeyedServices(StaticDetails.TransactionsTableName)] TableClient table, IMemoryCache cache)
     {
         _table = table;
         _cache = cache;

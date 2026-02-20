@@ -2,7 +2,7 @@
 
 namespace Dashboard.Application.Interfaces;
 
-public interface IAzureTableService
+public interface ITransactionService
 {
     Task<List<TransactionDto>> GetTransactionsAsync();
     Task AddTransactionAsync(TransactionDto transaction);

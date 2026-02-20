@@ -67,7 +67,7 @@ public class MarketHistoryController : Controller
     private async Task<List<TransactionDto>> GetTransactionsAsync()
     {
         using var scope = _scopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<IAzureTableService>();
+        var service = scope.ServiceProvider.GetRequiredService<ITransactionService>();
 
         return await service.GetTransactionsAsync();
     }

@@ -7,12 +7,12 @@ namespace Dashboard.Infrastructure.Services;
 
 public class PortfolioValueService : IPortfolioValueService
 {
-    private readonly IAzureTableService _azureTableService;
+    private readonly ITransactionService _azureTableService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<PortfolioValueService> _logger;
 
     public PortfolioValueService(
-        IAzureTableService azureTableService,
+        ITransactionService azureTableService,
         IServiceScopeFactory scopeFactory,
         ILogger<PortfolioValueService> logger)
     {
