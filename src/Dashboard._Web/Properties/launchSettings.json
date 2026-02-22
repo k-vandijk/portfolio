@@ -2,7 +2,7 @@
   "profiles": {
     "Dashboard._Web": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "applicationUrl": "https://localhost:61277;http://localhost:61278",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

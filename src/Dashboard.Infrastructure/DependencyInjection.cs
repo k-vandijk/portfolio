@@ -31,13 +31,34 @@ public static class DependencyInjection
             return tableClient;
         });
 
+        services.AddKeyedSingleton<TableClient>(StaticDetails.UserSettingsTableName, (sp, _) =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            var connectionString = config.GetConnectionString("StorageAccount");
+            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.UserSettingsTableName);
+            tableClient.CreateIfNotExists();
+            return tableClient;
+        });
+
+        services.AddKeyedSingleton<TableClient>(StaticDetails.AiAnalysesTableName, (sp, _) =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            var connectionString = config.GetConnectionString("StorageAccount");
+            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.AiAnalysesTableName);
+            tableClient.CreateIfNotExists();
+            return tableClient;
+        });
+
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<ITickerApiService, TickerApiService>();
         services.AddScoped<IPushSubscriptionService, PushSubscriptionService>();
         services.AddScoped<IPushNotificationService, PushNotificationService>();
         services.AddScoped<IPortfolioValueService, PortfolioValueService>();
+        services.AddScoped<IUserSettingsService, UserSettingsService>();
+        services.AddScoped<IPortfolioAnalysisService, PortfolioAnalysisService>();
 
         services.AddHostedService<PortfolioMonitorService>();
+        services.AddHostedService<WeeklyAnalysisBackgroundService>();
 
         return services;
     }

@@ -23,6 +23,12 @@ public class PortfolioValueService : IPortfolioValueService
 
     public async Task<List<HoldingInfo>> GetTopHoldingsByValueAsync(int count = 3)
     {
+        var all = await GetAllHoldingsAsync();
+        return all.Take(count).ToList();
+    }
+
+    public async Task<List<HoldingInfo>> GetAllHoldingsAsync()
+    {
         var transactions = await _azureTableService.GetTransactionsAsync();
 
         var tickers = transactions
@@ -54,7 +60,6 @@ public class PortfolioValueService : IPortfolioValueService
         var prices = await Task.WhenAll(fetchTasks);
         var priceMap = prices.ToDictionary(p => p.Ticker, p => (p.Price, p.PrevClose));
 
-        // Calculate total quantity per ticker
         var holdings = transactions
             .GroupBy(t => t.Ticker.ToUpperInvariant())
             .Select(g =>
@@ -65,9 +70,8 @@ public class PortfolioValueService : IPortfolioValueService
                 var totalValue = quantity * currentPrice;
                 return new HoldingInfo(ticker, quantity, currentPrice, totalValue, prevClose);
             })
-            .Where(h => h.Quantity > 0) // Only active holdings
+            .Where(h => h.Quantity > 0)
             .OrderByDescending(h => h.TotalValue)
-            .Take(count)
             .ToList();
 
         return holdings;

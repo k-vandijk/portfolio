@@ -39,6 +39,23 @@ public static class StaticDetails
     /// <summary>
     /// A collection of greeting phrases that can be randomly selected when sending portfolio updates or notifications.
     /// </summary>
+    public const string UserSettingsTableName = "usersettings";
+    public const string UserSettingsPartitionKey = "usersettings";
+    public const string UserSettingsRowKey = "default";
+
+    public const string AiAnalysesTableName = "aianalyses";
+    public const string AiAnalysesPartitionKey = "aianalyses";
+
+    /// <summary>
+    /// Minimum number of days between two weekly AI portfolio analyses.
+    /// </summary>
+    public const int WeeklyAnalysisIntervalDays = 7;
+
+    /// <summary>
+    /// The hour (0-23) when the weekly analysis background service may run.
+    /// </summary>
+    public const int WeeklyAnalysisRunHour = 9;
+
     public static readonly string[] NotificationGreetings =
     [
         "Market check-in",

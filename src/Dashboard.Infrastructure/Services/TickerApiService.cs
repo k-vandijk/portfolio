@@ -26,8 +26,8 @@ public class TickerApiService : ITickerApiService
         string? period = null,
         string? interval = "1d")
     {
-        var tickerApiUrl = _config["ticker-api-url"];
-        var tickerApiCode = _config["ticker-api-code"];
+        var tickerApiUrl = _config["TickerApi:Url"];
+        var tickerApiCode = _config["TickerApi:Code"];
 
         period ??= PeriodHelper.GetDefaultPeriod();
 
