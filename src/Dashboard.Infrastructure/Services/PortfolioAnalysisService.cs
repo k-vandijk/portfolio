@@ -156,8 +156,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         var foundryEndpoint = _config["MicrosoftFoundry:Endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
         var foundryAgentId = _config["MicrosoftFoundry:AgentId"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
 
-        var credential = AzureCredentialFactory.GetCredential(_config, _environment.IsDevelopment());
-        var client = new PersistentAgentsClient(foundryEndpoint, credential);
+        var client = new PersistentAgentsClient(foundryEndpoint, new DefaultAzureCredential());
 
         _logger.LogInformation("Retrieving agent {AgentId}", foundryAgentId);
         var agentResponse = await client.Administration.GetAgentAsync(foundryAgentId);
