@@ -9,7 +9,6 @@ using Dashboard.Domain.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
@@ -23,7 +22,6 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     private readonly IPortfolioValueService _portfolioValueService;
     private readonly IUserSettingsService _userSettingsService;
     private readonly IConfiguration _config;
-    private readonly IWebHostEnvironment _environment;
     private readonly ILogger<PortfolioAnalysisService> _logger;
 
     public PortfolioAnalysisService(
@@ -32,7 +30,6 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         IPortfolioValueService portfolioValueService,
         IUserSettingsService userSettingsService,
         IConfiguration config,
-        IWebHostEnvironment environment,
         ILogger<PortfolioAnalysisService> logger)
     {
         _table = table;
@@ -40,7 +37,6 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         _portfolioValueService = portfolioValueService;
         _userSettingsService = userSettingsService;
         _config = config;
-        _environment = environment;
         _logger = logger;
     }
 
@@ -154,9 +150,28 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     private async Task<string> InvokeAgentAsync(string userMessage)
     {
         var foundryEndpoint = _config["MicrosoftFoundry:Endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
-        var foundryAgentId = _config["MicrosoftFoundry:AgentId"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
 
         var client = new PersistentAgentsClient(foundryEndpoint, new DefaultAzureCredential());
+
+        var agentId = _config["MicrosoftFoundry:AgentId"];   // may be asst_... OR ag-... OR a display name
+        var agentName = _config["MicrosoftFoundry:AgentName"]; // optional explicit name
+
+        string foundryAgentId;
+
+        if (!string.IsNullOrWhiteSpace(agentId) && agentId.StartsWith("asst", StringComparison.OrdinalIgnoreCase))
+        {
+            // already the canonical ID
+            foundryAgentId = agentId;
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(agentName))
+                throw new InvalidOperationException("MicrosoftFoundry:AgentName is not configured");
+
+            foundryAgentId = await ResolveAssistantIdByAgentNameAsync(client, agentName);
+        }
+
+        _logger.LogInformation("Using Foundry assistant id: {AssistantId}", foundryAgentId);
 
         _logger.LogInformation("Retrieving agent {AgentId}", foundryAgentId);
         var agentResponse = await client.Administration.GetAgentAsync(foundryAgentId);
@@ -202,7 +217,22 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         await client.Threads.DeleteThreadAsync(thread.Id);
         _logger.LogInformation("Thread deleted, analysis complete");
 
-        return content;
+        return content; 
+    }
+
+    private async Task<string> ResolveAssistantIdByAgentNameAsync(PersistentAgentsClient client, string agentName)
+    {
+        await foreach (var agent in client.Administration.GetAgentsAsync())
+        {
+            // Depending on SDK version, the property may be Name/DisplayName.
+            // Use what your agent objects actually expose.
+            if (string.Equals(agent.Name, agentName, StringComparison.OrdinalIgnoreCase))
+            {
+                return agent.Id;
+            }
+        }
+
+        throw new InvalidOperationException($"No Foundry agent found with name '{agentName}'.");
     }
 
     private static string BuildWeeklyUserPrompt(
