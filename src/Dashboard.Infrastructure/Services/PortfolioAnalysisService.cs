@@ -1,19 +1,23 @@
-using Azure.AI.Agents.Persistent;
-using Azure.Data.Tables;
-using Azure.Identity;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
-using Microsoft.AspNetCore.Hosting;
+using System.Text;
+using System.Text.Json;
+using Azure.AI.Projects;
+using Azure.AI.Projects.OpenAI;
+using Azure.Data.Tables;
+using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Text.Json;
+using OpenAI.Responses;
 
 namespace Dashboard.Infrastructure.Services;
+
+#pragma warning disable OPENAI001
+#pragma warning disable CA2252
 
 public class PortfolioAnalysisService : IPortfolioAnalysisService
 {
@@ -149,90 +153,18 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 
     private async Task<string> InvokeAgentAsync(string userMessage)
     {
-        var foundryEndpoint = _config["MicrosoftFoundry:Endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
+        var foundryEndpoint = _config["MicrosoftFoundry:Endpoint"] ?? throw new InvalidOperationException("MicrosoftFoundry:Endpoint is not configured");
+        var foundryAgentName = _config["MicrosoftFoundry:AgentName"] ?? throw new InvalidOperationException("MicrosoftFoundry:AgentName is not configured");
 
-        var client = new PersistentAgentsClient(foundryEndpoint, new DefaultAzureCredential());
+        AIProjectClient projectClient = new(endpoint: new Uri(foundryEndpoint), tokenProvider: new DefaultAzureCredential());
 
-        var agentId = _config["MicrosoftFoundry:AgentId"];   // may be asst_... OR ag-... OR a display name
-        var agentName = _config["MicrosoftFoundry:AgentName"]; // optional explicit name
+        AgentRecord agentRecord = projectClient.Agents.GetAgent(foundryAgentName);
+        _logger.LogInformation("Agent retrieved (name: {AgentRecordName}, id: {AgentRecordId})", agentRecord.Name, agentRecord.Id);
 
-        string foundryAgentId;
+        ProjectResponsesClient responseClient = projectClient.OpenAI.GetProjectResponsesClientForAgent(agentRecord);
+        ResponseResult response = await responseClient.CreateResponseAsync(userMessage);
 
-        if (!string.IsNullOrWhiteSpace(agentId) && agentId.StartsWith("asst", StringComparison.OrdinalIgnoreCase))
-        {
-            // already the canonical ID
-            foundryAgentId = agentId;
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(agentName))
-                throw new InvalidOperationException("MicrosoftFoundry:AgentName is not configured");
-
-            foundryAgentId = await ResolveAssistantIdByAgentNameAsync(client, agentName);
-        }
-
-        _logger.LogInformation("Using Foundry assistant id: {AssistantId}", foundryAgentId);
-
-        _logger.LogInformation("Retrieving agent {AgentId}", foundryAgentId);
-        var agentResponse = await client.Administration.GetAgentAsync(foundryAgentId);
-        var agent = agentResponse.Value;
-
-        _logger.LogInformation("Creating new thread for agent {AgentId}", foundryAgentId);
-        var threadResponse = await client.Threads.CreateThreadAsync();
-        var thread = threadResponse.Value;
-
-        await client.Messages.CreateMessageAsync(
-            threadId: thread.Id,
-            role: MessageRole.User,
-            content: userMessage);
-
-        _logger.LogInformation("Starting agent run on thread {ThreadId}", thread.Id);
-        var runResponse = await client.Runs.CreateRunAsync(thread, agent);
-        var run = runResponse.Value;
-
-        while (run.Status == RunStatus.Queued || run.Status == RunStatus.InProgress)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(2));
-            runResponse = await client.Runs.GetRunAsync(thread.Id, run.Id);
-            run = runResponse.Value;
-            _logger.LogDebug("Agent run status: {Status}", run.Status);
-        }
-
-        if (run.Status != RunStatus.Completed)
-            throw new InvalidOperationException($"Agent run ended with status: {run.Status}");
-
-        _logger.LogInformation("Agent run completed, retrieving response");
-        var messages = client.Messages.GetMessages(threadId: thread.Id, order: ListSortOrder.Ascending);
-        string content = string.Empty;
-        foreach (var msg in messages)
-        {
-            if (msg.Role.ToString() == "assistant")
-            {
-                content = string.Concat(msg.ContentItems
-                    .OfType<MessageTextContent>()
-                    .Select(c => c.Text));
-            }
-        }
-
-        await client.Threads.DeleteThreadAsync(thread.Id);
-        _logger.LogInformation("Thread deleted, analysis complete");
-
-        return content; 
-    }
-
-    private async Task<string> ResolveAssistantIdByAgentNameAsync(PersistentAgentsClient client, string agentName)
-    {
-        await foreach (var agent in client.Administration.GetAgentsAsync())
-        {
-            // Depending on SDK version, the property may be Name/DisplayName.
-            // Use what your agent objects actually expose.
-            if (string.Equals(agent.Name, agentName, StringComparison.OrdinalIgnoreCase))
-            {
-                return agent.Id;
-            }
-        }
-
-        throw new InvalidOperationException($"No Foundry agent found with name '{agentName}'.");
+        return response.GetOutputText();
     }
 
     private static string BuildWeeklyUserPrompt(
