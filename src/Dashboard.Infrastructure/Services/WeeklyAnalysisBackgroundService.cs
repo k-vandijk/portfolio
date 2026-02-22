@@ -62,7 +62,8 @@ public class WeeklyAnalysisBackgroundService : BackgroundService
 
         if (lastAnalysis is not null)
         {
-            var daysSinceLast = (DateOnly.FromDateTime(DateTime.Today) - lastAnalysis.AnalysisDate).Days;
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var daysSinceLast = today.DayNumber - lastAnalysis.AnalysisDate.DayNumber;
             if (daysSinceLast < StaticDetails.WeeklyAnalysisIntervalDays)
             {
                 _logger.LogDebug(

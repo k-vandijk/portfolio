@@ -188,12 +188,9 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 
     private async Task<string> CallAiFoundryAsync(string systemPrompt, string userPrompt)
     {
-        var endpoint = _config["azure-ai-foundry-endpoint"]
-            ?? throw new InvalidOperationException("azure-ai-foundry-endpoint is not configured");
-        var key = _config["azure-ai-foundry-key"]
-            ?? throw new InvalidOperationException("azure-ai-foundry-key is not configured");
-        var deployment = _config["azure-ai-foundry-deployment"]
-            ?? throw new InvalidOperationException("azure-ai-foundry-deployment is not configured");
+        var endpoint = _config["azure-foundry-endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
+        var key = _config["azure-foundry-key"] ?? throw new InvalidOperationException("azure-foundry-key is not configured");
+        var deployment = _config["azure-foundry-deployment"] ?? throw new InvalidOperationException("azure-foundry-deployment is not configured");
 
         var client = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key));
         var chatClient = client.GetChatClient(deployment);
