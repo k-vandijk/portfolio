@@ -15,9 +15,9 @@ public class PushNotificationService : IPushNotificationService
     {
         _client = new WebPushClient();
         _vapidDetails = new VapidDetails(
-            config["vapid-subject"],
-            config["vapid-public-key"],
-            config["vapid-private-key"]);
+            config["Vapid:Subject"],
+            config["Vapid:PublicKey"],
+            config["Vapid:PrivateKey"]);
     }
 
     public async Task SendNotificationAsync(PushSubscriptionDto subscription, string title, string body)

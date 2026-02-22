@@ -6,8 +6,10 @@ using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
@@ -21,6 +23,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     private readonly IPortfolioValueService _portfolioValueService;
     private readonly IUserSettingsService _userSettingsService;
     private readonly IConfiguration _config;
+    private readonly IWebHostEnvironment _environment;
     private readonly ILogger<PortfolioAnalysisService> _logger;
 
     public PortfolioAnalysisService(
@@ -29,6 +32,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         IPortfolioValueService portfolioValueService,
         IUserSettingsService userSettingsService,
         IConfiguration config,
+        IWebHostEnvironment environment,
         ILogger<PortfolioAnalysisService> logger)
     {
         _table = table;
@@ -36,6 +40,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         _portfolioValueService = portfolioValueService;
         _userSettingsService = userSettingsService;
         _config = config;
+        _environment = environment;
         _logger = logger;
     }
 
@@ -148,10 +153,11 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 
     private async Task<string> InvokeAgentAsync(string userMessage)
     {
-        var foundryEndpoint = _config["azure-foundry-endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
-        var foundryAgentId = _config["azure-foundry-agent-id"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
+        var foundryEndpoint = _config["MicrosoftFoundry:Endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
+        var foundryAgentId = _config["MicrosoftFoundry:AgentId"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
 
-        var client = new PersistentAgentsClient(foundryEndpoint, new DefaultAzureCredential());
+        var credential = AzureCredentialFactory.GetCredential(_config, _environment.IsDevelopment());
+        var client = new PersistentAgentsClient(foundryEndpoint, credential);
 
         _logger.LogInformation("Retrieving agent {AgentId}", foundryAgentId);
         var agentResponse = await client.Administration.GetAgentAsync(foundryAgentId);
