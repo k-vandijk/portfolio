@@ -1,9 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using Azure;
-using Azure.AI.OpenAI;
-using OpenAI.Chat;
+using Azure.AI.Agents.Persistent;
 using Azure.Data.Tables;
+using Azure.Identity;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
@@ -20,7 +19,6 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     private readonly TableClient _table;
     private readonly ITransactionService _transactionService;
     private readonly IPortfolioValueService _portfolioValueService;
-    private readonly ITickerApiService _tickerApiService;
     private readonly IUserSettingsService _userSettingsService;
     private readonly IConfiguration _config;
     private readonly ILogger<PortfolioAnalysisService> _logger;
@@ -29,7 +27,6 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         [FromKeyedServices(StaticDetails.AiAnalysesTableName)] TableClient table,
         ITransactionService transactionService,
         IPortfolioValueService portfolioValueService,
-        ITickerApiService tickerApiService,
         IUserSettingsService userSettingsService,
         IConfiguration config,
         ILogger<PortfolioAnalysisService> logger)
@@ -37,7 +34,6 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         _table = table;
         _transactionService = transactionService;
         _portfolioValueService = portfolioValueService;
-        _tickerApiService = tickerApiService;
         _userSettingsService = userSettingsService;
         _config = config;
         _logger = logger;
@@ -72,18 +68,11 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
             return;
         }
 
-        // Fetch 30-day market history for each held ticker
-        var tickers = holdings.Select(h => h.Ticker).ToList();
-        var marketHistory = await FetchMarketHistoryAsync(tickers, "1mo");
-
-        // Load previous analyses from this month for continuity
         var previousAnalyses = await GetWeeklyAnalysesForCurrentMonthAsync();
         var weekNumber = previousAnalyses.Count + 1;
 
-        var systemPrompt = BuildSystemPrompt(settings, weekNumber, previousAnalyses.Count > 0);
-        var userPrompt = BuildWeeklyUserPrompt(holdings, transactions, marketHistory, previousAnalyses, weekNumber);
-
-        var content = await CallAiFoundryAsync(systemPrompt, userPrompt);
+        var userPrompt = BuildWeeklyUserPrompt(holdings, transactions, settings, previousAnalyses, weekNumber);
+        var content = await InvokeAgentAsync(userPrompt);
 
         var portfolioSnapshot = JsonSerializer.Serialize(holdings.Select(h => new
         {
@@ -115,10 +104,8 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         var holdings = await _portfolioValueService.GetAllHoldingsAsync();
         var weeklyAnalyses = await GetWeeklyAnalysesForCurrentMonthAsync();
 
-        var systemPrompt = BuildMonthlySystemPrompt(settings);
-        var userPrompt = BuildMonthlyUserPrompt(holdings, weeklyAnalyses);
-
-        var content = await CallAiFoundryAsync(systemPrompt, userPrompt);
+        var userPrompt = BuildMonthlyUserPrompt(holdings, weeklyAnalyses, settings);
+        var content = await InvokeAgentAsync(userPrompt);
 
         var portfolioSnapshot = JsonSerializer.Serialize(holdings.Select(h => new
         {
@@ -159,91 +146,81 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
             .ToList();
     }
 
-    private async Task<Dictionary<string, List<(DateOnly Date, decimal Open, decimal Close)>>> FetchMarketHistoryAsync(
-        List<string> tickers, string period)
-    {
-        var result = new Dictionary<string, List<(DateOnly, decimal, decimal)>>();
-
-        foreach (var ticker in tickers)
-        {
-            try
-            {
-                var data = await _tickerApiService.GetMarketHistoryResponseAsync(ticker, period);
-                if (data?.History is { Count: > 0 })
-                {
-                    result[ticker] = data.History
-                        .OrderBy(h => h.Date)
-                        .Select(h => (h.Date, h.Open, h.Close))
-                        .ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to fetch market history for {Ticker}", ticker);
-            }
-        }
-
-        return result;
-    }
-
-    private async Task<string> CallAiFoundryAsync(string systemPrompt, string userPrompt)
+    private async Task<string> InvokeAgentAsync(string userMessage)
     {
         var endpoint = _config["azure-foundry-endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
-        var key = _config["azure-foundry-key"] ?? throw new InvalidOperationException("azure-foundry-key is not configured");
-        var deployment = _config["azure-foundry-deployment"] ?? throw new InvalidOperationException("azure-foundry-deployment is not configured");
+        var agentId = _config["azure-foundry-agent-id"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
 
-        var client = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key));
-        var chatClient = client.GetChatClient(deployment);
+        var client = new PersistentAgentsClient(endpoint, new DefaultAzureCredential());
 
-        List<ChatMessage> messages =
-        [
-            new SystemChatMessage(systemPrompt),
-            new UserChatMessage(userPrompt)
-        ];
+        _logger.LogInformation("Retrieving agent {AgentId}", agentId);
+        var agentResponse = client.Administration.GetAgent(agentId);
+        var agent = agentResponse.Value;
 
-        var response = await chatClient.CompleteChatAsync(messages);
-        return response.Value.Content[0].Text;
-    }
+        _logger.LogInformation("Creating new thread for agent {AgentId}", agentId);
+        var threadResponse = client.Threads.CreateThread();
+        var thread = threadResponse.Value;
 
-    private static string BuildSystemPrompt(UserSettingsDto settings, int weekNumber, bool hasPreviousAnalyses)
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine("You are an experienced, objective portfolio advisor. Your role is to analyse investment data and provide clear, actionable narrative insights.");
-        sb.AppendLine();
-        sb.AppendLine("## User Investment Profile");
-        sb.AppendLine($"- Risk tolerance: {settings.RiskTolerance}");
-        sb.AppendLine($"- Investment horizon: {settings.InvestmentHorizon}");
+        client.Messages.CreateMessage(
+            threadId: thread.Id,
+            role: MessageRole.User,
+            content: userMessage);
 
-        if (!string.IsNullOrWhiteSpace(settings.CustomInstructions))
+        _logger.LogInformation("Starting agent run on thread {ThreadId}", thread.Id);
+        var runResponse = client.Runs.CreateRun(thread, agent);
+        var run = runResponse.Value;
+
+        while (run.Status == RunStatus.Queued || run.Status == RunStatus.InProgress)
         {
-            sb.AppendLine($"- Additional preferences: {settings.CustomInstructions}");
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            runResponse = client.Runs.GetRun(thread.Id, run.Id);
+            run = runResponse.Value;
+            _logger.LogDebug("Agent run status: {Status}", run.Status);
         }
 
-        sb.AppendLine();
-        sb.AppendLine($"This is week {weekNumber} of 4 for the current month.");
+        if (run.Status != RunStatus.Completed)
+            throw new InvalidOperationException($"Agent run ended with status: {run.Status}");
 
-        if (hasPreviousAnalyses)
-            sb.AppendLine("Previous weekly analyses are included below for continuity — reference them when assessing trends or changes.");
+        _logger.LogInformation("Agent run completed, retrieving response");
+        var messages = client.Messages.GetMessages(threadId: thread.Id, order: ListSortOrder.Ascending);
+        string content = string.Empty;
+        foreach (var msg in messages)
+        {
+            if (msg.Role.ToString() == "assistant")
+            {
+                content = string.Concat(msg.ContentItems
+                    .OfType<MessageTextContent>()
+                    .Select(c => c.Text));
+            }
+        }
 
-        sb.AppendLine();
-        sb.AppendLine("Write in clear, plain English. Avoid jargon. Be direct but considerate of the user's risk profile.");
-        sb.AppendLine("Do not make specific buy/sell recommendations with exact amounts. Focus on observations, patterns, and whether rebalancing signals are forming.");
+        client.Threads.DeleteThread(thread.Id);
+        _logger.LogInformation("Thread deleted, analysis complete");
 
-        return sb.ToString();
+        return content;
     }
 
     private static string BuildWeeklyUserPrompt(
         List<HoldingInfo> holdings,
         List<TransactionDto> transactions,
-        Dictionary<string, List<(DateOnly Date, decimal Open, decimal Close)>> marketHistory,
+        UserSettingsDto settings,
         List<PortfolioAnalysisDto> previousAnalyses,
         int weekNumber)
     {
         var sb = new StringBuilder();
         var totalValue = holdings.Sum(h => h.TotalValue);
+        var today = DateTime.Today;
 
-        sb.AppendLine("## Current Portfolio Holdings");
-        sb.AppendLine($"Total portfolio value: {totalValue:C2}");
+        sb.AppendLine("## Investment Profile");
+        sb.AppendLine($"- Risk tolerance: {settings.RiskTolerance}");
+        sb.AppendLine($"- Investment horizon: {settings.InvestmentHorizon}");
+
+        if (!string.IsNullOrWhiteSpace(settings.CustomInstructions))
+            sb.AppendLine($"- Custom preferences: {settings.CustomInstructions}");
+
+        sb.AppendLine();
+        sb.AppendLine($"## Current Portfolio — {today:MMMM d, yyyy}");
+        sb.AppendLine($"Total value: {totalValue:C2}");
         sb.AppendLine();
         sb.AppendLine("| Ticker | Quantity | Current Price | Total Value | Portfolio % |");
         sb.AppendLine("|--------|----------|---------------|-------------|-------------|");
@@ -255,29 +232,17 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         }
 
         sb.AppendLine();
-        sb.AppendLine("## All-Time Transactions");
+        sb.AppendLine("## Transaction History (All Time)");
         sb.AppendLine("| Date | Ticker | Quantity | Purchase Price | Total Cost |");
         sb.AppendLine("|------|--------|----------|----------------|------------|");
 
         foreach (var t in transactions.OrderBy(t => t.Date))
             sb.AppendLine($"| {t.Date:yyyy-MM-dd} | {t.Ticker} | {t.Amount:F4} | {t.PurchasePrice:C2} | {t.TotalCosts:C2} |");
 
-        sb.AppendLine();
-        sb.AppendLine("## Market History (Last 30 Days)");
-
-        foreach (var (ticker, history) in marketHistory)
-        {
-            sb.AppendLine($"### {ticker}");
-            sb.AppendLine("| Date | Open | Close |");
-            sb.AppendLine("|------|------|-------|");
-            foreach (var (date, open, close) in history)
-                sb.AppendLine($"| {date:yyyy-MM-dd} | {open:C2} | {close:C2} |");
-            sb.AppendLine();
-        }
-
         if (previousAnalyses.Count > 0)
         {
-            sb.AppendLine("## Previous Weekly Analyses (This Month)");
+            sb.AppendLine();
+            sb.AppendLine("## Previous Weekly Analyses This Month");
             foreach (var prev in previousAnalyses)
             {
                 sb.AppendLine($"### Week {prev.WeekNumber} — {prev.AnalysisDate:MMMM d, yyyy}");
@@ -286,44 +251,38 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
             }
         }
 
-        sb.AppendLine($"## Your Task");
-        sb.AppendLine($"Provide a narrative portfolio analysis for week {weekNumber} of this month, covering:");
+        sb.AppendLine();
+        sb.AppendLine("## Your Task");
+        sb.AppendLine($"This is week {weekNumber} of 4 for {today:MMMM yyyy}. Please use web search to research");
+        sb.AppendLine("current news and market conditions for each of my holdings, then provide a");
+        sb.AppendLine("weekly portfolio assessment covering:");
         sb.AppendLine("1. Portfolio health and concentration risk");
-        sb.AppendLine("2. How holdings have performed since last week (or since inception for week 1)");
-        sb.AppendLine("3. Notable market conditions for each holding based on the price history");
-        sb.AppendLine("4. Whether any rebalancing signals are beginning to emerge");
+        sb.AppendLine("2. Performance and notable developments for each holding");
+        sb.AppendLine("3. Current market conditions and relevant news for each holding");
+        sb.AppendLine("4. Whether rebalancing signals are forming");
         sb.AppendLine("5. Key things to watch next week");
-
-        return sb.ToString();
-    }
-
-    private static string BuildMonthlySystemPrompt(UserSettingsDto settings)
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine("You are an experienced, objective portfolio advisor. Your role is to synthesise a month of weekly analyses into a clear, actionable monthly rebalancing assessment.");
-        sb.AppendLine();
-        sb.AppendLine("## User Investment Profile");
-        sb.AppendLine($"- Risk tolerance: {settings.RiskTolerance}");
-        sb.AppendLine($"- Investment horizon: {settings.InvestmentHorizon}");
-
-        if (!string.IsNullOrWhiteSpace(settings.CustomInstructions))
-            sb.AppendLine($"- Additional preferences: {settings.CustomInstructions}");
-
-        sb.AppendLine();
-        sb.AppendLine("Write in clear, plain English. Be specific in your reasoning but do not prescribe exact quantities to trade.");
-        sb.AppendLine("The user will read this report right before their monthly investment and rebalancing session.");
 
         return sb.ToString();
     }
 
     private static string BuildMonthlyUserPrompt(
         List<HoldingInfo> holdings,
-        List<PortfolioAnalysisDto> weeklyAnalyses)
+        List<PortfolioAnalysisDto> weeklyAnalyses,
+        UserSettingsDto settings)
     {
         var sb = new StringBuilder();
         var totalValue = holdings.Sum(h => h.TotalValue);
+        var today = DateTime.Today;
 
-        sb.AppendLine("## Current Portfolio State");
+        sb.AppendLine("## Investment Profile");
+        sb.AppendLine($"- Risk tolerance: {settings.RiskTolerance}");
+        sb.AppendLine($"- Investment horizon: {settings.InvestmentHorizon}");
+
+        if (!string.IsNullOrWhiteSpace(settings.CustomInstructions))
+            sb.AppendLine($"- Custom preferences: {settings.CustomInstructions}");
+
+        sb.AppendLine();
+        sb.AppendLine($"## Current Portfolio State — {today:MMMM d, yyyy}");
         sb.AppendLine($"Total portfolio value: {totalValue:C2}");
         sb.AppendLine();
         sb.AppendLine("| Ticker | Quantity | Current Price | Total Value | Portfolio % |");
@@ -346,9 +305,10 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         }
 
         sb.AppendLine("## Your Task");
-        sb.AppendLine("Synthesise the four weekly analyses into a final monthly rebalancing assessment covering:");
+        sb.AppendLine("Use web search to check for any final breaking news, then synthesise the four weekly");
+        sb.AppendLine("analyses into a final monthly rebalancing assessment covering:");
         sb.AppendLine("1. A summary of the month's key portfolio developments");
-        sb.AppendLine("2. Which holdings are over- or under-represented relative to the user's risk profile");
+        sb.AppendLine("2. Which holdings are over- or under-represented relative to my risk profile");
         sb.AppendLine("3. Recurring concerns or themes from the weekly analyses");
         sb.AppendLine("4. Clear reasoning for whether rebalancing is warranted this month");
         sb.AppendLine("5. Suggested focus areas for new investment capital, if any");
