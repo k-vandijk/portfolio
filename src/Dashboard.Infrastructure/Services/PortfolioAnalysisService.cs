@@ -217,7 +217,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         await client.Threads.DeleteThreadAsync(thread.Id);
         _logger.LogInformation("Thread deleted, analysis complete");
 
-        return content;
+        return content; 
     }
 
     private async Task<string> ResolveAssistantIdByAgentNameAsync(PersistentAgentsClient client, string agentName)
