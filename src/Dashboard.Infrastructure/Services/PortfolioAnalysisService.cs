@@ -1,7 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using Azure;
-using Azure.AI.Inference;
+using Azure.AI.OpenAI;
+using OpenAI.Chat;
 using Azure.Data.Tables;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
@@ -194,20 +195,17 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         var deployment = _config["azure-ai-foundry-deployment"]
             ?? throw new InvalidOperationException("azure-ai-foundry-deployment is not configured");
 
-        var client = new ChatCompletionsClient(new Uri(endpoint), new AzureKeyCredential(key));
+        var client = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(key));
+        var chatClient = client.GetChatClient(deployment);
 
-        var options = new ChatCompletionsOptions
-        {
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            },
-            Model = deployment
-        };
+        List<ChatMessage> messages =
+        [
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
+        ];
 
-        var response = await client.CompleteAsync(options);
-        return response.Value.Choices[0].Message.Content;
+        var response = await chatClient.CompleteChatAsync(messages);
+        return response.Value.Content[0].Text;
     }
 
     private static string BuildSystemPrompt(UserSettingsDto settings, int weekNumber, bool hasPreviousAnalyses)
