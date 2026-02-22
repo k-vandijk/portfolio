@@ -70,4 +70,19 @@ public class AnalysisController : Controller
             return StatusCode(500, "Failed to generate the monthly report. Please try again.");
         }
     }
+
+    [HttpPost("/analysis/run-weekly")]
+    public async Task<IActionResult> RunWeeklyAnalysis()
+    {
+        try
+        {
+            await _analysisService.RunWeeklyAnalysisAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to run weekly analysis");
+            return StatusCode(500, "Failed to run the weekly analysis. Please try again.");
+        }
+    }
 }
