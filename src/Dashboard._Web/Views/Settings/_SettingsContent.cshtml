@@ -1,0 +1,107 @@
+@model Dashboard._Web.ViewModels.SettingsViewModel
+
+<div class="row mb-3">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Investment Profile</h5>
+
+                <!-- Risk Tolerance -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Risk Tolerance</label>
+                    <p class="text-muted small mb-2">How much volatility are you comfortable with in pursuit of higher returns?</p>
+                    <div class="btn-group w-100" role="group" id="riskToleranceGroup">
+                        <input type="radio" class="btn-check" name="riskTolerance" id="risk-conservative" value="conservative"
+                               @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
+                        <label class="btn btn-outline-primary" for="risk-conservative">Conservative</label>
+
+                        <input type="radio" class="btn-check" name="riskTolerance" id="risk-moderate" value="moderate"
+                               @(Model.Settings.RiskTolerance == "moderate" ? "checked" : "") autocomplete="off">
+                        <label class="btn btn-outline-primary" for="risk-moderate">Moderate</label>
+
+                        <input type="radio" class="btn-check" name="riskTolerance" id="risk-aggressive" value="aggressive"
+                               @(Model.Settings.RiskTolerance == "aggressive" ? "checked" : "") autocomplete="off">
+                        <label class="btn btn-outline-primary" for="risk-aggressive">Aggressive</label>
+                    </div>
+                </div>
+
+                <!-- Investment Horizon -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Investment Horizon</label>
+                    <p class="text-muted small mb-2">How long do you intend to hold before needing access to this capital?</p>
+                    <div class="btn-group w-100" role="group" id="horizonGroup">
+                        <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-short" value="short"
+                               @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
+                        <label class="btn btn-outline-primary" for="horizon-short">Short (&lt; 3 yr)</label>
+
+                        <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-medium" value="medium"
+                               @(Model.Settings.InvestmentHorizon == "medium" ? "checked" : "") autocomplete="off">
+                        <label class="btn btn-outline-primary" for="horizon-medium">Medium (3–10 yr)</label>
+
+                        <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-long" value="long"
+                               @(Model.Settings.InvestmentHorizon == "long" ? "checked" : "") autocomplete="off">
+                        <label class="btn btn-outline-primary" for="horizon-long">Long (&gt; 10 yr)</label>
+                    </div>
+                </div>
+
+                <!-- Custom Instructions -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="customInstructions">Custom Instructions</label>
+                    <p class="text-muted small mb-2">
+                        Tell the AI advisor anything it should keep in mind — sectors you want to avoid,
+                        dividend preferences, sustainability criteria, etc.
+                    </p>
+                    <textarea class="form-control" id="customInstructions" rows="5"
+                              placeholder="e.g. Avoid tobacco and weapons stocks. Prefer ETFs over individual stocks for diversification. I am interested in dividend growth investing.">@Model.Settings.CustomInstructions</textarea>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-primary px-4" id="saveSettingsBtn" onclick="saveSettings()">
+                        Save
+                    </button>
+                    <span id="saveStatus" class="text-muted small" style="display:none"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function saveSettings() {
+        const btn = document.getElementById('saveSettingsBtn');
+        const status = document.getElementById('saveStatus');
+
+        const riskTolerance = document.querySelector('input[name="riskTolerance"]:checked')?.value ?? 'moderate';
+        const investmentHorizon = document.querySelector('input[name="investmentHorizon"]:checked')?.value ?? 'long';
+        const customInstructions = document.getElementById('customInstructions').value.trim();
+
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        status.style.display = 'none';
+
+        fetch('/settings/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                riskTolerance,
+                investmentHorizon,
+                customInstructions
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Save failed');
+            status.textContent = 'Saved successfully.';
+            status.className = 'text-success small';
+            status.style.display = 'inline';
+        })
+        .catch(() => {
+            status.textContent = 'Failed to save. Please try again.';
+            status.className = 'text-danger small';
+            status.style.display = 'inline';
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Save';
+        });
+    }
+</script>

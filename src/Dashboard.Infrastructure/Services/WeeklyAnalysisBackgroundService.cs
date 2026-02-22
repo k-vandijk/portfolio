@@ -1,0 +1,79 @@
+using Dashboard.Application.Interfaces;
+using Dashboard.Domain.Utils;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace Dashboard.Infrastructure.Services;
+
+/// <summary>
+/// Background service that runs a weekly AI portfolio analysis.
+/// It checks every hour whether it is time to run; analysis is triggered once
+/// per week during the <see cref="StaticDetails.WeeklyAnalysisRunHour"/> hour window.
+/// </summary>
+public class WeeklyAnalysisBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<WeeklyAnalysisBackgroundService> _logger;
+
+    public WeeklyAnalysisBackgroundService(
+        IServiceScopeFactory scopeFactory,
+        ILogger<WeeklyAnalysisBackgroundService> logger)
+    {
+        _scopeFactory = scopeFactory;
+        _logger = logger;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        // Let the app finish starting up before doing any work
+        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await TryRunAnalysisIfDueAsync();
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "Unexpected error in WeeklyAnalysisBackgroundService");
+            }
+
+            // Check again in one hour
+            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+        }
+    }
+
+    private async Task TryRunAnalysisIfDueAsync()
+    {
+        var now = DateTime.Now;
+
+        // Only attempt analysis during the designated hour window
+        if (now.Hour != StaticDetails.WeeklyAnalysisRunHour)
+            return;
+
+        using var scope = _scopeFactory.CreateScope();
+        var analysisService = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysisService>();
+
+        // Fetch the most recent weekly analysis to see if 7 days have passed
+        var recent = await analysisService.GetRecentAnalysesAsync(1);
+        var lastAnalysis = recent.FirstOrDefault(a => a.AnalysisType == "weekly");
+
+        if (lastAnalysis is not null)
+        {
+            var daysSinceLast = (DateOnly.FromDateTime(DateTime.Today) - lastAnalysis.AnalysisDate).Days;
+            if (daysSinceLast < StaticDetails.WeeklyAnalysisIntervalDays)
+            {
+                _logger.LogDebug(
+                    "Weekly analysis skipped — last ran {Days} day(s) ago (minimum interval: {Min})",
+                    daysSinceLast,
+                    StaticDetails.WeeklyAnalysisIntervalDays);
+                return;
+            }
+        }
+
+        _logger.LogInformation("Running weekly portfolio analysis");
+        await analysisService.RunWeeklyAnalysisAsync();
+    }
+}

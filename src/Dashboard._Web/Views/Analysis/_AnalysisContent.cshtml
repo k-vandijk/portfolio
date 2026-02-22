@@ -1,0 +1,181 @@
+@model Dashboard._Web.ViewModels.AnalysisViewModel
+
+<div class="row mb-3">
+    <div class="col-12 col-xl-10">
+
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="mb-0">AI Portfolio Advisor</h5>
+                <p class="text-muted small mb-0">Weekly analyses run automatically. Generate a monthly report when you are ready to rebalance.</p>
+            </div>
+            @if (Model.CanGenerateMonthlyReport)
+            {
+                <button class="btn btn-primary" id="generateReportBtn" onclick="generateMonthlyReport()">
+                    <i class="fas fa-file-alt me-2"></i>Generate Monthly Report
+                </button>
+            }
+        </div>
+
+        <!-- Monthly report (if already generated) -->
+        @if (Model.MonthlyReport is not null)
+        {
+            <div class="card border-0 shadow-sm mb-4 analysis-monthly-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-star u-text-accent-1"></i>
+                        <h6 class="mb-0 fw-semibold">Monthly Report — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
+                    </div>
+                    <div class="analysis-content">
+                        @Html.Raw(MarkdownToHtml(Model.MonthlyReport.Content))
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Monthly report placeholder (injected via AJAX) -->
+        <div id="monthlyReportContainer"></div>
+
+        <!-- Weekly analyses accordion -->
+        @if (Model.WeeklyAnalyses.Count > 0)
+        {
+            <h6 class="text-muted mb-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Weekly Analyses</h6>
+            <div class="accordion" id="weeklyAccordion">
+                @for (int i = 0; i < Model.WeeklyAnalyses.Count; i++)
+                {
+                    var analysis = Model.WeeklyAnalyses[i];
+                    var collapseId = $"collapse-{i}";
+                    var headingId = $"heading-{i}";
+                    var isFirst = i == 0;
+
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button @(isFirst ? "" : "collapsed") rounded"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="@(isFirst ? "true" : "false")"
+                                    aria-controls="@collapseId">
+                                <span class="me-3">
+                                    <span class="badge bg-primary rounded-pill">Week @analysis.WeekNumber</span>
+                                </span>
+                                <span class="fw-semibold">@analysis.AnalysisDate.ToString("dddd, MMMM d, yyyy")</span>
+                            </button>
+                        </h2>
+                        <div id="@collapseId"
+                             class="accordion-collapse collapse @(isFirst ? "show" : "")"
+                             aria-labelledby="@headingId"
+                             data-bs-parent="#weeklyAccordion">
+                            <div class="accordion-body">
+                                <div class="analysis-content">
+                                    @Html.Raw(MarkdownToHtml(analysis.Content))
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-robot fa-2x text-muted mb-3"></i>
+                    <p class="text-muted mb-0">No weekly analyses yet. The AI advisor runs automatically every week.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+@functions {
+    /// <summary>
+    /// Minimal Markdown-to-HTML conversion for AI-generated narrative text.
+    /// Handles headings (##, ###), bold (**text**), and paragraphs.
+    /// </summary>
+    static string MarkdownToHtml(string markdown)
+    {
+        if (string.IsNullOrWhiteSpace(markdown)) return string.Empty;
+
+        var lines = markdown.Split('\n');
+        var html = new System.Text.StringBuilder();
+        var inParagraph = false;
+
+        foreach (var rawLine in lines)
+        {
+            var line = rawLine.TrimEnd();
+
+            if (line.StartsWith("### "))
+            {
+                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
+                html.Append($"<h6 class=\"fw-semibold mt-3 mb-1\">{System.Net.WebUtility.HtmlEncode(line[4..])}</h6>");
+            }
+            else if (line.StartsWith("## "))
+            {
+                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
+                html.Append($"<h5 class=\"fw-semibold mt-3 mb-2\">{System.Net.WebUtility.HtmlEncode(line[3..])}</h5>");
+            }
+            else if (line.StartsWith("- ") || line.StartsWith("* "))
+            {
+                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
+                var item = ApplyInlineFormatting(line[2..]);
+                html.Append($"<li class=\"mb-1\">{item}</li>");
+            }
+            else if (string.IsNullOrWhiteSpace(line))
+            {
+                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
+            }
+            else
+            {
+                if (!inParagraph) { html.Append("<p>"); inParagraph = true; }
+                else html.Append(' ');
+                html.Append(ApplyInlineFormatting(line));
+            }
+        }
+
+        if (inParagraph) html.Append("</p>");
+
+        return html.ToString();
+    }
+
+    static string ApplyInlineFormatting(string text)
+    {
+        // Bold: **text**
+        var result = System.Text.RegularExpressions.Regex.Replace(
+            System.Net.WebUtility.HtmlEncode(text),
+            @"\*\*(.+?)\*\*",
+            "<strong>$1</strong>");
+        return result;
+    }
+}
+
+<script>
+    function generateMonthlyReport() {
+        const btn = document.getElementById('generateReportBtn');
+        const container = document.getElementById('monthlyReportContainer');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generating...';
+
+        fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
+            .then(response => {
+                if (!response.ok) throw new Error('Generation failed');
+                return response.text();
+            })
+            .then(html => {
+                container.innerHTML = html;
+                btn.style.display = 'none';
+            })
+            .catch(() => {
+                showAlert('error', 'Failed to generate monthly report. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>Generate Monthly Report';
+            });
+    }
+
+    function getAntiForgeryToken() {
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        return tokenInput ? tokenInput.value : '';
+    }
+</script>

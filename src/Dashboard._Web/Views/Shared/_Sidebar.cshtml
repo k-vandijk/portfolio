@@ -56,6 +56,18 @@
                 <span class="link-text">@SharedLocalizer["Transactions"]</span>
             </a>
         </li>
+        <li class="nav-item mt-2">
+            <a asp-controller="Analysis" asp-action="Index" class="nav-link @(IsActive("Analysis") ? "active" : "")">
+                <i class="fas fa-robot me-2"></i>
+                <span class="link-text">AI Advisor</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-controller="Settings" asp-action="Index" class="nav-link @(IsActive("Settings") ? "active" : "")">
+                <i class="fas fa-cog me-2"></i>
+                <span class="link-text">Settings</span>
+            </a>
+        </li>
     </ul>
     
     <div class="mt-auto pt-3 language-selector">
