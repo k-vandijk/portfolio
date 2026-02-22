@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using Azure.AI.Agents.Persistent;
 using Azure.Data.Tables;
 using Azure.Identity;
@@ -11,6 +9,8 @@ using Dashboard.Domain.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Text;
+using System.Text.Json;
 
 namespace Dashboard.Infrastructure.Services;
 
@@ -148,32 +148,32 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 
     private async Task<string> InvokeAgentAsync(string userMessage)
     {
-        var endpoint = _config["azure-foundry-endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
-        var agentId = _config["azure-foundry-agent-id"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
+        var foundryEndpoint = _config["azure-foundry-endpoint"] ?? throw new InvalidOperationException("azure-foundry-endpoint is not configured");
+        var foundryAgentId = _config["azure-foundry-agent-id"] ?? throw new InvalidOperationException("azure-foundry-agent-id is not configured");
 
-        var client = new PersistentAgentsClient(endpoint, new DefaultAzureCredential());
+        var client = new PersistentAgentsClient(foundryEndpoint, new DefaultAzureCredential());
 
-        _logger.LogInformation("Retrieving agent {AgentId}", agentId);
-        var agentResponse = client.Administration.GetAgent(agentId);
+        _logger.LogInformation("Retrieving agent {AgentId}", foundryAgentId);
+        var agentResponse = await client.Administration.GetAgentAsync(foundryAgentId);
         var agent = agentResponse.Value;
 
-        _logger.LogInformation("Creating new thread for agent {AgentId}", agentId);
-        var threadResponse = client.Threads.CreateThread();
+        _logger.LogInformation("Creating new thread for agent {AgentId}", foundryAgentId);
+        var threadResponse = await client.Threads.CreateThreadAsync();
         var thread = threadResponse.Value;
 
-        client.Messages.CreateMessage(
+        await client.Messages.CreateMessageAsync(
             threadId: thread.Id,
             role: MessageRole.User,
             content: userMessage);
 
         _logger.LogInformation("Starting agent run on thread {ThreadId}", thread.Id);
-        var runResponse = client.Runs.CreateRun(thread, agent);
+        var runResponse = await client.Runs.CreateRunAsync(thread, agent);
         var run = runResponse.Value;
 
         while (run.Status == RunStatus.Queued || run.Status == RunStatus.InProgress)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
-            runResponse = client.Runs.GetRun(thread.Id, run.Id);
+            runResponse = await client.Runs.GetRunAsync(thread.Id, run.Id);
             run = runResponse.Value;
             _logger.LogDebug("Agent run status: {Status}", run.Status);
         }
@@ -194,7 +194,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
             }
         }
 
-        client.Threads.DeleteThread(thread.Id);
+        await client.Threads.DeleteThreadAsync(thread.Id);
         _logger.LogInformation("Thread deleted, analysis complete");
 
         return content;
