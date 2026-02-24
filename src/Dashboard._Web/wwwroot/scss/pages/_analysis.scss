@@ -42,3 +42,10 @@
     border-radius: var(--border-radius) !important;
     overflow: hidden;
 }
+
+.analysis-profile-panel {
+    @media (min-width: 992px) {
+        position: sticky;
+        top: 1rem;
+    }
+}

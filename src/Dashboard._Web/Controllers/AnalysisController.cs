@@ -7,11 +7,13 @@ namespace Dashboard._Web.Controllers;
 public class AnalysisController : Controller
 {
     private readonly IPortfolioAnalysisService _analysisService;
+    private readonly IUserSettingsService _userSettingsService;
     private readonly ILogger<AnalysisController> _logger;
 
-    public AnalysisController(IPortfolioAnalysisService analysisService, ILogger<AnalysisController> logger)
+    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsService userSettingsService, ILogger<AnalysisController> logger)
     {
         _analysisService = analysisService;
+        _userSettingsService = userSettingsService;
         _logger = logger;
     }
 
@@ -38,11 +40,14 @@ public class AnalysisController : Controller
             a.AnalysisDate.Year == today.Year &&
             a.AnalysisDate.Month == today.Month);
 
+        var settings = await _userSettingsService.GetSettingsAsync();
+
         var viewModel = new AnalysisViewModel
         {
             WeeklyAnalyses = weeklyAnalyses,
             MonthlyReport = monthlyReport,
-            CanGenerateMonthlyReport = canGenerate
+            CanGenerateMonthlyReport = canGenerate,
+            Settings = settings
         };
 
         return PartialView("_AnalysisContent", viewModel);

@@ -9,4 +9,6 @@ public class AnalysisViewModel
 
     /// <summary>True when at least one weekly analysis exists this month, enabling monthly report generation.</summary>
     public bool CanGenerateMonthlyReport { get; set; }
+
+    public UserSettingsDto Settings { get; set; } = new();
 }
