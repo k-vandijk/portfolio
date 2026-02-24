@@ -3,6 +3,7 @@
 .analysis-monthly-card {
     border-left: 3px solid var(--accent-1) !important;
     background-color: var(--accent-1-light);
+    height: auto; // Override global .card { height: 100% } — this card is nested inside another card-body
 }
 
 .analysis-content {
@@ -10,21 +11,53 @@
     line-height: 1.7;
     color: var(--text-color);
 
+    h4,
     h5,
     h6 {
         color: var(--accent-2);
     }
 
+    h4 {
+        font-size: 1rem;
+        margin-top: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    // First heading needs no extra top margin
+    > h4:first-child {
+        margin-top: 0;
+    }
+
     p {
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    // Paragraphs inside list items (Markdig "loose list" wraps each item in <p>)
+    li > p {
+        margin-bottom: 0.125rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    ol,
+    ul {
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
     }
 
     li {
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.125rem;
     }
 
     strong {
         color: var(--accent-2);
+    }
+
+    // Prevent the last block's margin from stacking with the container's padding-bottom
+    > *:last-child {
+        margin-bottom: 0;
     }
 }
 
@@ -41,6 +74,11 @@
 .accordion-item {
     border-radius: var(--border-radius) !important;
     overflow: hidden;
+}
+
+.link-favicon {
+    border-radius: 2px;
+    vertical-align: text-bottom;
 }
 
 .analysis-profile-panel {
