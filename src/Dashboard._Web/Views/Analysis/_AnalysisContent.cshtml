@@ -26,7 +26,7 @@
                                 <h6 class="mb-0 fw-semibold">Monthly Report — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
                             </div>
                             <div class="analysis-content">
-                                @Html.Raw(MarkdownToHtml(Model.MonthlyReport.Content))
+                                @Html.Raw(MarkdownHelper.ToHtml(Model.MonthlyReport.Content))
                             </div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                                      data-bs-parent="#weeklyAccordion">
                                     <div class="accordion-body">
                                         <div class="analysis-content">
-                                            @Html.Raw(MarkdownToHtml(analysis.Content))
+                                            @Html.Raw(MarkdownHelper.ToHtml(analysis.Content))
                                         </div>
                                     </div>
                                 </div>
@@ -162,68 +162,21 @@
 
 </div>
 
-@functions {
-    /// <summary>
-    /// Minimal Markdown-to-HTML conversion for AI-generated narrative text.
-    /// Handles headings (##, ###), bold (**text**), and paragraphs.
-    /// </summary>
-    static string MarkdownToHtml(string markdown)
-    {
-        if (string.IsNullOrWhiteSpace(markdown)) return string.Empty;
-
-        var lines = markdown.Split('\n');
-        var html = new System.Text.StringBuilder();
-        var inParagraph = false;
-
-        foreach (var rawLine in lines)
-        {
-            var line = rawLine.TrimEnd();
-
-            if (line.StartsWith("### "))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-                html.Append($"<h6 class=\"fw-semibold mt-3 mb-1\">{System.Net.WebUtility.HtmlEncode(line[4..])}</h6>");
-            }
-            else if (line.StartsWith("## "))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-                html.Append($"<h5 class=\"fw-semibold mt-3 mb-2\">{System.Net.WebUtility.HtmlEncode(line[3..])}</h5>");
-            }
-            else if (line.StartsWith("- ") || line.StartsWith("* "))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-                var item = ApplyInlineFormatting(line[2..]);
-                html.Append($"<li class=\"mb-1\">{item}</li>");
-            }
-            else if (string.IsNullOrWhiteSpace(line))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-            }
-            else
-            {
-                if (!inParagraph) { html.Append("<p>"); inParagraph = true; }
-                else html.Append(' ');
-                html.Append(ApplyInlineFormatting(line));
-            }
-        }
-
-        if (inParagraph) html.Append("</p>");
-
-        return html.ToString();
-    }
-
-    static string ApplyInlineFormatting(string text)
-    {
-        // Bold: **text**
-        var result = System.Text.RegularExpressions.Regex.Replace(
-            System.Net.WebUtility.HtmlEncode(text),
-            @"\*\*(.+?)\*\*",
-            "<strong>$1</strong>");
-        return result;
-    }
-}
-
 <script>
+    function injectFavicons(root = document) {
+        root.querySelectorAll('a[data-favicon]').forEach(link => {
+            const img = document.createElement('img');
+            img.src = link.getAttribute('data-favicon');
+            img.width = 16;
+            img.height = 16;
+            img.alt = '';
+            img.className = 'link-favicon me-1';
+            img.onerror = () => img.remove();
+            link.prepend(img);
+            link.removeAttribute('data-favicon');
+        });
+    }
+
     function generateMonthlyReport() {
         const btn = document.getElementById('generateReportBtn');
         const container = document.getElementById('monthlyReportContainer');
@@ -239,6 +192,7 @@
             .then(html => {
                 container.innerHTML = html;
                 btn.style.display = 'none';
+                injectFavicons(container);
             })
             .catch(() => {
                 showAlert('error', 'Failed to generate monthly report. Please try again.');
@@ -302,4 +256,6 @@
             btn.textContent = 'Save';
         });
     }
+
+    injectFavicons();
 </script>

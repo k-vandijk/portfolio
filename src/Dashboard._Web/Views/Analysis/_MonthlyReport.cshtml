@@ -9,7 +9,7 @@
                 <h6 class="mb-0 fw-semibold">Monthly Report — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
             </div>
             <div class="analysis-content">
-                @Html.Raw(Model.MonthlyReport.Content)
+                @Html.Raw(MarkdownHelper.ToHtml(Model.MonthlyReport.Content))
             </div>
         </div>
     </div>
