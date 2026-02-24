@@ -82,9 +82,5 @@
 }
 
 .analysis-profile-panel {
-    height: auto; // Override global .card { height: 100% } — height should follow content
-    @media (min-width: 992px) {
-        position: sticky;
-        top: 1rem;
-    }
+    // Reserved for future use
 }

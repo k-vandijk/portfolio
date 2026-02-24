@@ -210,4 +210,49 @@
   <data name="Year" xml:space="preserve">
     <value>Year</value>
   </data>
+  <data name="AiAdvisor" xml:space="preserve">
+    <value>AI advisor</value>
+  </data>
+  <data name="MonthlyReport" xml:space="preserve">
+    <value>Monthly report</value>
+  </data>
+  <data name="WeeklyAnalyses" xml:space="preserve">
+    <value>Weekly analyses</value>
+  </data>
+  <data name="InvestmentProfile" xml:space="preserve">
+    <value>Investment profile</value>
+  </data>
+  <data name="RiskTolerance" xml:space="preserve">
+    <value>Risk tolerance</value>
+  </data>
+  <data name="InvestmentHorizon" xml:space="preserve">
+    <value>Investment horizon</value>
+  </data>
+  <data name="CustomInstructions" xml:space="preserve">
+    <value>Custom instructions</value>
+  </data>
+  <data name="RunWeeklyAnalysis" xml:space="preserve">
+    <value>Run weekly analysis</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="SavedSuccessfully" xml:space="preserve">
+    <value>Saved successfully.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Failed to save. Please try again.</value>
+  </data>
+  <data name="NoWeeklyAnalyses" xml:space="preserve">
+    <value>No weekly analyses yet. The AI advisor runs automatically every week.</value>
+  </data>
+  <data name="InvestmentSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="GeneratingReport" xml:space="preserve">
+    <value>Generating...</value>
+  </data>
 </root>

@@ -18,6 +18,7 @@ public static class MarkdownHelper
 {
     private static readonly Regex SectionRegex  = new(@"^(\d+)\.\s+(.+)$",                         RegexOptions.Compiled);
     private static readonly Regex BulletRegex   = new(@"^\s*[-*•●▪◦]\s+(.+)$",                     RegexOptions.Compiled);
+    private static readonly Regex HrRegex       = new(@"^\s*[-*_]{3,}\s*$",                         RegexOptions.Compiled);
     private static readonly Regex LinkRegex     = new(@"\[([^\]]*)\]\((https?://[^\)\s]+)\)",       RegexOptions.Compiled);
     private static readonly Regex BoldRegex     = new(@"\*\*(.+?)\*\*",                             RegexOptions.Compiled);
 
@@ -67,8 +68,18 @@ public static class MarkdownHelper
                 continue;
             }
 
+            // Horizontal rule — ---, ***, ___
+            if (HrRegex.IsMatch(line))
+            {
+                CloseParagraph();
+                CloseList();
+                html.Append("<hr class=\"my-3\">");
+                continue;
+            }
+
             // Bullet item — any indentation, any bullet char
             var bullet = BulletRegex.Match(line);
+            if (bullet.Success)
             if (bullet.Success)
             {
                 CloseParagraph();

@@ -210,4 +210,49 @@
   <data name="Year" xml:space="preserve">
     <value>Jaar</value>
   </data>
+  <data name="AiAdvisor" xml:space="preserve">
+    <value>AI-adviseur</value>
+  </data>
+  <data name="MonthlyReport" xml:space="preserve">
+    <value>Maandrapport</value>
+  </data>
+  <data name="WeeklyAnalyses" xml:space="preserve">
+    <value>Weekanalyses</value>
+  </data>
+  <data name="InvestmentProfile" xml:space="preserve">
+    <value>Investeringsprofiel</value>
+  </data>
+  <data name="RiskTolerance" xml:space="preserve">
+    <value>Risicotolerantie</value>
+  </data>
+  <data name="InvestmentHorizon" xml:space="preserve">
+    <value>Investeringshorizon</value>
+  </data>
+  <data name="CustomInstructions" xml:space="preserve">
+    <value>Aangepaste instructies</value>
+  </data>
+  <data name="RunWeeklyAnalysis" xml:space="preserve">
+    <value>Weekanalyse uitvoeren</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Opslaan</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>Opslaan...</value>
+  </data>
+  <data name="SavedSuccessfully" xml:space="preserve">
+    <value>Succesvol opgeslagen.</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>Opslaan mislukt. Probeer het opnieuw.</value>
+  </data>
+  <data name="NoWeeklyAnalyses" xml:space="preserve">
+    <value>Nog geen weekanalyses. De AI-adviseur wordt elke week automatisch uitgevoerd.</value>
+  </data>
+  <data name="InvestmentSettings" xml:space="preserve">
+    <value>Instellingen</value>
+  </data>
+  <data name="GeneratingReport" xml:space="preserve">
+    <value>Genereren...</value>
+  </data>
 </root>

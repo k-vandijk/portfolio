@@ -1,109 +1,109 @@
 @model Dashboard._Web.ViewModels.AnalysisViewModel
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 
-<div class="row g-3">
+<div class="card">
+    <div class="card-body">
 
-    <!-- Left: main content card -->
-    <div class="col-12 col-lg-8">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <span>AI Advisor</span>
-                @if (Model.CanGenerateMonthlyReport)
-                {
-                    <button class="btn btn-primary btn-sm" id="generateReportBtn" onclick="generateMonthlyReport()">
-                        <i class="fas fa-file-alt me-1"></i>Monthly Report
-                    </button>
-                }
+        <!-- Monthly report (if already generated) -->
+        @if (Model.MonthlyReport is not null)
+        {
+            <div class="card border-0 mb-4 analysis-monthly-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-star u-text-accent-1"></i>
+                        <h6 class="mb-0 fw-semibold">@SharedLocalizer["MonthlyReport"] — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
+                    </div>
+                    <div class="analysis-content">
+                        @Html.Raw(MarkdownHelper.ToHtml(Model.MonthlyReport.Content))
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
+        }
 
-                <!-- Monthly report (if already generated) -->
-                @if (Model.MonthlyReport is not null)
+        <!-- Monthly report placeholder (injected via AJAX) -->
+        <div id="monthlyReportContainer"></div>
+
+        <!-- Weekly analyses accordion -->
+        @if (Model.WeeklyAnalyses.Count > 0)
+        {
+            <p class="text-muted mb-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">@SharedLocalizer["WeeklyAnalyses"]</p>
+            <div class="accordion" id="weeklyAccordion">
+                @for (int i = 0; i < Model.WeeklyAnalyses.Count; i++)
                 {
-                    <div class="card border-0 mb-4 analysis-monthly-card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <i class="fas fa-star u-text-accent-1"></i>
-                                <h6 class="mb-0 fw-semibold">Monthly Report — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
-                            </div>
-                            <div class="analysis-content">
-                                @Html.Raw(MarkdownHelper.ToHtml(Model.MonthlyReport.Content))
+                    var analysis = Model.WeeklyAnalyses[i];
+                    var collapseId = $"collapse-{i}";
+                    var headingId = $"heading-{i}";
+
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button collapsed rounded"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="false"
+                                    aria-controls="@collapseId">
+                                <span class="me-3">
+                                    <span class="badge bg-primary rounded-pill">Week @analysis.WeekNumber</span>
+                                </span>
+                                <span class="fw-semibold">@analysis.AnalysisDate.ToString("dddd, MMMM d, yyyy")</span>
+                            </button>
+                        </h2>
+                        <div id="@collapseId"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="@headingId"
+                             data-bs-parent="#weeklyAccordion">
+                            <div class="accordion-body">
+                                <div class="analysis-content">
+                                    @Html.Raw(MarkdownHelper.ToHtml(analysis.Content))
+                                </div>
                             </div>
                         </div>
                     </div>
                 }
-
-                <!-- Monthly report placeholder (injected via AJAX) -->
-                <div id="monthlyReportContainer"></div>
-
-                <!-- Weekly analyses accordion -->
-                @if (Model.WeeklyAnalyses.Count > 0)
-                {
-                    <h6 class="text-muted mb-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Weekly Analyses</h6>
-                    <div class="accordion" id="weeklyAccordion">
-                        @for (int i = 0; i < Model.WeeklyAnalyses.Count; i++)
-                        {
-                            var analysis = Model.WeeklyAnalyses[i];
-                            var collapseId = $"collapse-{i}";
-                            var headingId = $"heading-{i}";
-                            var isFirst = i == 0;
-
-                            <div class="accordion-item border-0 shadow-sm mb-2">
-                                <h2 class="accordion-header" id="@headingId">
-                                    <button class="accordion-button @(isFirst ? "" : "collapsed") rounded"
-                                            type="button"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target="#@collapseId"
-                                            aria-expanded="@(isFirst ? "true" : "false")"
-                                            aria-controls="@collapseId">
-                                        <span class="me-3">
-                                            <span class="badge bg-primary rounded-pill">Week @analysis.WeekNumber</span>
-                                        </span>
-                                        <span class="fw-semibold">@analysis.AnalysisDate.ToString("dddd, MMMM d, yyyy")</span>
-                                    </button>
-                                </h2>
-                                <div id="@collapseId"
-                                     class="accordion-collapse collapse @(isFirst ? "show" : "")"
-                                     aria-labelledby="@headingId"
-                                     data-bs-parent="#weeklyAccordion">
-                                    <div class="accordion-body">
-                                        <div class="analysis-content">
-                                            @Html.Raw(MarkdownHelper.ToHtml(analysis.Content))
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-5">
-                        <i class="fas fa-robot fa-2x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">No weekly analyses yet. The AI advisor runs automatically every week.</p>
-                    </div>
-                }
-
             </div>
-            <div class="card-footer border-0 bg-transparent pt-0">
-                <button class="btn btn-link btn-sm text-muted p-0" id="runWeeklyBtn" onclick="runWeeklyAnalysis()">
-                    Run weekly analysis
-                </button>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-robot fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">@SharedLocalizer["NoWeeklyAnalyses"]</p>
             </div>
-        </div>
+        }
+
     </div>
+    <div class="card-footer border-0 bg-transparent pt-0 d-flex align-items-center gap-3 flex-wrap">
+        <button class="btn btn-link btn-sm text-muted p-0"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#settingsCollapse"
+                aria-expanded="false"
+                aria-controls="settingsCollapse">
+            <i class="fas fa-sliders-h me-1"></i>@SharedLocalizer["InvestmentSettings"]
+        </button>
+        @if (Model.CanGenerateMonthlyReport)
+        {
+            <button class="btn btn-primary btn-sm" id="generateReportBtn" onclick="generateMonthlyReport()">
+                <i class="fas fa-file-alt me-1"></i>@SharedLocalizer["MonthlyReport"]
+            </button>
+        }
+        <button class="btn btn-link btn-sm text-muted p-0 ms-auto" id="runWeeklyBtn" onclick="runWeeklyAnalysis()">
+            @SharedLocalizer["RunWeeklyAnalysis"]
+        </button>
+    </div>
+</div>
 
-    <!-- Right: Investment Profile sticky panel -->
-    <div class="col-12 col-lg-4">
-        <div class="card analysis-profile-panel">
-            <div class="card-header">
-                <i class="fas fa-sliders-h me-2 text-muted"></i>Investment Profile
-            </div>
-            <div class="card-body">
+<!-- Investment profile settings (collapsible) -->
+<div class="collapse mt-3" id="settingsCollapse">
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-sliders-h me-2 text-muted"></i>@SharedLocalizer["InvestmentProfile"]
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
 
-                <!-- Risk Tolerance -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Risk Tolerance</label>
-                    <p class="text-muted small mb-2">How much volatility are you comfortable with in pursuit of higher returns?</p>
+                <!-- Risk tolerance -->
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">@SharedLocalizer["RiskTolerance"]</label>
                     <div class="btn-group w-100" role="group" id="riskToleranceGroup">
                         <input type="radio" class="btn-check" name="riskTolerance" id="risk-conservative" value="conservative"
                                @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
@@ -119,10 +119,9 @@
                     </div>
                 </div>
 
-                <!-- Investment Horizon -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Investment Horizon</label>
-                    <p class="text-muted small mb-2">How long do you intend to hold before needing access to this capital?</p>
+                <!-- Investment horizon -->
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold">@SharedLocalizer["InvestmentHorizon"]</label>
                     <div class="btn-group w-100" role="group" id="horizonGroup">
                         <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-short" value="short"
                                @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
@@ -138,28 +137,24 @@
                     </div>
                 </div>
 
-                <!-- Custom Instructions -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold" for="customInstructions">Custom Instructions</label>
-                    <p class="text-muted small mb-2">
-                        Tell the AI advisor anything it should keep in mind — sectors you want to avoid,
-                        dividend preferences, sustainability criteria, etc.
-                    </p>
-                    <textarea class="form-control" id="customInstructions" rows="5"
-                              placeholder="e.g. Avoid tobacco and weapons stocks. Prefer ETFs over individual stocks for diversification.">@Model.Settings.CustomInstructions</textarea>
-                </div>
-
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-primary px-4" id="saveSettingsBtn" onclick="saveSettings()">
-                        Save
-                    </button>
-                    <span id="saveStatus" class="text-muted small" style="display:none"></span>
+                <!-- Custom instructions -->
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-semibold" for="customInstructions">@SharedLocalizer["CustomInstructions"]</label>
+                    <textarea class="form-control" id="customInstructions" rows="3"
+                              placeholder="e.g. Avoid tobacco stocks. Prefer ETFs.">@Model.Settings.CustomInstructions</textarea>
                 </div>
 
             </div>
+
+            <div class="d-flex align-items-center gap-3 mt-3">
+                <button class="btn btn-primary px-4" id="saveSettingsBtn" onclick="saveSettings()">
+                    @SharedLocalizer["Save"]
+                </button>
+                <span id="saveStatus" class="text-muted small" style="display:none"></span>
+            </div>
+
         </div>
     </div>
-
 </div>
 
 <script>
@@ -182,7 +177,7 @@
         const container = document.getElementById('monthlyReportContainer');
 
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Generating...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>@SharedLocalizer["GeneratingReport"]';
 
         fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
             .then(response => {
@@ -197,14 +192,14 @@
             .catch(() => {
                 showAlert('error', 'Failed to generate monthly report. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-file-alt me-1"></i>Monthly Report';
+                btn.innerHTML = '<i class="fas fa-file-alt me-1"></i>@SharedLocalizer["MonthlyReport"]';
             });
     }
 
     function runWeeklyAnalysis() {
         const btn = document.getElementById('runWeeklyBtn');
         btn.disabled = true;
-        btn.textContent = 'Running...';
+        btn.textContent = '...';
 
         fetch('/analysis/run-weekly', { method: 'POST' })
             .then(response => {
@@ -214,7 +209,7 @@
             .catch(() => {
                 showAlert('error', 'Failed to run weekly analysis. Please try again.');
                 btn.disabled = false;
-                btn.textContent = 'Run weekly analysis';
+                btn.textContent = '@SharedLocalizer["RunWeeklyAnalysis"]';
             });
     }
 
@@ -232,7 +227,7 @@
         const customInstructions = document.getElementById('customInstructions').value.trim();
 
         btn.disabled = true;
-        btn.textContent = 'Saving...';
+        btn.textContent = '@SharedLocalizer["Saving"]';
         status.style.display = 'none';
 
         fetch('/settings/save', {
@@ -242,18 +237,18 @@
         })
         .then(response => {
             if (!response.ok) throw new Error('Save failed');
-            status.textContent = 'Saved successfully.';
+            status.textContent = '@SharedLocalizer["SavedSuccessfully"]';
             status.className = 'text-success small';
             status.style.display = 'inline';
         })
         .catch(() => {
-            status.textContent = 'Failed to save. Please try again.';
+            status.textContent = '@SharedLocalizer["SaveFailed"]';
             status.className = 'text-danger small';
             status.style.display = 'inline';
         })
         .finally(() => {
             btn.disabled = false;
-            btn.textContent = 'Save';
+            btn.textContent = '@SharedLocalizer["Save"]';
         });
     }
 
