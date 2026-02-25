@@ -22,12 +22,6 @@
             </a>
         </li>
         <li class="nav-item">
-            <a asp-controller="MarketHistory" asp-action="Index" class="nav-link @(IsActive("MarketHistory") ? "active" : "")">
-                <i class="fas fa-clock-rotate-left"></i>
-                <span>@SharedLocalizer["MarketHistory"]</span>
-            </a>
-        </li>
-        <li class="nav-item">
             <a asp-controller="Transactions" asp-action="Index" class="nav-link @(IsActive("Transactions") ? "active" : "")">
                 <i class="fas fa-receipt"></i>
                 <span>@SharedLocalizer["Transactions"]</span>
@@ -37,12 +31,6 @@
             <a asp-controller="Analysis" asp-action="Index" class="nav-link @(IsActive("Analysis") ? "active" : "")">
                 <i class="fas fa-robot"></i>
                 <span>AI Advisor</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a asp-controller="Settings" asp-action="Index" class="nav-link @(IsActive("Settings") ? "active" : "")">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
             </a>
         </li>
     </ul>

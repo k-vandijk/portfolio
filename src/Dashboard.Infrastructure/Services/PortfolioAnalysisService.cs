@@ -44,6 +44,20 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         _logger = logger;
     }
 
+    public async Task<List<PortfolioAnalysisDto>> GetAllAnalysesAsync()
+    {
+        var filter = $"PartitionKey eq '{StaticDetails.AiAnalysesPartitionKey}'";
+        var entities = new List<PortfolioAnalysisEntity>();
+
+        await foreach (var entity in _table.QueryAsync<PortfolioAnalysisEntity>(filter: filter))
+            entities.Add(entity);
+
+        return entities
+            .OrderByDescending(e => e.AnalysisDate)
+            .Select(e => e.ToDto())
+            .ToList();
+    }
+
     public async Task<List<PortfolioAnalysisDto>> GetRecentAnalysesAsync(int count = 4)
     {
         var filter = $"PartitionKey eq '{StaticDetails.AiAnalysesPartitionKey}'";

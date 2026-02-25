@@ -1,26 +1,17 @@
+@inject IStringLocalizer<SharedResource> SharedLocalizer
 @{
-    ViewData["Title"] = "AI Advisor";
+    ViewData["Title"] = SharedLocalizer["AiAdvisor"];
 }
 
 <section id="skeleton-section">
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="card mb-3">
-                <div class="card-body placeholder-glow">
-                    <span class="placeholder col-3 mb-3 d-block"></span>
-                    <span class="placeholder col-8 mb-2 d-block"></span>
-                    <span class="placeholder col-6 mb-2 d-block"></span>
-                    <span class="placeholder col-7 mb-2 d-block"></span>
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-body placeholder-glow">
-                    <span class="placeholder col-3 mb-3 d-block"></span>
-                    <span class="placeholder col-9 mb-2 d-block"></span>
-                    <span class="placeholder col-7 mb-2 d-block"></span>
-                    <span class="placeholder col-8 mb-2 d-block"></span>
-                </div>
-            </div>
+    <div class="card">
+        <div class="card-body placeholder-glow">
+            <span class="placeholder col-8 mb-2 d-block"></span>
+            <span class="placeholder col-6 mb-2 d-block"></span>
+            <span class="placeholder col-9 mb-2 d-block"></span>
+            <span class="placeholder col-7 mb-2 d-block"></span>
+            <span class="placeholder col-8 mb-2 d-block"></span>
+            <span class="placeholder col-5 mb-2 d-block"></span>
         </div>
     </div>
 </section>

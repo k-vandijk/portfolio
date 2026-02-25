@@ -1,188 +1,285 @@
 @model Dashboard._Web.ViewModels.AnalysisViewModel
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@using System.Globalization
 
-<div class="row mb-3">
-    <div class="col-12 col-xl-10">
+@{
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var grouped = Model.AllAnalyses
+        .GroupBy(a => a.AnalysisDate.Year)
+        .OrderByDescending(g => g.Key)
+        .ToList();
+}
 
-        <!-- Header -->
-        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-            <div>
-                <h5 class="mb-0">AI Portfolio Advisor</h5>
-                <p class="text-muted small mb-0">Weekly analyses run automatically. Generate a monthly report when you are ready to rebalance.</p>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-outline-secondary btn-sm" id="runWeeklyBtn" onclick="runWeeklyAnalysis()" title="Manually trigger a weekly analysis (for testing)">
-                    <i class="fas fa-play me-1"></i>Run Weekly Analysis
-                </button>
-                @if (Model.CanGenerateMonthlyReport)
-                {
-                    <button class="btn btn-primary" id="generateReportBtn" onclick="generateMonthlyReport()">
-                        <i class="fas fa-file-alt me-2"></i>Generate Monthly Report
-                    </button>
-                }
-            </div>
+<!-- Hidden content templates (pre-rendered markdown) -->
+@foreach (var analysis in Model.AllAnalyses)
+{
+    <template id="content-@analysis.RowKey">
+        <div class="analysis-content">
+            @Html.Raw(MarkdownHelper.ToHtml(analysis.Content))
         </div>
+    </template>
+}
 
-        <!-- Monthly report (if already generated) -->
-        @if (Model.MonthlyReport is not null)
-        {
-            <div class="card border-0 shadow-sm mb-4 analysis-monthly-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="fas fa-star u-text-accent-1"></i>
-                        <h6 class="mb-0 fw-semibold">Monthly Report — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
-                    </div>
-                    <div class="analysis-content">
-                        @Html.Raw(MarkdownToHtml(Model.MonthlyReport.Content))
-                    </div>
-                </div>
-            </div>
-        }
+<div class="card overflow-hidden archive-card">
+    <div class="card-body p-0">
+        <div class="archive-layout">
 
-        <!-- Monthly report placeholder (injected via AJAX) -->
-        <div id="monthlyReportContainer"></div>
+            <!-- Left panel -->
+            <div class="archive-panel-left">
 
-        <!-- Weekly analyses accordion -->
-        @if (Model.WeeklyAnalyses.Count > 0)
-        {
-            <h6 class="text-muted mb-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Weekly Analyses</h6>
-            <div class="accordion" id="weeklyAccordion">
-                @for (int i = 0; i < Model.WeeklyAnalyses.Count; i++)
-                {
-                    var analysis = Model.WeeklyAnalyses[i];
-                    var collapseId = $"collapse-{i}";
-                    var headingId = $"heading-{i}";
-                    var isFirst = i == 0;
+                <!-- Document browser -->
+                <div class="archive-browser">
+                    @if (!Model.AllAnalyses.Any())
+                    {
+                        <p class="text-muted small px-3 py-3">@SharedLocalizer["NoWeeklyAnalyses"]</p>
+                    }
+                    else
+                    {
+                        foreach (var yearGroup in grouped)
+                        {
+                            var yearIsOpen = yearGroup.Key == today.Year;
+                            var yearCollapseId = $"year-{yearGroup.Key}";
+                            var monthGroups = yearGroup
+                                .GroupBy(a => a.AnalysisDate.Month)
+                                .OrderByDescending(g => g.Key);
 
-                    <div class="accordion-item border-0 shadow-sm mb-2">
-                        <h2 class="accordion-header" id="@headingId">
-                            <button class="accordion-button @(isFirst ? "" : "collapsed") rounded"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@collapseId"
-                                    aria-expanded="@(isFirst ? "true" : "false")"
-                                    aria-controls="@collapseId">
-                                <span class="me-3">
-                                    <span class="badge bg-primary rounded-pill">Week @analysis.WeekNumber</span>
-                                </span>
-                                <span class="fw-semibold">@analysis.AnalysisDate.ToString("dddd, MMMM d, yyyy")</span>
-                            </button>
-                        </h2>
-                        <div id="@collapseId"
-                             class="accordion-collapse collapse @(isFirst ? "show" : "")"
-                             aria-labelledby="@headingId"
-                             data-bs-parent="#weeklyAccordion">
-                            <div class="accordion-body">
-                                <div class="analysis-content">
-                                    @Html.Raw(MarkdownToHtml(analysis.Content))
+                            <div class="archive-year">
+                                <div class="archive-year-header"
+                                     data-bs-toggle="collapse"
+                                     data-bs-target="#@yearCollapseId"
+                                     aria-expanded="@(yearIsOpen ? "true" : "false")">
+                                    <i class="fas fa-folder@(yearIsOpen ? "-open" : "") me-2"></i>@yearGroup.Key
+                                </div>
+                                <div id="@yearCollapseId" class="collapse@(yearIsOpen ? " show" : "")">
+                                    @foreach (var monthGroup in monthGroups)
+                                    {
+                                        var monthIsOpen = monthGroup.Key == today.Month && yearGroup.Key == today.Year;
+                                        var monthCollapseId = $"month-{yearGroup.Key}-{monthGroup.Key}";
+                                        var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(monthGroup.Key);
+                                        var monthlyReport = monthGroup.FirstOrDefault(a => a.AnalysisType == "monthly");
+                                        var weeklyItems = monthGroup.Where(a => a.AnalysisType == "weekly").OrderByDescending(a => a.WeekNumber);
+
+                                        <div class="archive-month">
+                                            <div class="archive-month-header"
+                                                 data-bs-toggle="collapse"
+                                                 data-bs-target="#@monthCollapseId"
+                                                 aria-expanded="@(monthIsOpen ? "true" : "false")">
+                                                <i class="fas fa-chevron-right archive-month-chevron me-2"></i>@monthName
+                                            </div>
+                                            <div id="@monthCollapseId" class="collapse@(monthIsOpen ? " show" : "")">
+                                                @if (monthlyReport is not null)
+                                                {
+                                                    <div class="archive-file archive-file--monthly"
+                                                         data-analysis-id="@monthlyReport.RowKey"
+                                                         onclick="archiveSelectFile(this)">
+                                                        <i class="fas fa-star me-2"></i>@SharedLocalizer["MonthlyReport"]
+                                                    </div>
+                                                }
+                                                @foreach (var weekly in weeklyItems)
+                                                {
+                                                    <div class="archive-file archive-file--weekly"
+                                                         data-analysis-id="@weekly.RowKey"
+                                                         onclick="archiveSelectFile(this)">
+                                                        <i class="fas fa-file-alt me-2"></i>Week @weekly.WeekNumber
+                                                        <span class="archive-file-date">@weekly.AnalysisDate.ToString("MMM d")</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
+                        }
+                    }
+                </div>
+
+                <!-- Options footer -->
+                <div class="archive-options">
+                    <button class="archive-option-btn" type="button" onclick="archiveShowSettings()">
+                        <i class="fas fa-sliders-h me-2"></i>@SharedLocalizer["InvestmentSettings"]
+                    </button>
+                    @if (Model.CanGenerateMonthlyReport)
+                    {
+                        <button class="archive-option-btn archive-option-btn--primary" id="generateReportBtn" type="button" onclick="archiveGenerateMonthlyReport()">
+                            <i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]
+                        </button>
+                    }
+                    <button class="archive-option-btn archive-option-btn--subtle" id="runWeeklyBtn" type="button" onclick="archiveRunWeeklyAnalysis()">
+                        @SharedLocalizer["RunWeeklyAnalysis"]
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right panel -->
+            <div class="archive-panel-right">
+
+                <!-- Empty placeholder -->
+                <div id="archivePlaceholder" class="archive-placeholder">
+                    <i class="fas fa-file-alt fa-2x text-muted mb-3 d-block"></i>
+                    <p class="text-muted mb-0 small">Select a file to preview it</p>
+                </div>
+
+                <!-- Preview content -->
+                <div id="archivePreview" class="archive-preview-content d-none">
+                    <div id="archiveA4Content"></div>
+                </div>
+
+                <!-- Settings form -->
+                <div id="archiveSettingsPanel" class="archive-settings-panel d-none">
+                    <p class="fw-semibold text-muted text-uppercase mb-4" style="font-size: 0.72rem; letter-spacing: 0.06em;">
+                        <i class="fas fa-sliders-h me-2"></i>@SharedLocalizer["InvestmentProfile"]
+                    </p>
+
+                    <div class="row g-4">
+                        <!-- Risk tolerance -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold">@SharedLocalizer["RiskTolerance"]</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-conservative" value="conservative"
+                                       @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="risk-conservative">Conservative</label>
+                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-moderate" value="moderate"
+                                       @(Model.Settings.RiskTolerance == "moderate" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="risk-moderate">Moderate</label>
+                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-aggressive" value="aggressive"
+                                       @(Model.Settings.RiskTolerance == "aggressive" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="risk-aggressive">Aggressive</label>
+                            </div>
+                        </div>
+
+                        <!-- Investment horizon -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold">@SharedLocalizer["InvestmentHorizon"]</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-short" value="short"
+                                       @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="horizon-short">Short (&lt; 3 yr)</label>
+                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-medium" value="medium"
+                                       @(Model.Settings.InvestmentHorizon == "medium" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="horizon-medium">Medium (3–10 yr)</label>
+                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-long" value="long"
+                                       @(Model.Settings.InvestmentHorizon == "long" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="horizon-long">Long (&gt; 10 yr)</label>
+                            </div>
+                        </div>
+
+                        <!-- Custom instructions -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold" for="customInstructions">@SharedLocalizer["CustomInstructions"]</label>
+                            <textarea class="form-control" id="customInstructions" rows="3"
+                                      placeholder="e.g. Avoid tobacco stocks. Prefer ETFs.">@Model.Settings.CustomInstructions</textarea>
                         </div>
                     </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-robot fa-2x text-muted mb-3"></i>
-                    <p class="text-muted mb-0">No weekly analyses yet. The AI advisor runs automatically every week.</p>
-                </div>
-            </div>
-        }
 
+                    <div class="d-flex align-items-center gap-3 mt-4">
+                        <button class="btn btn-primary px-4" id="saveSettingsBtn" type="button" onclick="saveSettings()">
+                            @SharedLocalizer["Save"]
+                        </button>
+                        <span id="saveStatus" class="text-muted small" style="display:none"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
 
-@functions {
-    /// <summary>
-    /// Minimal Markdown-to-HTML conversion for AI-generated narrative text.
-    /// Handles headings (##, ###), bold (**text**), and paragraphs.
-    /// </summary>
-    static string MarkdownToHtml(string markdown)
-    {
-        if (string.IsNullOrWhiteSpace(markdown)) return string.Empty;
-
-        var lines = markdown.Split('\n');
-        var html = new System.Text.StringBuilder();
-        var inParagraph = false;
-
-        foreach (var rawLine in lines)
-        {
-            var line = rawLine.TrimEnd();
-
-            if (line.StartsWith("### "))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-                html.Append($"<h6 class=\"fw-semibold mt-3 mb-1\">{System.Net.WebUtility.HtmlEncode(line[4..])}</h6>");
-            }
-            else if (line.StartsWith("## "))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-                html.Append($"<h5 class=\"fw-semibold mt-3 mb-2\">{System.Net.WebUtility.HtmlEncode(line[3..])}</h5>");
-            }
-            else if (line.StartsWith("- ") || line.StartsWith("* "))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-                var item = ApplyInlineFormatting(line[2..]);
-                html.Append($"<li class=\"mb-1\">{item}</li>");
-            }
-            else if (string.IsNullOrWhiteSpace(line))
-            {
-                if (inParagraph) { html.Append("</p>"); inParagraph = false; }
-            }
-            else
-            {
-                if (!inParagraph) { html.Append("<p>"); inParagraph = true; }
-                else html.Append(' ');
-                html.Append(ApplyInlineFormatting(line));
-            }
-        }
-
-        if (inParagraph) html.Append("</p>");
-
-        return html.ToString();
-    }
-
-    static string ApplyInlineFormatting(string text)
-    {
-        // Bold: **text**
-        var result = System.Text.RegularExpressions.Regex.Replace(
-            System.Net.WebUtility.HtmlEncode(text),
-            @"\*\*(.+?)\*\*",
-            "<strong>$1</strong>");
-        return result;
-    }
-}
-
 <script>
-    function generateMonthlyReport() {
-        const btn = document.getElementById('generateReportBtn');
-        const container = document.getElementById('monthlyReportContainer');
+    // --- File selection ---
+    function archiveSelectFile(element) {
+        const id = element.dataset.analysisId;
+        const tmpl = document.getElementById('content-' + id);
+        if (!tmpl) return;
 
+        const container = document.getElementById('archiveA4Content');
+        container.innerHTML = '';
+        container.appendChild(tmpl.content.cloneNode(true));
+
+        archiveShowPreview();
+        injectFavicons(container);
+
+        document.querySelectorAll('.archive-file').forEach(f => f.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    // --- Panel switching ---
+    function archiveShowPreview() {
+        document.getElementById('archivePlaceholder').classList.add('d-none');
+        document.getElementById('archivePreview').classList.remove('d-none');
+        document.getElementById('archiveSettingsPanel').classList.add('d-none');
+    }
+
+    function archiveShowSettings() {
+        document.getElementById('archivePlaceholder').classList.add('d-none');
+        document.getElementById('archivePreview').classList.add('d-none');
+        document.getElementById('archiveSettingsPanel').classList.remove('d-none');
+        document.querySelectorAll('.archive-file').forEach(f => f.classList.remove('active'));
+    }
+
+    function archiveCloseSettings() {
+        document.getElementById('archiveSettingsPanel').classList.add('d-none');
+        if (document.getElementById('archiveA4Content').hasChildNodes()) {
+            document.getElementById('archivePreview').classList.remove('d-none');
+        } else {
+            document.getElementById('archivePlaceholder').classList.remove('d-none');
+        }
+    }
+
+    // --- Folder icon animations ---
+    document.querySelectorAll('.archive-year-header').forEach(header => {
+        const target = document.getElementById(header.getAttribute('data-bs-target').slice(1));
+        const icon = header.querySelector('.fas');
+        if (!target || !icon) return;
+        target.addEventListener('show.bs.collapse', () => { icon.classList.remove('fa-folder'); icon.classList.add('fa-folder-open'); });
+        target.addEventListener('hide.bs.collapse', () => { icon.classList.remove('fa-folder-open'); icon.classList.add('fa-folder'); });
+    });
+
+    document.querySelectorAll('.archive-month-header').forEach(header => {
+        const target = document.getElementById(header.getAttribute('data-bs-target').slice(1));
+        const chevron = header.querySelector('.archive-month-chevron');
+        if (!target || !chevron) return;
+        target.addEventListener('show.bs.collapse', () => chevron.classList.add('rotated'));
+        target.addEventListener('hide.bs.collapse', () => chevron.classList.remove('rotated'));
+        if (target.classList.contains('show')) chevron.classList.add('rotated');
+    });
+
+    // --- Actions ---
+    function injectFavicons(root = document) {
+        root.querySelectorAll('a[data-favicon]').forEach(link => {
+            const img = document.createElement('img');
+            img.src = link.getAttribute('data-favicon');
+            img.width = 16;
+            img.height = 16;
+            img.alt = '';
+            img.className = 'link-favicon me-1';
+            img.onerror = () => img.remove();
+            link.prepend(img);
+            link.removeAttribute('data-favicon');
+        });
+    }
+
+    function archiveGenerateMonthlyReport() {
+        const btn = document.getElementById('generateReportBtn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generating...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>@SharedLocalizer["GeneratingReport"]';
 
         fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
             .then(response => {
                 if (!response.ok) throw new Error('Generation failed');
-                return response.text();
-            })
-            .then(html => {
-                container.innerHTML = html;
-                btn.style.display = 'none';
+                loadSkeletonSection('/analysis/content');
             })
             .catch(() => {
                 showAlert('error', 'Failed to generate monthly report. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>Generate Monthly Report';
+                btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]';
             });
     }
 
-    function runWeeklyAnalysis() {
+    function archiveRunWeeklyAnalysis() {
         const btn = document.getElementById('runWeeklyBtn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Running...';
+        btn.textContent = '...';
 
         fetch('/analysis/run-weekly', { method: 'POST' })
             .then(response => {
@@ -192,12 +289,46 @@
             .catch(() => {
                 showAlert('error', 'Failed to run weekly analysis. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-play me-1"></i>Run Weekly Analysis';
+                btn.textContent = '@SharedLocalizer["RunWeeklyAnalysis"]';
             });
     }
 
     function getAntiForgeryToken() {
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
         return tokenInput ? tokenInput.value : '';
+    }
+
+    function saveSettings() {
+        const btn = document.getElementById('saveSettingsBtn');
+        const status = document.getElementById('saveStatus');
+
+        const riskTolerance = document.querySelector('input[name="riskTolerance"]:checked')?.value ?? 'moderate';
+        const investmentHorizon = document.querySelector('input[name="investmentHorizon"]:checked')?.value ?? 'long';
+        const customInstructions = document.getElementById('customInstructions').value.trim();
+
+        btn.disabled = true;
+        btn.textContent = '@SharedLocalizer["Saving"]';
+        status.style.display = 'none';
+
+        fetch('/settings/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ riskTolerance, investmentHorizon, customInstructions })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Save failed');
+            status.textContent = '@SharedLocalizer["SavedSuccessfully"]';
+            status.className = 'text-success small';
+            status.style.display = 'inline';
+        })
+        .catch(() => {
+            status.textContent = '@SharedLocalizer["SaveFailed"]';
+            status.className = 'text-danger small';
+            status.style.display = 'inline';
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = '@SharedLocalizer["Save"]';
+        });
     }
 </script>
