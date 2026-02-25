@@ -80,7 +80,6 @@ public static class MarkdownHelper
             // Bullet item — any indentation, any bullet char
             var bullet = BulletRegex.Match(line);
             if (bullet.Success)
-            if (bullet.Success)
             {
                 CloseParagraph();
                 if (!inList) { html.Append("<ul>"); inList = true; }
