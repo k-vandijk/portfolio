@@ -23,20 +23,17 @@ public class AnalysisController : Controller
     [HttpGet("/analysis/content")]
     public async Task<IActionResult> AnalysisContent()
     {
-        var analyses = await _analysisService.GetRecentAnalysesAsync(8);
-
-        var weeklyAnalyses = analyses
-            .Where(a => a.AnalysisType == "weekly")
-            .OrderByDescending(a => a.AnalysisDate)
-            .ToList();
-
-        var monthlyReport = analyses
-            .Where(a => a.AnalysisType == "monthly")
-            .OrderByDescending(a => a.AnalysisDate)
-            .FirstOrDefault();
+        var allAnalyses = await _analysisService.GetAllAnalysesAsync();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var canGenerate = weeklyAnalyses.Any(a =>
+
+        var hasWeeklyThisMonth = allAnalyses.Any(a =>
+            a.AnalysisType == "weekly" &&
+            a.AnalysisDate.Year == today.Year &&
+            a.AnalysisDate.Month == today.Month);
+
+        var hasMonthlyThisMonth = allAnalyses.Any(a =>
+            a.AnalysisType == "monthly" &&
             a.AnalysisDate.Year == today.Year &&
             a.AnalysisDate.Month == today.Month);
 
@@ -44,9 +41,8 @@ public class AnalysisController : Controller
 
         var viewModel = new AnalysisViewModel
         {
-            WeeklyAnalyses = weeklyAnalyses,
-            MonthlyReport = monthlyReport,
-            CanGenerateMonthlyReport = canGenerate,
+            AllAnalyses = allAnalyses,
+            CanGenerateMonthlyReport = hasWeeklyThisMonth && !hasMonthlyThisMonth,
             Settings = settings
         };
 
@@ -58,16 +54,8 @@ public class AnalysisController : Controller
     {
         try
         {
-            var report = await _analysisService.GenerateMonthlyReportAsync();
-
-            var viewModel = new AnalysisViewModel
-            {
-                WeeklyAnalyses = [],
-                MonthlyReport = report,
-                CanGenerateMonthlyReport = false
-            };
-
-            return PartialView("_MonthlyReport", viewModel);
+            await _analysisService.GenerateMonthlyReportAsync();
+            return Ok();
         }
         catch (Exception ex)
         {

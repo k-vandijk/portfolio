@@ -1,163 +1,256 @@
 @model Dashboard._Web.ViewModels.AnalysisViewModel
 @inject IStringLocalizer<SharedResource> SharedLocalizer
+@using System.Globalization
 
-<div class="card">
-    <div class="card-body">
+@{
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var grouped = Model.AllAnalyses
+        .GroupBy(a => a.AnalysisDate.Year)
+        .OrderByDescending(g => g.Key)
+        .ToList();
+}
 
-        <!-- Monthly report (if already generated) -->
-        @if (Model.MonthlyReport is not null)
-        {
-            <div class="card border-0 mb-4 analysis-monthly-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <i class="fas fa-star u-text-accent-1"></i>
-                        <h6 class="mb-0 fw-semibold">@SharedLocalizer["MonthlyReport"] — @Model.MonthlyReport.AnalysisDate.ToString("MMMM yyyy")</h6>
-                    </div>
-                    <div class="analysis-content">
-                        @Html.Raw(MarkdownHelper.ToHtml(Model.MonthlyReport.Content))
-                    </div>
-                </div>
-            </div>
-        }
+<!-- Hidden content templates (pre-rendered markdown) -->
+@foreach (var analysis in Model.AllAnalyses)
+{
+    <template id="content-@analysis.RowKey">
+        <div class="analysis-content">
+            @Html.Raw(MarkdownHelper.ToHtml(analysis.Content))
+        </div>
+    </template>
+}
 
-        <!-- Monthly report placeholder (injected via AJAX) -->
-        <div id="monthlyReportContainer"></div>
+<div class="card overflow-hidden">
+    <div class="card-body p-0">
+        <div class="archive-layout">
 
-        <!-- Weekly analyses accordion -->
-        @if (Model.WeeklyAnalyses.Count > 0)
-        {
-            <p class="text-muted mb-3 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">@SharedLocalizer["WeeklyAnalyses"]</p>
-            <div class="accordion" id="weeklyAccordion">
-                @for (int i = 0; i < Model.WeeklyAnalyses.Count; i++)
-                {
-                    var analysis = Model.WeeklyAnalyses[i];
-                    var collapseId = $"collapse-{i}";
-                    var headingId = $"heading-{i}";
+            <!-- Left panel -->
+            <div class="archive-panel-left">
 
-                    <div class="accordion-item border-0 shadow-sm mb-2">
-                        <h2 class="accordion-header" id="@headingId">
-                            <button class="accordion-button collapsed rounded"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#@collapseId"
-                                    aria-expanded="false"
-                                    aria-controls="@collapseId">
-                                <span class="me-3">
-                                    <span class="badge bg-primary rounded-pill">Week @analysis.WeekNumber</span>
-                                </span>
-                                <span class="fw-semibold">@analysis.AnalysisDate.ToString("dddd, MMMM d, yyyy")</span>
-                            </button>
-                        </h2>
-                        <div id="@collapseId"
-                             class="accordion-collapse collapse"
-                             aria-labelledby="@headingId"
-                             data-bs-parent="#weeklyAccordion">
-                            <div class="accordion-body">
-                                <div class="analysis-content">
-                                    @Html.Raw(MarkdownHelper.ToHtml(analysis.Content))
+                <!-- Document browser -->
+                <div class="archive-browser">
+                    @if (!Model.AllAnalyses.Any())
+                    {
+                        <p class="text-muted small px-3 py-3">@SharedLocalizer["NoWeeklyAnalyses"]</p>
+                    }
+                    else
+                    {
+                        foreach (var yearGroup in grouped)
+                        {
+                            var yearIsOpen = yearGroup.Key == today.Year;
+                            var yearCollapseId = $"year-{yearGroup.Key}";
+                            var monthGroups = yearGroup
+                                .GroupBy(a => a.AnalysisDate.Month)
+                                .OrderByDescending(g => g.Key);
+
+                            <div class="archive-year">
+                                <div class="archive-year-header"
+                                     data-bs-toggle="collapse"
+                                     data-bs-target="#@yearCollapseId"
+                                     aria-expanded="@(yearIsOpen ? "true" : "false")">
+                                    <i class="fas fa-folder@(yearIsOpen ? "-open" : "") me-2"></i>@yearGroup.Key
+                                </div>
+                                <div id="@yearCollapseId" class="collapse@(yearIsOpen ? " show" : "")">
+                                    @foreach (var monthGroup in monthGroups)
+                                    {
+                                        var monthIsOpen = monthGroup.Key == today.Month && yearGroup.Key == today.Year;
+                                        var monthCollapseId = $"month-{yearGroup.Key}-{monthGroup.Key}";
+                                        var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(monthGroup.Key);
+                                        var monthlyReport = monthGroup.FirstOrDefault(a => a.AnalysisType == "monthly");
+                                        var weeklyItems = monthGroup.Where(a => a.AnalysisType == "weekly").OrderByDescending(a => a.WeekNumber);
+
+                                        <div class="archive-month">
+                                            <div class="archive-month-header"
+                                                 data-bs-toggle="collapse"
+                                                 data-bs-target="#@monthCollapseId"
+                                                 aria-expanded="@(monthIsOpen ? "true" : "false")">
+                                                <i class="fas fa-chevron-right archive-month-chevron me-2"></i>@monthName
+                                            </div>
+                                            <div id="@monthCollapseId" class="collapse@(monthIsOpen ? " show" : "")">
+                                                @if (monthlyReport is not null)
+                                                {
+                                                    <div class="archive-file archive-file--monthly"
+                                                         data-analysis-id="@monthlyReport.RowKey"
+                                                         onclick="archiveSelectFile(this)">
+                                                        <i class="fas fa-star me-2"></i>@SharedLocalizer["MonthlyReport"]
+                                                    </div>
+                                                }
+                                                @foreach (var weekly in weeklyItems)
+                                                {
+                                                    <div class="archive-file archive-file--weekly"
+                                                         data-analysis-id="@weekly.RowKey"
+                                                         onclick="archiveSelectFile(this)">
+                                                        <i class="fas fa-file-alt me-2"></i>Week @weekly.WeekNumber
+                                                        <span class="archive-file-date">@weekly.AnalysisDate.ToString("MMM d")</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
+                        }
+                    }
+                </div>
+
+                <!-- Options footer -->
+                <div class="archive-options">
+                    <button class="archive-option-btn" type="button" onclick="archiveShowSettings()">
+                        <i class="fas fa-sliders-h me-2"></i>@SharedLocalizer["InvestmentSettings"]
+                    </button>
+                    @if (Model.CanGenerateMonthlyReport)
+                    {
+                        <button class="archive-option-btn archive-option-btn--primary" id="generateReportBtn" type="button" onclick="archiveGenerateMonthlyReport()">
+                            <i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]
+                        </button>
+                    }
+                    <button class="archive-option-btn archive-option-btn--subtle" id="runWeeklyBtn" type="button" onclick="archiveRunWeeklyAnalysis()">
+                        @SharedLocalizer["RunWeeklyAnalysis"]
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right panel -->
+            <div class="archive-panel-right">
+
+                <!-- Empty placeholder -->
+                <div id="archivePlaceholder" class="archive-placeholder">
+                    <i class="fas fa-file-alt fa-2x text-muted mb-3 d-block"></i>
+                    <p class="text-muted mb-0 small">Select a file to preview it</p>
+                </div>
+
+                <!-- A4 preview -->
+                <div id="archivePreview" class="archive-a4-wrap d-none">
+                    <div class="archive-a4">
+                        <div id="archiveA4Content"></div>
+                    </div>
+                </div>
+
+                <!-- Settings form -->
+                <div id="archiveSettingsPanel" class="archive-settings-panel d-none">
+                    <div class="archive-settings-header mb-4">
+                        <button class="btn btn-link btn-sm p-0 text-muted me-3" type="button" onclick="archiveCloseSettings()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <i class="fas fa-sliders-h me-2 text-muted"></i>
+                        <span class="fw-semibold">@SharedLocalizer["InvestmentProfile"]</span>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Risk tolerance -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold">@SharedLocalizer["RiskTolerance"]</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-conservative" value="conservative"
+                                       @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="risk-conservative">Conservative</label>
+                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-moderate" value="moderate"
+                                       @(Model.Settings.RiskTolerance == "moderate" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="risk-moderate">Moderate</label>
+                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-aggressive" value="aggressive"
+                                       @(Model.Settings.RiskTolerance == "aggressive" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="risk-aggressive">Aggressive</label>
+                            </div>
+                        </div>
+
+                        <!-- Investment horizon -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold">@SharedLocalizer["InvestmentHorizon"]</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-short" value="short"
+                                       @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="horizon-short">Short (&lt; 3 yr)</label>
+                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-medium" value="medium"
+                                       @(Model.Settings.InvestmentHorizon == "medium" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="horizon-medium">Medium (3–10 yr)</label>
+                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-long" value="long"
+                                       @(Model.Settings.InvestmentHorizon == "long" ? "checked" : "") autocomplete="off">
+                                <label class="btn btn-outline-primary" for="horizon-long">Long (&gt; 10 yr)</label>
+                            </div>
+                        </div>
+
+                        <!-- Custom instructions -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold" for="customInstructions">@SharedLocalizer["CustomInstructions"]</label>
+                            <textarea class="form-control" id="customInstructions" rows="3"
+                                      placeholder="e.g. Avoid tobacco stocks. Prefer ETFs.">@Model.Settings.CustomInstructions</textarea>
                         </div>
                     </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-robot fa-2x text-muted mb-3"></i>
-                <p class="text-muted mb-0">@SharedLocalizer["NoWeeklyAnalyses"]</p>
-            </div>
-        }
 
-    </div>
-    <div class="card-footer border-0 bg-transparent pt-0 d-flex align-items-center gap-3 flex-wrap">
-        <button class="btn btn-link btn-sm text-muted p-0"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#settingsCollapse"
-                aria-expanded="false"
-                aria-controls="settingsCollapse">
-            <i class="fas fa-sliders-h me-1"></i>@SharedLocalizer["InvestmentSettings"]
-        </button>
-        @if (Model.CanGenerateMonthlyReport)
-        {
-            <button class="btn btn-primary btn-sm" id="generateReportBtn" onclick="generateMonthlyReport()">
-                <i class="fas fa-file-alt me-1"></i>@SharedLocalizer["MonthlyReport"]
-            </button>
-        }
-        <button class="btn btn-link btn-sm text-muted p-0 ms-auto" id="runWeeklyBtn" onclick="runWeeklyAnalysis()">
-            @SharedLocalizer["RunWeeklyAnalysis"]
-        </button>
-    </div>
-</div>
-
-<!-- Investment profile settings (collapsible) -->
-<div class="collapse mt-3" id="settingsCollapse">
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-sliders-h me-2 text-muted"></i>@SharedLocalizer["InvestmentProfile"]
-        </div>
-        <div class="card-body">
-            <div class="row g-4">
-
-                <!-- Risk tolerance -->
-                <div class="col-12 col-md-4">
-                    <label class="form-label fw-semibold">@SharedLocalizer["RiskTolerance"]</label>
-                    <div class="btn-group w-100" role="group" id="riskToleranceGroup">
-                        <input type="radio" class="btn-check" name="riskTolerance" id="risk-conservative" value="conservative"
-                               @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
-                        <label class="btn btn-outline-primary" for="risk-conservative">Conservative</label>
-
-                        <input type="radio" class="btn-check" name="riskTolerance" id="risk-moderate" value="moderate"
-                               @(Model.Settings.RiskTolerance == "moderate" ? "checked" : "") autocomplete="off">
-                        <label class="btn btn-outline-primary" for="risk-moderate">Moderate</label>
-
-                        <input type="radio" class="btn-check" name="riskTolerance" id="risk-aggressive" value="aggressive"
-                               @(Model.Settings.RiskTolerance == "aggressive" ? "checked" : "") autocomplete="off">
-                        <label class="btn btn-outline-primary" for="risk-aggressive">Aggressive</label>
+                    <div class="d-flex align-items-center gap-3 mt-4">
+                        <button class="btn btn-primary px-4" id="saveSettingsBtn" type="button" onclick="saveSettings()">
+                            @SharedLocalizer["Save"]
+                        </button>
+                        <span id="saveStatus" class="text-muted small" style="display:none"></span>
                     </div>
                 </div>
 
-                <!-- Investment horizon -->
-                <div class="col-12 col-md-4">
-                    <label class="form-label fw-semibold">@SharedLocalizer["InvestmentHorizon"]</label>
-                    <div class="btn-group w-100" role="group" id="horizonGroup">
-                        <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-short" value="short"
-                               @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
-                        <label class="btn btn-outline-primary" for="horizon-short">Short (&lt; 3 yr)</label>
-
-                        <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-medium" value="medium"
-                               @(Model.Settings.InvestmentHorizon == "medium" ? "checked" : "") autocomplete="off">
-                        <label class="btn btn-outline-primary" for="horizon-medium">Medium (3–10 yr)</label>
-
-                        <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-long" value="long"
-                               @(Model.Settings.InvestmentHorizon == "long" ? "checked" : "") autocomplete="off">
-                        <label class="btn btn-outline-primary" for="horizon-long">Long (&gt; 10 yr)</label>
-                    </div>
-                </div>
-
-                <!-- Custom instructions -->
-                <div class="col-12 col-md-4">
-                    <label class="form-label fw-semibold" for="customInstructions">@SharedLocalizer["CustomInstructions"]</label>
-                    <textarea class="form-control" id="customInstructions" rows="3"
-                              placeholder="e.g. Avoid tobacco stocks. Prefer ETFs.">@Model.Settings.CustomInstructions</textarea>
-                </div>
-
             </div>
-
-            <div class="d-flex align-items-center gap-3 mt-3">
-                <button class="btn btn-primary px-4" id="saveSettingsBtn" onclick="saveSettings()">
-                    @SharedLocalizer["Save"]
-                </button>
-                <span id="saveStatus" class="text-muted small" style="display:none"></span>
-            </div>
-
         </div>
     </div>
 </div>
 
 <script>
+    // --- File selection ---
+    function archiveSelectFile(element) {
+        const id = element.dataset.analysisId;
+        const tmpl = document.getElementById('content-' + id);
+        if (!tmpl) return;
+
+        const container = document.getElementById('archiveA4Content');
+        container.innerHTML = '';
+        container.appendChild(tmpl.content.cloneNode(true));
+
+        archiveShowPreview();
+        injectFavicons(container);
+
+        document.querySelectorAll('.archive-file').forEach(f => f.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    // --- Panel switching ---
+    function archiveShowPreview() {
+        document.getElementById('archivePlaceholder').classList.add('d-none');
+        document.getElementById('archivePreview').classList.remove('d-none');
+        document.getElementById('archiveSettingsPanel').classList.add('d-none');
+    }
+
+    function archiveShowSettings() {
+        document.getElementById('archivePlaceholder').classList.add('d-none');
+        document.getElementById('archivePreview').classList.add('d-none');
+        document.getElementById('archiveSettingsPanel').classList.remove('d-none');
+        document.querySelectorAll('.archive-file').forEach(f => f.classList.remove('active'));
+    }
+
+    function archiveCloseSettings() {
+        document.getElementById('archiveSettingsPanel').classList.add('d-none');
+        if (document.getElementById('archiveA4Content').hasChildNodes()) {
+            document.getElementById('archivePreview').classList.remove('d-none');
+        } else {
+            document.getElementById('archivePlaceholder').classList.remove('d-none');
+        }
+    }
+
+    // --- Folder icon animations ---
+    document.querySelectorAll('.archive-year-header').forEach(header => {
+        const target = document.getElementById(header.getAttribute('data-bs-target').slice(1));
+        const icon = header.querySelector('.fas');
+        if (!target || !icon) return;
+        target.addEventListener('show.bs.collapse', () => { icon.classList.remove('fa-folder'); icon.classList.add('fa-folder-open'); });
+        target.addEventListener('hide.bs.collapse', () => { icon.classList.remove('fa-folder-open'); icon.classList.add('fa-folder'); });
+    });
+
+    document.querySelectorAll('.archive-month-header').forEach(header => {
+        const target = document.getElementById(header.getAttribute('data-bs-target').slice(1));
+        const chevron = header.querySelector('.archive-month-chevron');
+        if (!target || !chevron) return;
+        target.addEventListener('show.bs.collapse', () => chevron.classList.add('rotated'));
+        target.addEventListener('hide.bs.collapse', () => chevron.classList.remove('rotated'));
+        if (target.classList.contains('show')) chevron.classList.add('rotated');
+    });
+
+    // --- Actions ---
     function injectFavicons(root = document) {
         root.querySelectorAll('a[data-favicon]').forEach(link => {
             const img = document.createElement('img');
@@ -172,31 +265,24 @@
         });
     }
 
-    function generateMonthlyReport() {
+    function archiveGenerateMonthlyReport() {
         const btn = document.getElementById('generateReportBtn');
-        const container = document.getElementById('monthlyReportContainer');
-
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>@SharedLocalizer["GeneratingReport"]';
 
         fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
             .then(response => {
                 if (!response.ok) throw new Error('Generation failed');
-                return response.text();
-            })
-            .then(html => {
-                container.innerHTML = html;
-                btn.style.display = 'none';
-                injectFavicons(container);
+                loadSkeletonSection('/analysis/content');
             })
             .catch(() => {
                 showAlert('error', 'Failed to generate monthly report. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-file-alt me-1"></i>@SharedLocalizer["MonthlyReport"]';
+                btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]';
             });
     }
 
-    function runWeeklyAnalysis() {
+    function archiveRunWeeklyAnalysis() {
         const btn = document.getElementById('runWeeklyBtn');
         btn.disabled = true;
         btn.textContent = '...';
@@ -251,6 +337,4 @@
             btn.textContent = '@SharedLocalizer["Save"]';
         });
     }
-
-    injectFavicons();
 </script>
