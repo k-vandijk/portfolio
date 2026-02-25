@@ -20,7 +20,7 @@
     </template>
 }
 
-<div class="card overflow-hidden">
+<div class="card overflow-hidden archive-card">
     <div class="card-body p-0">
         <div class="archive-layout">
 
@@ -120,22 +120,16 @@
                     <p class="text-muted mb-0 small">Select a file to preview it</p>
                 </div>
 
-                <!-- A4 preview -->
-                <div id="archivePreview" class="archive-a4-wrap d-none">
-                    <div class="archive-a4">
-                        <div id="archiveA4Content"></div>
-                    </div>
+                <!-- Preview content -->
+                <div id="archivePreview" class="archive-preview-content d-none">
+                    <div id="archiveA4Content"></div>
                 </div>
 
                 <!-- Settings form -->
                 <div id="archiveSettingsPanel" class="archive-settings-panel d-none">
-                    <div class="archive-settings-header mb-4">
-                        <button class="btn btn-link btn-sm p-0 text-muted me-3" type="button" onclick="archiveCloseSettings()">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <i class="fas fa-sliders-h me-2 text-muted"></i>
-                        <span class="fw-semibold">@SharedLocalizer["InvestmentProfile"]</span>
-                    </div>
+                    <p class="fw-semibold text-muted text-uppercase mb-4" style="font-size: 0.72rem; letter-spacing: 0.06em;">
+                        <i class="fas fa-sliders-h me-2"></i>@SharedLocalizer["InvestmentProfile"]
+                    </p>
 
                     <div class="row g-4">
                         <!-- Risk tolerance -->
