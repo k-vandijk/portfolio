@@ -1,3 +1,4 @@
+using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
 using Dashboard._Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -62,6 +63,19 @@ public class AnalysisController : Controller
             _logger.LogError(ex, "Failed to generate monthly report");
             return StatusCode(500, "Failed to generate the monthly report. Please try again.");
         }
+    }
+
+    [HttpPost("/analysis/settings")]
+    public async Task<IActionResult> SaveSettings([FromBody] UserSettingsDto settings)
+    {
+        string[] validRisk = ["conservative", "moderate", "aggressive"];
+        string[] validHorizon = ["short", "medium", "long"];
+
+        if (!validRisk.Contains(settings.RiskTolerance) || !validHorizon.Contains(settings.InvestmentHorizon))
+            return BadRequest("Invalid settings values.");
+
+        await _userSettingsService.SaveSettingsAsync(settings);
+        return Ok();
     }
 
     [HttpPost("/analysis/run-weekly")]
