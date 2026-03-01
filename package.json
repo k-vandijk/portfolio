@@ -1,7 +1,4 @@
 {
-  "name": "portfolio-insight-dashboard",
-  "version": "1.0.0",
-  "description": "A .NET 10 web application for tracking and visualizing investment portfolio performance. The dashboard provides real-time portfolio analytics, historical market data visualization, and transaction management capabilities.",
   "scripts": {
     "dev": "concurrently \"npm run sass:watch\" \"npm run dotnet:watch\"",
     "dotnet:watch": "dotnet watch run --project src/Dashboard._Web/Dashboard._Web.csproj",
@@ -11,10 +8,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/k-vandijk/portfolio-insight-dashboard.git"
+    "url": "git+https://github.com/k-vandijk/portfolio.git"
   },
-  "author": "Kevin van Dijk",
-  "homepage": "https://github.com/k-vandijk/portfolio-insight-dashboard#readme",
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
