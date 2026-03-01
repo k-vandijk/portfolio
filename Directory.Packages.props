@@ -11,12 +11,12 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.3" />
-    <PackageVersion Include="Microsoft.Identity.Web.UI" Version="4.3.0" />
+    <PackageVersion Include="Microsoft.Identity.Web.UI" Version="4.4.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="WebPush" Version="1.0.12" />
     <!-- Development only -->
     <PackageVersion Include="coverlet.collector" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
