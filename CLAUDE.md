@@ -1,19 +1,8 @@
-# Portfolio Insight Dashboard
+# Portfolio
 
 Investment portfolio tracking and visualization PWA built with .NET 10 (C# 12) and ASP.NET Core MVC. Displays real-time portfolio performance, market data charts, transaction management, and push notifications. Deployed to Azure Web App (`as-kvandijk-portfolio-dashboard`).
 
-## Tech Stack
-
-- **Backend**: .NET 10, ASP.NET Core MVC, C# 12
-- **Auth**: Azure AD via Microsoft.Identity.Web (OpenID Connect)
-- **Storage**: Azure Table Storage (`Azure.Data.Tables`) — two tables: `transactions`, `pushsubscriptions`
-- **Secrets**: Azure Key Vault (production); environment variables / user secrets (development)
-- **Caching**: `IMemoryCache` (sliding 1min / absolute 5min)
-- **Push Notifications**: Web Push API via `WebPush` NuGet package (VAPID)
-- **Background Services**: `PortfolioMonitorService` — scheduled portfolio checks every 3h (08:00–20:00)
-- **Frontend**: Bootstrap 5.3, Chart.js, DataTables, jQuery, SCSS (Sass)
-- **Localization**: nl-NL (primary), en-US — cookie-based culture switching
-- **CI/CD**: GitHub Actions (.NET 10, Ubuntu runners)
+See `README.md` for tech stack, setup, environment variables, API reference, and CI/CD.
 
 ## Project Structure
 
@@ -43,44 +32,18 @@ tests/
 | `src/Dashboard.Domain/Utils/` | StaticDetails (constants), DashboardPresentationModes (view mode constants) |
 | `src/Dashboard._Web/wwwroot/scss/` | Modular SCSS: abstracts, base, layout, components, pages, vendor |
 | `src/Dashboard._Web/wwwroot/js/` | site.js, skeleton.js, alerts.js, push-notifications.js |
-| `.github/agents/` | Atlas agent definition (`atlas.agent.md`) |
 
-## Build & Run Commands
+## Commands
 
 ```bash
-# Development (concurrent SCSS watch + dotnet hot reload)
-npm run dev
-
-# SCSS only
-npm run sass:build          # compile once
-npm run sass:watch          # watch mode
-
-# .NET
-dotnet restore              # restore NuGet packages
-dotnet build                # build solution
-dotnet test                 # run all xUnit tests
-dotnet build --configuration Release --no-restore   # CI build
-
-# Run application
-dotnet watch run --project src/Dashboard._Web/Dashboard._Web.csproj
+npm run dev                                                          # SCSS watch + dotnet hot reload (concurrent)
+npm run sass:watch                                                   # SCSS watch only
+dotnet watch run --project src/Dashboard._Web/Dashboard._Web.csproj # .NET hot reload only
+dotnet test                                                          # run all xUnit tests
+dotnet build --configuration Release --no-restore                    # CI release build
 ```
 
-## Environment Variables / Configuration
-
-In production, secrets are pulled from **Azure Key Vault** (`KeyVaultUri` in `appsettings.json`). In development, use `dotnet user-secrets` or environment variables.
-
-| Variable / Key | Purpose |
-|---|---|
-| `ConnectionStrings__StorageAccount` | Azure Table Storage connection string (both tables) |
-| `TICKER_API_URL` | Base URL for market data API |
-| `TICKER_API_CODE` | API authentication key |
-| `AzureAd__TenantId` | Azure AD tenant ID |
-| `AzureAd__ClientId` | Azure AD client ID |
-| `AzureAd__ClientSecret` | Azure AD client secret |
-| `vapid-public-key` | VAPID public key for Web Push |
-| `vapid-private-key` | VAPID private key for Web Push |
-| `vapid-subject` | VAPID subject (mailto: or URL) |
-| `KeyVaultUri` | Azure Key Vault URI (non-dev only) |
+> Config keys use `__` separator in code (e.g., `AzureAd__ClientId`). Azure Key Vault maps these to `--` in secret names (e.g., `AzureAd--ClientId`). See README for the full secret reference.
 
 ## Naming Conventions
 
@@ -119,24 +82,18 @@ App bootstrap in `src/Dashboard._Web/Program.cs` — Azure Key Vault config load
 
 ## Architectural Patterns
 
-See `.claude/docs/architectural_patterns.md` for full details. Key patterns in brief:
+See `.claude/docs/architectural_patterns.md` for full detail.
 
-**Clean Architecture**: Domain ← Application ← {Web, Infrastructure}. Domain has zero external dependencies.
-
-**Skeleton loader + partial view**: `Index()` renders immediately with skeleton placeholders; client JS fetches `/{controller}/content` → `*Content()` returns a `PartialView`. Applied across Dashboard, Investment, MarketHistory, Transactions.
-
-**Concurrent scope pattern**: When fetching market data for multiple tickers in parallel, controllers/services inject `IServiceScopeFactory` and create a new DI scope per task, then use `Task.WhenAll`. See `DashboardController.GetMarketHistoryForTickerAsync()` and `PortfolioValueService.GetTopHoldingsByValueAsync()`.
-
-**Cache-aside**: Check `IMemoryCache` → on miss fetch + cache; invalidate on mutation. Cache keys: `history:{ticker}:{period}:{interval}` (TickerApiService), `"transactions"` (TransactionService).
-
-**Culture-aware data**: Persistence always uses InvariantCulture. Locale formatting is applied only in views. `FormattingHelper.ParseDecimal()` tries InvariantCulture first, falls back to nl-NL. Dates stored as ISO 8601 (`yyyy-MM-dd`).
-
-**Web Push Notifications**: `PortfolioMonitorService` (BackgroundService) runs every 3h within the 08:00–20:00 window. It fetches top 3 holdings via `IPortfolioValueService`, builds a notification, then sends to all subscribers via `IPushNotificationService` (VAPID). Expired subscriptions (HTTP 410 Gone) are auto-removed.
+- **Clean Architecture**: Domain ← Application ← {Web, Infrastructure}. Domain has zero external dependencies.
+- **Skeleton loader + partial view**: `Index()` serves skeleton immediately; JS fetches `/{controller}/content` → `*Content()` returns a `PartialView`. Used in Dashboard, Investment, MarketHistory, Transactions.
+- **Concurrent scope**: `IServiceScopeFactory` + one DI scope per task + `Task.WhenAll` for parallel ticker fetches.
+- **Cache-aside**: Check `IMemoryCache` → miss → fetch + cache; invalidate on mutation. Keys: `history:{ticker}:{period}:{interval}`, `"transactions"`.
+- **Culture-aware data**: InvariantCulture for persistence; locale formatting in views only. `FormattingHelper.ParseDecimal()` falls back to nl-NL.
+- **Web Push**: `PortfolioMonitorService` runs every 3h (08:00–20:00). Fetches top 3 holdings → VAPID push to all subscribers. HTTP 410 → auto-remove expired subscription.
 
 ## Additional Documentation
 
 | Document | When to check |
 |---|---|
 | `.claude/docs/architectural_patterns.md` | When making structural changes, adding services, or modifying data flow |
-| `.github/agents/atlas.agent.md` | Atlas agent conventions: DRY, Bootstrap-first UI, SCSS guidelines, workflow |
-| `README.md` | For Ticker API reference, PWA details, setup instructions, and environment config |
+| `README.md` | Tech stack, setup, environment variables, API reference, CI/CD |
