@@ -114,3 +114,7 @@
 #sidebar .language-selector {
     margin-top: auto;
 }
+
+#sidebar.collapsed .language-selector {
+    display: none !important;
+}
