@@ -1,4 +1,4 @@
-# Portfolio Insight Dashboard
+# Portfolio
 
 Investment portfolio tracking and visualization PWA built with .NET 10 (C# 12) and ASP.NET Core MVC. Displays real-time portfolio performance, market data charts, transaction management, and push notifications. Deployed to Azure Web App (`as-kvandijk-portfolio-dashboard`).
 
