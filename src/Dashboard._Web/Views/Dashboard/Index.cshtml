@@ -16,41 +16,56 @@
 
         <div class="row h-25vh order-2 order-md-1">
 
-            <!-- Desktop filters card (hidden on mobile) -->
+            <!-- Filters card skeleton (hidden on mobile) -->
             <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-3 d-none d-md-block">
-                <partial name="Components/_LineChartSkeleton" model="new LineChartSkeletonViewModel { HeightPixels = 221 }" />
+                <div class="card h-100">
+                    <div class="card-body placeholder-glow d-flex flex-column justify-content-evenly">
+                        <div>
+                            <span class="placeholder col-4 mb-2 d-block" style="height:0.65rem"></span>
+                            <span class="placeholder col-12 d-block" style="height:2rem;border-radius:var(--border-radius)"></span>
+                        </div>
+                        <div>
+                            <span class="placeholder col-5 mb-2 d-block" style="height:0.65rem"></span>
+                            <span class="placeholder col-12 d-block" style="height:2rem;border-radius:var(--border-radius)"></span>
+                        </div>
+                        <div>
+                            <span class="placeholder col-3 mb-2 d-block" style="height:0.65rem"></span>
+                            <span class="placeholder col-12 d-block" style="height:2rem;border-radius:var(--border-radius)"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Table -->
+            <!-- Table skeleton -->
             <div class="col-12 col-md-6 col-lg-6 col-xl-8 mb-3">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body p-0">
                         <div class="table-responsive h-100 m-0">
-                            <table id="portfolioTable" class="table table-hover table-sm table-transparent mb-0 w-100">
+                            <table class="table table-sm table-transparent mb-0 w-100">
                                 <thead>
-                                <tr>
-                                    <th>@SharedLocalizer["Ticker"]</th>
-                                    <th>@SharedLocalizer["PortfolioPct"]</th>
-                                    <th>@SharedLocalizer["Amount"]</th>
-                                    <th>@SharedLocalizer["TotalInvestment"]</th>
-                                    <th>@SharedLocalizer["Worth"]</th>
-                                    <th>@SharedLocalizer["ProfitEur"]</th>
-                                    <th>@SharedLocalizer["ProfitPct"]</th>
-                                </tr>
+                                    <tr>
+                                        <th>@SharedLocalizer["Ticker"]</th>
+                                        <th>@SharedLocalizer["PortfolioPct"]</th>
+                                        <th>@SharedLocalizer["Amount"]</th>
+                                        <th>@SharedLocalizer["TotalInvestment"]</th>
+                                        <th>@SharedLocalizer["Worth"]</th>
+                                        <th>@SharedLocalizer["ProfitEur"]</th>
+                                        <th>@SharedLocalizer["ProfitPct"]</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                @for (int i = 0; i < 4; i++)
-                                {
-                                    <tr class="placeholder-glow">
-                                        <td><span class="placeholder col-6"></span></td>
-                                        <td><span class="placeholder col-6"></span></td>
-                                        <td><span class="placeholder col-6"></span></td>
-                                        <td><span class="placeholder col-6"></span></td>
-                                        <td><span class="placeholder col-6"></span></td>
-                                        <td><span class="placeholder col-6"></span></td>
-                                        <td><span class="placeholder col-6"></span></td>
-                                    </tr>
-                                }
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        <tr class="placeholder-glow">
+                                            <td><span class="placeholder col-8"></span></td>
+                                            <td><span class="placeholder col-6"></span></td>
+                                            <td><span class="placeholder col-5"></span></td>
+                                            <td><span class="placeholder col-7"></span></td>
+                                            <td><span class="placeholder col-7"></span></td>
+                                            <td><span class="placeholder col-6"></span></td>
+                                            <td><span class="placeholder col-6"></span></td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>
@@ -60,7 +75,7 @@
 
         </div>
     </div>
-   
+
 </section>
 
 @section Scripts {

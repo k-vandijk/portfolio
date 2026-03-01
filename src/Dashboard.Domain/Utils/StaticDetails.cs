@@ -69,4 +69,18 @@ public static class StaticDetails
         "Chart check",
         "Money moves"
     ];
+
+    public static readonly string[] AnalysisNotificationGreetings =
+    [
+        "Analysis is in",
+        "Weekly digest ready",
+        "AI just weighed in",
+        "Your weekly read",
+        "Insights dropped",
+        "Report's ready",
+        "Weekly wrap-up",
+        "Brain dump complete",
+        "Fresh takes inside",
+        "Analyst mode: done"
+    ];
 }

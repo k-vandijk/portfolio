@@ -63,11 +63,12 @@
                     }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+                    x: { grid: { display: false }, ticks: { maxTicksLimit: 12, display: window.innerWidth > 768 } },
                     y: {
                         grid: { display: false },
                         ticks: {
                             maxTicksLimit: 6,
+                            display: window.innerWidth > 768,
                             callback: (value) => formatY(value)
                         }
                     }

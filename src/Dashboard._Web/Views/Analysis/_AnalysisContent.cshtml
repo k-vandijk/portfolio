@@ -127,57 +127,59 @@
 
                 <!-- Settings form -->
                 <div id="archiveSettingsPanel" class="archive-settings-panel d-none">
-                    <p class="fw-semibold text-muted text-uppercase mb-4" style="font-size: 0.72rem; letter-spacing: 0.06em;">
-                        <i class="fas fa-sliders-h me-2"></i>@SharedLocalizer["InvestmentProfile"]
-                    </p>
+                    <div class="d-flex align-items-center mb-4">
+                        <p class="fw-semibold text-muted text-uppercase mb-0" style="font-size: 0.72rem; letter-spacing: 0.06em;">
+                            <i class="fas fa-sliders-h me-2"></i>@SharedLocalizer["InvestmentProfile"]
+                        </p>
+                    </div>
 
-                    <div class="row g-4">
-                        <!-- Risk tolerance -->
-                        <div class="col-12 col-md-4">
-                            <label class="form-label fw-semibold">@SharedLocalizer["RiskTolerance"]</label>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-conservative" value="conservative"
-                                       @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
-                                <label class="btn btn-outline-primary" for="risk-conservative">Conservative</label>
-                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-moderate" value="moderate"
-                                       @(Model.Settings.RiskTolerance == "moderate" ? "checked" : "") autocomplete="off">
-                                <label class="btn btn-outline-primary" for="risk-moderate">Moderate</label>
-                                <input type="radio" class="btn-check" name="riskTolerance" id="risk-aggressive" value="aggressive"
-                                       @(Model.Settings.RiskTolerance == "aggressive" ? "checked" : "") autocomplete="off">
-                                <label class="btn btn-outline-primary" for="risk-aggressive">Aggressive</label>
-                            </div>
-                        </div>
-
-                        <!-- Investment horizon -->
-                        <div class="col-12 col-md-4">
-                            <label class="form-label fw-semibold">@SharedLocalizer["InvestmentHorizon"]</label>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-short" value="short"
-                                       @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
-                                <label class="btn btn-outline-primary" for="horizon-short">Short (&lt; 3 yr)</label>
-                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-medium" value="medium"
-                                       @(Model.Settings.InvestmentHorizon == "medium" ? "checked" : "") autocomplete="off">
-                                <label class="btn btn-outline-primary" for="horizon-medium">Medium (3–10 yr)</label>
-                                <input type="radio" class="btn-check" name="investmentHorizon" id="horizon-long" value="long"
-                                       @(Model.Settings.InvestmentHorizon == "long" ? "checked" : "") autocomplete="off">
-                                <label class="btn btn-outline-primary" for="horizon-long">Long (&gt; 10 yr)</label>
-                            </div>
-                        </div>
-
-                        <!-- Custom instructions -->
-                        <div class="col-12 col-md-4">
-                            <label class="form-label fw-semibold" for="customInstructions">@SharedLocalizer["CustomInstructions"]</label>
-                            <textarea class="form-control" id="customInstructions" rows="3"
-                                      placeholder="e.g. Avoid tobacco stocks. Prefer ETFs.">@Model.Settings.CustomInstructions</textarea>
+                    <!-- Risk tolerance -->
+                    <div>
+                        <label class="form-label fw-semibold">@SharedLocalizer["RiskTolerance"]</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check advisor-setting" name="riskTolerance" id="risk-conservative" value="conservative"
+                                   @(Model.Settings.RiskTolerance == "conservative" ? "checked" : "") autocomplete="off">
+                            <label class="btn btn-outline-primary" for="risk-conservative">Conservative</label>
+                            <input type="radio" class="btn-check advisor-setting" name="riskTolerance" id="risk-moderate" value="moderate"
+                                   @(Model.Settings.RiskTolerance == "moderate" ? "checked" : "") autocomplete="off">
+                            <label class="btn btn-outline-primary" for="risk-moderate">Moderate</label>
+                            <input type="radio" class="btn-check advisor-setting" name="riskTolerance" id="risk-aggressive" value="aggressive"
+                                   @(Model.Settings.RiskTolerance == "aggressive" ? "checked" : "") autocomplete="off">
+                            <label class="btn btn-outline-primary" for="risk-aggressive">Aggressive</label>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-3 mt-4">
-                        <button class="btn btn-primary px-4" id="saveSettingsBtn" type="button" onclick="saveSettings()">
-                            @SharedLocalizer["Save"]
-                        </button>
-                        <span id="saveStatus" class="text-muted small" style="display:none"></span>
+                    <hr class="advisor-section-divider">
+
+                    <!-- Investment horizon -->
+                    <div>
+                        <label class="form-label fw-semibold">@SharedLocalizer["InvestmentHorizon"]</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check advisor-setting" name="investmentHorizon" id="horizon-short" value="short"
+                                   @(Model.Settings.InvestmentHorizon == "short" ? "checked" : "") autocomplete="off">
+                            <label class="btn btn-outline-primary" for="horizon-short">Short (&lt; 3 yr)</label>
+                            <input type="radio" class="btn-check advisor-setting" name="investmentHorizon" id="horizon-medium" value="medium"
+                                   @(Model.Settings.InvestmentHorizon == "medium" ? "checked" : "") autocomplete="off">
+                            <label class="btn btn-outline-primary" for="horizon-medium">Medium (3–10 yr)</label>
+                            <input type="radio" class="btn-check advisor-setting" name="investmentHorizon" id="horizon-long" value="long"
+                                   @(Model.Settings.InvestmentHorizon == "long" ? "checked" : "") autocomplete="off">
+                            <label class="btn btn-outline-primary" for="horizon-long">Long (&gt; 10 yr)</label>
+                        </div>
                     </div>
+
+                    <hr class="advisor-section-divider">
+
+                    <!-- Custom instructions -->
+                    <div>
+                        <label class="form-label fw-semibold" for="customInstructions">@SharedLocalizer["CustomInstructions"]</label>
+                        <textarea class="form-control advisor-setting" id="customInstructions" rows="4"
+                                  placeholder="e.g. Avoid tobacco stocks. Prefer ETFs.">@Model.Settings.CustomInstructions</textarea>
+                    </div>
+
+                    <div class="mt-3">
+                        <span id="advisorSavedIndicator" class="advisor-saved-indicator"></span>
+                    </div>
+
                 </div>
 
             </div>
@@ -298,37 +300,39 @@
         return tokenInput ? tokenInput.value : '';
     }
 
-    function saveSettings() {
-        const btn = document.getElementById('saveSettingsBtn');
-        const status = document.getElementById('saveStatus');
+    let advisorSaveDebounce = null;
 
+    function autoSaveAdvisorSettings() {
         const riskTolerance = document.querySelector('input[name="riskTolerance"]:checked')?.value ?? 'moderate';
         const investmentHorizon = document.querySelector('input[name="investmentHorizon"]:checked')?.value ?? 'long';
         const customInstructions = document.getElementById('customInstructions').value.trim();
 
-        btn.disabled = true;
-        btn.textContent = '@SharedLocalizer["Saving"]';
-        status.style.display = 'none';
-
-        fetch('/settings/save', {
+        fetch('/analysis/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ riskTolerance, investmentHorizon, customInstructions })
         })
         .then(response => {
-            if (!response.ok) throw new Error('Save failed');
-            status.textContent = '@SharedLocalizer["SavedSuccessfully"]';
-            status.className = 'text-success small';
-            status.style.display = 'inline';
+            if (!response.ok) throw new Error();
+            showAdvisorSavedIndicator(true);
         })
-        .catch(() => {
-            status.textContent = '@SharedLocalizer["SaveFailed"]';
-            status.className = 'text-danger small';
-            status.style.display = 'inline';
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.textContent = '@SharedLocalizer["Save"]';
-        });
+        .catch(() => showAdvisorSavedIndicator(false));
     }
+
+    function showAdvisorSavedIndicator(success) {
+        const el = document.getElementById('advisorSavedIndicator');
+        el.textContent = success ? '@SharedLocalizer["SavedSuccessfully"]' : '@SharedLocalizer["SaveFailed"]';
+        el.className = 'advisor-saved-indicator is-visible' + (success ? '' : ' is-error');
+        clearTimeout(el._hideTimer);
+        el._hideTimer = setTimeout(() => { el.className = 'advisor-saved-indicator'; }, 2000);
+    }
+
+    document.querySelectorAll('input[type="radio"].advisor-setting').forEach(el => {
+        el.addEventListener('change', autoSaveAdvisorSettings);
+    });
+
+    document.getElementById('customInstructions').addEventListener('input', () => {
+        clearTimeout(advisorSaveDebounce);
+        advisorSaveDebounce = setTimeout(autoSaveAdvisorSettings, 800);
+    });
 </script>

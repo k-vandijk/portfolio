@@ -67,20 +67,21 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { 
+                plugins: {
                     legend: { display: false },
                     tooltip: {
-                        callbacks: { 
+                        callbacks: {
                             label: (ctx) => formatY(ctx.parsed.y)
                         }
                     },
                 },
                 scales: {
-                    x: { grid: { display: false } },
-                    y: { 
+                    x: { grid: { display: false }, ticks: { display: window.innerWidth > 768 } },
+                    y: {
                         grid: { display: false },
-                        ticks: { 
+                        ticks: {
                             maxTicksLimit: 6,
+                            display: window.innerWidth > 768,
                             callback: (value) => formatY(value)
                         },
                         afterDataLimits: (axis) => {
