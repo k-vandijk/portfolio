@@ -21,9 +21,10 @@
 
     bool isCollapsed = Context.Request.Cookies[StaticDetails.SidebarStateCookie] == "true";
 
-    var version = Assembly.GetEntryAssembly()
+    var rawVersion = Assembly.GetEntryAssembly()
         ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
         ?.InformationalVersion ?? "dev";
+    var version = rawVersion.Split('+')[0];
 }
 
 <aside id="sidebar" class="p-3 position-relative d-flex flex-column @(isCollapsed ? "collapsed" : "")">
