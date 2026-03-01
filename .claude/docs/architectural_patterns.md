@@ -40,9 +40,9 @@ Both services follow identical caching:
 3. On mutation (add/delete): explicitly remove cache entry
 
 Applied in:
-- `TickerApiService.GetMarketHistoryResponseAsync()` (`src/Dashboard.Infrastructure/Services/TickerApiService.cs:32-50`) — cache key: `history:{ticker}:{period}:{interval}`
-- `AzureTableService.GetTransactionsAsync()` (`src/Dashboard.Infrastructure/Services/AzureTableService.cs:27-46`) — cache key: `"transactions"`
-- Cache invalidation on writes: `AzureTableService.cs:60` and `AzureTableService.cs:73`
+- `TickerApiService.GetMarketHistoryResponseAsync()` (`src/Dashboard.Infrastructure/Services/TickerApiService.cs`) — cache key: `history:{ticker}:{period}:{interval}`
+- `TransactionService.GetTransactionsAsync()` (`src/Dashboard.Infrastructure/Services/TransactionService.cs`) — cache key: `"transactions"`
+- Cache invalidation on add/delete in `TransactionService.cs`
 
 Cache durations are centralized in `StaticDetails` (`src/Dashboard.Domain/Utils/StaticDetails.cs:10-11`).
 
