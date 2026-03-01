@@ -19,9 +19,8 @@ Web (Presentation) -> Application (Business Logic) -> Domain (Core Models)
 All controllers and services receive dependencies via constructor injection. No service locator usage except for the concurrent scope pattern (see below).
 
 Examples:
-- `DashboardController` injects `IAzureTableService`, `IServiceScopeFactory`, `ILogger<T>`, `IStringLocalizer<T>` (`src/Dashboard._Web/Controllers/DashboardController.cs:14-17`)
+- `DashboardController` injects `ITransactionService`, `IServiceScopeFactory`, `ILogger<T>`, `IStringLocalizer<T>`
 - `TickerApiService` injects `IHttpClientFactory`, `IMemoryCache` (`src/Dashboard.Infrastructure/Services/TickerApiService.cs:15`)
-- `AzureTableService` injects `TableClient`, `IMemoryCache` (`src/Dashboard.Infrastructure/Services/AzureTableService.cs:19`)
 
 ## Concurrent Scope Pattern for Parallel API Calls
 
@@ -37,7 +36,7 @@ See `DashboardController.GetMarketHistoryForTickerAsync()` (`src/Dashboard._Web/
 
 Both services follow identical caching:
 1. Check `IMemoryCache` for cached value
-2. On miss: fetch from external source, cache with sliding (10min) + absolute (60min) expiration
+2. On miss: fetch from external source, cache with sliding (1min) + absolute (5min) expiration
 3. On mutation (add/delete): explicitly remove cache entry
 
 Applied in:
@@ -83,10 +82,13 @@ Data formatting follows a strict boundary pattern:
 
 ## Interface-Based Service Abstraction
 
-External dependencies are abstracted behind interfaces defined in the Application layer:
+External dependencies are abstracted behind interfaces defined in the Application layer (`src/Dashboard.Application/Interfaces/`):
 
-- `ITickerApiService` — market data fetching (`src/Dashboard.Application/Interfaces/ITickerApiService.cs`)
-- `IAzureTableService` — transaction CRUD (`src/Dashboard.Application/Interfaces/IAzureTableService.cs`)
+- `ITransactionService` — transaction CRUD and cache management
+- `ITickerApiService` — market data fetching and caching
+- `IPushSubscriptionService` — push subscription persistence
+- `IPushNotificationService` — VAPID push notification dispatch
+- `IPortfolioValueService` — portfolio valuation and top holdings
 
 Infrastructure implements these interfaces. The Web layer depends only on the interfaces, never on concrete service classes.
 

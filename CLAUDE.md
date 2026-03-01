@@ -43,7 +43,6 @@ tests/
 | `src/Dashboard.Domain/Utils/` | StaticDetails (constants), DashboardPresentationModes (view mode constants) |
 | `src/Dashboard._Web/wwwroot/scss/` | Modular SCSS: abstracts, base, layout, components, pages, vendor |
 | `src/Dashboard._Web/wwwroot/js/` | site.js, skeleton.js, alerts.js, push-notifications.js |
-| `.github/agents/` | Atlas agent definition (`atlas.agent.md`) |
 
 ## Build & Run Commands
 
@@ -138,5 +137,4 @@ See `.claude/docs/architectural_patterns.md` for full details. Key patterns in b
 | Document | When to check |
 |---|---|
 | `.claude/docs/architectural_patterns.md` | When making structural changes, adding services, or modifying data flow |
-| `.github/agents/atlas.agent.md` | Atlas agent conventions: DRY, Bootstrap-first UI, SCSS guidelines, workflow |
 | `README.md` | For Ticker API reference, PWA details, setup instructions, and environment config |

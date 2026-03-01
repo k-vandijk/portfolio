@@ -1,14 +1,11 @@
-const CACHE_NAME = 'ticker-dashboard-v5';
+const CACHE_NAME = 'portfolio-v6';
 const urlsToCache = [
   '/',
-  '/css/variables.css',
-  '/css/layout.css',
-  '/css/components.css',
-  '/css/utilities.css',
-  '/css/responsive.css',
+  '/css/site.css',
   '/js/site.js',
   '/js/alerts.js',
   '/js/skeleton.js',
+  '/js/push-notifications.js',
   '/icon-192x192.png',
   '/icon-512x512.png',
   '/favicon.ico'

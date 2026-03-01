@@ -135,7 +135,7 @@ The Ticker API is a custom-built API that provides real-time and historical mark
 
 - **Base URL**: Configured via `TICKER_API_URL` environment variable
 - **Authentication**: API code passed via `TICKER_API_CODE` environment variable
-- **Caching**: Memory caching with sliding (5 min) and absolute (15 min) expiration
+- **Caching**: Memory caching with sliding (1 min) and absolute (5 min) expiration
 
 ### Endpoint: Get Market History
 
@@ -294,7 +294,7 @@ The service worker (`wwwroot/service-worker.js` v3) implements a smart caching s
 
 | Variable                              | Description                                    | Example                                      |
 |---------------------------------------|------------------------------------------------|----------------------------------------------|
-| `TRANSACTIONS_TABLE_CONNECTION_STRING` | Azure Table Storage connection string          | `DefaultEndpointsProtocol=https;Account...`  |
+| `ConnectionStrings__StorageAccount` | Azure Table Storage connection string          | `DefaultEndpointsProtocol=https;Account...`  |
 | `TICKER_API_URL`                      | Base URL for the Ticker API                    | `https://api.example.com/ticker`             |
 | `TICKER_API_CODE`                     | Authentication code/key for Ticker API         | `your-api-key-here`                          |
 
@@ -384,7 +384,7 @@ tests/
 - Builds frontend assets (SCSS → CSS)
 - Restores .NET dependencies
 - Publishes release build
-- Deploys to Azure Web App (`as-kvandijk-ticker-api-dashboard`)
+- Deploys to Azure Web App (`as-kvandijk-portfolio-dashboard`)
 
 ### Branching Strategy
 
