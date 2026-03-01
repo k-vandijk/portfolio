@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using System.Reflection
 @using Dashboard.Domain.Utils
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @functions {
@@ -15,10 +16,14 @@
     var cultureItems = new List<SelectListItem>
     {
         new() { Value = "nl-NL", Text = "🇳🇱  Nederlands", Selected = currentCulture == "nl-NL" },
-        new() { Value = "en-US", Text = "🇺🇸  English",    Selected = currentCulture == "en-US" }
+        new() { Value = "en-US", Text = "🇺🇸  English", Selected = currentCulture == "en-US" }
     };
 
     bool isCollapsed = Context.Request.Cookies[StaticDetails.SidebarStateCookie] == "true";
+
+    var version = Assembly.GetEntryAssembly()
+        ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion ?? "dev";
 }
 
 <aside id="sidebar" class="p-3 position-relative d-flex flex-column @(isCollapsed ? "collapsed" : "")">
@@ -31,7 +36,7 @@
     </a>
 
     <ul class="nav nav-pills flex-column">
-        
+
         <li class="nav-item mb-2">
             <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(IsActive("Dashboard") ? "active" : "")">
                 <i class="fas fa-tachometer-alt me-2"></i>
@@ -57,14 +62,17 @@
             </a>
         </li>
     </ul>
-    
-    <div class="mt-auto pt-3 language-selector">
-        <div class="label">@SharedLocalizer["Language"]</div>
-        <form asp-controller="Sidebar" asp-action="SetCulture" method="post" id="cultureSelectionForm">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-            <select id="uiLang" name="culture" class="form-select form-select-sm rounded-pill border-0" asp-items="cultureItems" aria-label="Language"></select>
-        </form>
+
+    <div class="mt-auto pt-3 d-flex flex-column gap-3">
+        <small class="link-text text-secondary">@($"v{version}")</small>
+        <div class="language-selector">
+            <div class="label">@SharedLocalizer["Language"]</div>
+            <form asp-controller="Sidebar" asp-action="SetCulture" method="post" id="cultureSelectionForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <select id="uiLang" name="culture" class="form-select form-select-sm rounded-pill border-0" asp-items="cultureItems" aria-label="Language"></select>
+            </form>
+        </div>
     </div>
 
 </aside>
