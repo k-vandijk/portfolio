@@ -8,8 +8,8 @@ public static class PeriodHelper
     {
         firstTransactionDate ??= DateOnly.Parse(StaticDetails.FirstTransactionDate);
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var yearsDifference = today.Year - firstTransactionDate.Value.Year;
-        return $"{yearsDifference * 365 + StaticDetails.TickerApiBufferDays}d";
+        var days = today.DayNumber - firstTransactionDate.Value.DayNumber + StaticDetails.TickerApiBufferDays;
+        return $"{Math.Max(days, StaticDetails.TickerApiBufferDays)}d";
     }
 
     public static string GetPeriodFromTimeRange(string? timerange, DateOnly? firstTransactionDate = null)
@@ -26,9 +26,10 @@ public static class PeriodHelper
 
     public static string GetPeriodFromYear(int year)
     {
+        var startOfYear = new DateOnly(year, 1, 1);
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var yearsDifference = today.Year - year;
-        return $"{yearsDifference * 365 + StaticDetails.TickerApiBufferDays}d";
+        var days = today.DayNumber - startOfYear.DayNumber + StaticDetails.TickerApiBufferDays;
+        return $"{Math.Max(days, StaticDetails.TickerApiBufferDays)}d";
     }
 
     public static string GetYtdPeriod()
