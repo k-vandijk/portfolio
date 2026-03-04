@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dashboard.Application\Dashboard.Application.csproj" />
+    <ProjectReference Include="..\..\src\Dashboard.Domain\Dashboard.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

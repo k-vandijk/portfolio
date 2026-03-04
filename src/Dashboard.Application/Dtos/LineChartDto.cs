@@ -1,8 +1,6 @@
-﻿using Dashboard.Application.Dtos;
+namespace Dashboard.Application.Dtos;
 
-namespace Dashboard._Web.ViewModels;
-
-public class LineChartViewModel
+public class LineChartDto
 {
     public string Title { get; set; } = string.Empty;
     public List<DataPointDto> DataPoints { get; set; } = new ();

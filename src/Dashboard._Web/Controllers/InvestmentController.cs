@@ -35,7 +35,7 @@ public class InvestmentController : Controller
 
         var pieChartViewModel = GetPieChartViewModel(filteredTransactions);
         var barChartViewModel = GetBarChartViewModel(filteredTransactions);
-        var lineChartViewModel = GetLineChartViewModel(filteredTransactions);
+        var lineChartViewModel = GetLineChartDto(filteredTransactions);
 
         var viewModel = new InvestmentViewModel
         {
@@ -49,7 +49,7 @@ public class InvestmentController : Controller
         return PartialView("_InvestmentContent", viewModel);
     }
 
-    private LineChartViewModel GetLineChartViewModel(List<TransactionDto> transactions)
+    private LineChartDto GetLineChartDto(List<TransactionDto> transactions)
     {
         var cumulativeSum = 0m;
         var groupedTransactions = transactions
@@ -66,7 +66,7 @@ public class InvestmentController : Controller
             .OrderBy(dp => dp.Label)
             .ToList();
 
-        var lineChartViewModel = new LineChartViewModel
+        var lineChartViewModel = new LineChartDto
         {
             Title = _localizer["InvestmentPerMonth"],
             DataPoints = groupedTransactions,
