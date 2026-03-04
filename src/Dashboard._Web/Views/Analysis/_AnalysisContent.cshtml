@@ -75,7 +75,7 @@
                                                         <i class="fas fa-star me-2"></i>
                                                         <span class="flex-grow-1">@SharedLocalizer["MonthlyReport"]</span>
                                                         <button class="archive-file-delete" type="button"
-                                                                onclick="event.stopPropagation(); archiveDeleteFile('@monthlyReport.RowKey')"
+                                                                onclick="event.stopPropagation(); archiveDeleteFile('@monthlyReport.RowKey', this)"
                                                                 title="@SharedLocalizer["Delete"]">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
@@ -90,7 +90,7 @@
                                                         <span class="flex-grow-1">Week @weekly.WeekNumber</span>
                                                         <span class="archive-file-date">@weekly.AnalysisDate.ToString("MMM d")</span>
                                                         <button class="archive-file-delete" type="button"
-                                                                onclick="event.stopPropagation(); archiveDeleteFile('@weekly.RowKey')"
+                                                                onclick="event.stopPropagation(); archiveDeleteFile('@weekly.RowKey', this)"
                                                                 title="@SharedLocalizer["Delete"]">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
@@ -329,7 +329,7 @@
         });
     }
 
-    function archiveDeleteFile(rowKey) {
+    function archiveDeleteFile(rowKey, btn) {
         Swal.fire({
             title: '@SharedLocalizer["ConfirmDeleteTitle"]',
             text: '@SharedLocalizer["ConfirmDeleteText"]',
@@ -344,7 +344,28 @@
             fetch('/analysis/' + rowKey, { method: 'DELETE' })
                 .then(response => {
                     if (!response.ok) throw new Error('Delete failed');
-                    loadSkeletonSection('/analysis/content');
+
+                    const fileEl = btn.closest('.archive-file');
+                    const wasActive = fileEl.classList.contains('active');
+                    const monthDiv = fileEl.closest('.archive-month');
+                    const archiveYear = monthDiv?.closest('.archive-year');
+
+                    fileEl.remove();
+
+                    if (monthDiv && !monthDiv.querySelector('.archive-file'))
+                        monthDiv.remove();
+
+                    if (archiveYear && !archiveYear.querySelector('.archive-month'))
+                        archiveYear.remove();
+
+                    if (wasActive) {
+                        document.getElementById('archiveA4Content').innerHTML = '';
+                        document.getElementById('archivePreview').classList.add('d-none');
+                        document.getElementById('archivePlaceholder').classList.remove('d-none');
+                    }
+
+                    if (!document.querySelector('.archive-year'))
+                        loadSkeletonSection('/analysis/content');
                 })
                 .catch(() => {
                     showAlert('error', 'Failed to delete the analysis. Please try again.');
