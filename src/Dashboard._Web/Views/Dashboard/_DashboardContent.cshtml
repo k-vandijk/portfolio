@@ -144,7 +144,13 @@
                                     <th>@Model.TableRows.Sum(tr => tr.TotalInvestment).ToString("C2")</th>
                                     <th>@Model.TableRows.Sum(tr => tr.Worth).ToString("C2")</th>
                                     <th>@Model.TableRows.Sum(tr => tr.Profit).ToString("C2")</th>
-                                    <th>@((Model.TableRows.Sum(tr => tr.Profit) / Model.TableRows.Sum(tr => tr.TotalInvestment) * 100).ToString("F2") + "%")</th>
+                                    @{
+                                        var totalInvestment = Model.TableRows.Sum(tr => tr.TotalInvestment);
+                                        var totalProfitPct = totalInvestment != 0m
+                                            ? Model.TableRows.Sum(tr => tr.Profit) / totalInvestment * 100m
+                                            : 0m;
+                                    }
+                                    <th>@(totalProfitPct.ToString("F2") + "%")</th>
                                 </tr>
                             </tfoot>
                         </table>
