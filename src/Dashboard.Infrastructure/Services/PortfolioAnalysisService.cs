@@ -150,6 +150,12 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         return dto;
     }
 
+    public async Task DeleteAnalysisAsync(string rowKey)
+    {
+        await _table.DeleteEntityAsync(StaticDetails.AiAnalysesPartitionKey, rowKey);
+        _logger.LogInformation("Deleted analysis with RowKey {RowKey}", rowKey);
+    }
+
     private async Task<List<PortfolioAnalysisDto>> GetWeeklyAnalysesForCurrentMonthAsync()
     {
         var startOfMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).ToString("yyyy-MM-dd");
