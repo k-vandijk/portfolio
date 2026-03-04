@@ -55,7 +55,7 @@
                                     {
                                         var monthIsOpen = monthGroup.Key == today.Month && yearGroup.Key == today.Year;
                                         var monthCollapseId = $"month-{yearGroup.Key}-{monthGroup.Key}";
-                                        var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(monthGroup.Key);
+                                        var monthName = CultureInfo.CurrentUICulture.DateTimeFormat.GetMonthName(monthGroup.Key);
                                         var monthlyReport = monthGroup.FirstOrDefault(a => a.AnalysisType == "monthly");
                                         var weeklyItems = monthGroup.Where(a => a.AnalysisType == "weekly").OrderByDescending(a => a.WeekNumber);
 
@@ -72,7 +72,13 @@
                                                     <div class="archive-file archive-file--monthly"
                                                          data-analysis-id="@monthlyReport.RowKey"
                                                          onclick="archiveSelectFile(this)">
-                                                        <i class="fas fa-star me-2"></i>@SharedLocalizer["MonthlyReport"]
+                                                        <i class="fas fa-star me-2"></i>
+                                                        <span class="flex-grow-1">@SharedLocalizer["MonthlyReport"]</span>
+                                                        <button class="archive-file-delete" type="button"
+                                                                onclick="event.stopPropagation(); archiveDeleteFile('@monthlyReport.RowKey', this)"
+                                                                title="@SharedLocalizer["Delete"]">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
                                                     </div>
                                                 }
                                                 @foreach (var weekly in weeklyItems)
@@ -80,8 +86,14 @@
                                                     <div class="archive-file archive-file--weekly"
                                                          data-analysis-id="@weekly.RowKey"
                                                          onclick="archiveSelectFile(this)">
-                                                        <i class="fas fa-file-alt me-2"></i>Week @weekly.WeekNumber
+                                                        <i class="fas fa-file-alt me-2"></i>
+                                                        <span class="flex-grow-1">Week @weekly.WeekNumber</span>
                                                         <span class="archive-file-date">@weekly.AnalysisDate.ToString("MMM d")</span>
+                                                        <button class="archive-file-delete" type="button"
+                                                                onclick="event.stopPropagation(); archiveDeleteFile('@weekly.RowKey', this)"
+                                                                title="@SharedLocalizer["Delete"]">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
                                                     </div>
                                                 }
                                             </div>
@@ -117,7 +129,7 @@
                 <!-- Empty placeholder -->
                 <div id="archivePlaceholder" class="archive-placeholder">
                     <i class="fas fa-file-alt fa-2x text-muted mb-3 d-block"></i>
-                    <p class="text-muted mb-0 small">Select a file to preview it</p>
+                    <p class="text-muted mb-0 small">@SharedLocalizer["SelectFileToPreview"]</p>
                 </div>
 
                 <!-- Preview content -->
@@ -262,37 +274,103 @@
     }
 
     function archiveGenerateMonthlyReport() {
-        const btn = document.getElementById('generateReportBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>@SharedLocalizer["GeneratingReport"]';
+        Swal.fire({
+            title: '@SharedLocalizer["ConfirmMonthlyReportTitle"]',
+            text: '@SharedLocalizer["ConfirmMonthlyReportText"]',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '@SharedLocalizer["Confirm"]',
+            cancelButtonText: '@SharedLocalizer["Cancel"]'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
 
-        fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
-            .then(response => {
-                if (!response.ok) throw new Error('Generation failed');
-                loadSkeletonSection('/analysis/content');
-            })
-            .catch(() => {
-                showAlert('error', 'Failed to generate monthly report. Please try again.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]';
-            });
+            const btn = document.getElementById('generateReportBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>@SharedLocalizer["GeneratingReport"]';
+
+            fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
+                .then(response => {
+                    if (!response.ok) throw new Error('Generation failed');
+                    loadSkeletonSection('/analysis/content');
+                })
+                .catch(() => {
+                    showAlert('error', 'Failed to generate monthly report. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]';
+                });
+        });
     }
 
     function archiveRunWeeklyAnalysis() {
-        const btn = document.getElementById('runWeeklyBtn');
-        btn.disabled = true;
-        btn.textContent = '...';
+        Swal.fire({
+            title: '@SharedLocalizer["ConfirmWeeklyAnalysisTitle"]',
+            text: '@SharedLocalizer["ConfirmWeeklyAnalysisText"]',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '@SharedLocalizer["Confirm"]',
+            cancelButtonText: '@SharedLocalizer["Cancel"]'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
 
-        fetch('/analysis/run-weekly', { method: 'POST' })
-            .then(response => {
-                if (!response.ok) throw new Error('Analysis failed');
-                loadSkeletonSection('/analysis/content');
-            })
-            .catch(() => {
-                showAlert('error', 'Failed to run weekly analysis. Please try again.');
-                btn.disabled = false;
-                btn.textContent = '@SharedLocalizer["RunWeeklyAnalysis"]';
-            });
+            const btn = document.getElementById('runWeeklyBtn');
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            fetch('/analysis/run-weekly', { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Analysis failed');
+                    loadSkeletonSection('/analysis/content');
+                })
+                .catch(() => {
+                    showAlert('error', 'Failed to run weekly analysis. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = '@SharedLocalizer["RunWeeklyAnalysis"]';
+                });
+        });
+    }
+
+    function archiveDeleteFile(rowKey, btn) {
+        Swal.fire({
+            title: '@SharedLocalizer["ConfirmDeleteTitle"]',
+            text: '@SharedLocalizer["ConfirmDeleteText"]',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '@SharedLocalizer["Delete"]',
+            cancelButtonText: '@SharedLocalizer["Cancel"]',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            fetch('/analysis/' + rowKey, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Delete failed');
+
+                    const fileEl = btn.closest('.archive-file');
+                    const wasActive = fileEl.classList.contains('active');
+                    const monthDiv = fileEl.closest('.archive-month');
+                    const archiveYear = monthDiv?.closest('.archive-year');
+
+                    fileEl.remove();
+
+                    if (monthDiv && !monthDiv.querySelector('.archive-file'))
+                        monthDiv.remove();
+
+                    if (archiveYear && !archiveYear.querySelector('.archive-month'))
+                        archiveYear.remove();
+
+                    if (wasActive) {
+                        document.getElementById('archiveA4Content').innerHTML = '';
+                        document.getElementById('archivePreview').classList.add('d-none');
+                        document.getElementById('archivePlaceholder').classList.remove('d-none');
+                    }
+
+                    if (!document.querySelector('.archive-year'))
+                        loadSkeletonSection('/analysis/content');
+                })
+                .catch(() => {
+                    showAlert('error', 'Failed to delete the analysis. Please try again.');
+                });
+        });
     }
 
     function getAntiForgeryToken() {

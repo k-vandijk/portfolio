@@ -255,4 +255,37 @@
   <data name="GeneratingReport" xml:space="preserve">
     <value>Genereren...</value>
   </data>
+  <data name="SelectFileToPreview" xml:space="preserve">
+    <value>Selecteer een bestand om het te bekijken</value>
+  </data>
+  <data name="ConfirmMonthlyReportTitle" xml:space="preserve">
+    <value>Maandrapport genereren?</value>
+  </data>
+  <data name="ConfirmMonthlyReportText" xml:space="preserve">
+    <value>Dit genereert een nieuw maandrapport op basis van de weekanalyses.</value>
+  </data>
+  <data name="ConfirmWeeklyAnalysisTitle" xml:space="preserve">
+    <value>Weekanalyse uitvoeren?</value>
+  </data>
+  <data name="ConfirmWeeklyAnalysisText" xml:space="preserve">
+    <value>Dit start een nieuwe AI-analyse van je portfolio.</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Bevestigen</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuleren</value>
+  </data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve">
+    <value>Analyse verwijderen?</value>
+  </data>
+  <data name="ConfirmDeleteText" xml:space="preserve">
+    <value>Dit document wordt permanent verwijderd.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Verwijderen</value>
+  </data>
+  <data name="SystemUrl_Analysis" xml:space="preserve">
+    <value>analyse</value>
+  </data>
 </root>
