@@ -156,6 +156,17 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         _logger.LogInformation("Deleted analysis with RowKey {RowKey}", rowKey);
     }
 
+    public async Task<string> ChatAsync(string userMessage)
+    {
+        var settings = await _userSettingsService.GetSettingsAsync();
+        var transactions = await _transactionService.GetTransactionsAsync();
+        var holdings = await _portfolioValueService.GetAllHoldingsAsync();
+        var recentAnalyses = await GetRecentAnalysesAsync(3);
+
+        var prompt = BuildChatPrompt(holdings, transactions, settings, recentAnalyses, userMessage);
+        return await InvokeAgentAsync(prompt);
+    }
+
     private async Task<List<PortfolioAnalysisDto>> GetWeeklyAnalysesForCurrentMonthAsync()
     {
         var startOfMonth = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).ToString("yyyy-MM-dd");
@@ -248,6 +259,64 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         sb.AppendLine("3. Current market conditions and relevant news for each holding");
         sb.AppendLine("4. Whether rebalancing signals are forming");
         sb.AppendLine("5. Key things to watch next week");
+
+        return sb.ToString();
+    }
+
+    private static string BuildChatPrompt(
+        List<HoldingInfo> holdings,
+        List<TransactionDto> transactions,
+        UserSettingsDto settings,
+        List<PortfolioAnalysisDto> recentAnalyses,
+        string userMessage)
+    {
+        var sb = new StringBuilder();
+        var totalValue = holdings.Sum(h => h.TotalValue);
+        var today = DateTime.Today;
+
+        sb.AppendLine("## Investment Profile");
+        sb.AppendLine($"- Risk tolerance: {settings.RiskTolerance}");
+        sb.AppendLine($"- Investment horizon: {settings.InvestmentHorizon}");
+
+        if (!string.IsNullOrWhiteSpace(settings.CustomInstructions))
+            sb.AppendLine($"- Custom preferences: {settings.CustomInstructions}");
+
+        sb.AppendLine();
+        sb.AppendLine($"## Current Portfolio — {today:MMMM d, yyyy}");
+        sb.AppendLine($"Total value: {totalValue:C2}");
+        sb.AppendLine();
+        sb.AppendLine("| Ticker | Quantity | Current Price | Total Value | Portfolio % |");
+        sb.AppendLine("|--------|----------|---------------|-------------|-------------|");
+
+        foreach (var h in holdings)
+        {
+            var pct = totalValue > 0 ? h.TotalValue / totalValue * 100m : 0m;
+            sb.AppendLine($"| {h.Ticker} | {h.Quantity:F4} | {h.CurrentPrice:C2} | {h.TotalValue:C2} | {pct:F1}% |");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("## Transaction History (All Time)");
+        sb.AppendLine("| Date | Ticker | Quantity | Purchase Price | Total Cost |");
+        sb.AppendLine("|------|--------|----------|----------------|------------|");
+
+        foreach (var t in transactions.OrderBy(t => t.Date))
+            sb.AppendLine($"| {t.Date:yyyy-MM-dd} | {t.Ticker} | {t.Amount:F4} | {t.PurchasePrice:C2} | {t.TotalCosts:C2} |");
+
+        if (recentAnalyses.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("## Recent Analyses (for context)");
+            foreach (var analysis in recentAnalyses)
+            {
+                sb.AppendLine($"### {analysis.AnalysisType} — {analysis.AnalysisDate:MMMM d, yyyy}");
+                sb.AppendLine(analysis.Content);
+                sb.AppendLine();
+            }
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("## User Question");
+        sb.AppendLine(userMessage);
 
         return sb.ToString();
     }

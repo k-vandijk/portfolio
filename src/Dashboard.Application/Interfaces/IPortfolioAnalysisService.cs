@@ -9,4 +9,5 @@ public interface IPortfolioAnalysisService
     Task RunWeeklyAnalysisAsync();
     Task<PortfolioAnalysisDto> GenerateMonthlyReportAsync();
     Task DeleteAnalysisAsync(string rowKey);
+    Task<string> ChatAsync(string userMessage);
 }

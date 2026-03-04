@@ -288,4 +288,13 @@
   <data name="SystemUrl_Analysis" xml:space="preserve">
     <value>analyse</value>
   </data>
+  <data name="ChatWelcome" xml:space="preserve">
+    <value>Stel de AI-adviseur een vraag over jouw portfolio.</value>
+  </data>
+  <data name="ChatPlaceholder" xml:space="preserve">
+    <value>Stel een vraag...</value>
+  </data>
+  <data name="ChatError" xml:space="preserve">
+    <value>Er is iets misgegaan. Probeer het opnieuw.</value>
+  </data>
 </root>
