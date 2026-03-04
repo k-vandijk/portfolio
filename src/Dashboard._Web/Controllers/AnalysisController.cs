@@ -1,5 +1,6 @@
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
+using Dashboard._Web.Helpers;
 using Dashboard._Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -91,6 +92,27 @@ public class AnalysisController : Controller
         {
             _logger.LogError(ex, "Failed to delete analysis {RowKey}", rowKey);
             return StatusCode(500, "Failed to delete the analysis. Please try again.");
+        }
+    }
+
+    [HttpPost("/analysis/chat")]
+    public async Task<IActionResult> Chat([FromBody] ChatRequestDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Message))
+            return BadRequest("Message cannot be empty.");
+
+        if (request.Message.Length > 2000)
+            return BadRequest("Message cannot exceed 2000 characters.");
+
+        try
+        {
+            var response = await _analysisService.ChatAsync(request.Message);
+            return Ok(new { html = MarkdownHelper.ToHtml(response) });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process chat message");
+            return StatusCode(500, "Failed to process your message. Please try again.");
         }
     }
 

@@ -195,6 +195,24 @@
                 </div>
 
             </div>
+
+            <!-- Chat panel -->
+            <div class="archive-panel-chat">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message chat-message--welcome">
+                        <p class="mb-0">@SharedLocalizer["ChatWelcome"]</p>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <textarea id="chatInput" class="chat-textarea" rows="2"
+                              placeholder="@SharedLocalizer["ChatPlaceholder"]"
+                              maxlength="2000"></textarea>
+                    <button id="chatSendBtn" class="chat-send-btn" type="button" onclick="chatSendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -377,6 +395,83 @@
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
         return tokenInput ? tokenInput.value : '';
     }
+
+    // --- Chat ---
+    function chatSendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+        if (message.length > 2000) return;
+
+        chatAddMessage('user', message);
+        input.value = '';
+        input.style.height = '';
+
+        const sendBtn = document.getElementById('chatSendBtn');
+        sendBtn.disabled = true;
+
+        // Loading bubble
+        const loadingId = 'chat-loading-' + Date.now();
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'chat-message chat-message--agent chat-message--loading';
+        loadingEl.id = loadingId;
+        loadingEl.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+        document.getElementById('chatMessages').appendChild(loadingEl);
+        chatScrollToBottom();
+
+        fetch('/analysis/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Chat request failed');
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById(loadingId)?.remove();
+            chatAddMessage('agent', data.html, true);
+        })
+        .catch(() => {
+            document.getElementById(loadingId)?.remove();
+            chatAddMessage('agent', '<p class="text-danger mb-0">@SharedLocalizer["ChatError"]</p>', true);
+        })
+        .finally(() => {
+            sendBtn.disabled = false;
+        });
+    }
+
+    function chatAddMessage(role, content, isHtml = false) {
+        const container = document.getElementById('chatMessages');
+        const el = document.createElement('div');
+        el.className = 'chat-message chat-message--' + role;
+
+        if (isHtml) {
+            el.innerHTML = content;
+            // Inject favicons for any links in agent responses
+            injectFavicons(el);
+        } else {
+            const p = document.createElement('p');
+            p.className = 'mb-0';
+            p.textContent = content;
+            el.appendChild(p);
+        }
+
+        container.appendChild(el);
+        chatScrollToBottom();
+    }
+
+    function chatScrollToBottom() {
+        const container = document.getElementById('chatMessages');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    document.getElementById('chatInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatSendMessage();
+        }
+    });
 
     let advisorSaveDebounce = null;
 
