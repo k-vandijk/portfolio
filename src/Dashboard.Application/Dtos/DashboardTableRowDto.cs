@@ -1,6 +1,6 @@
-﻿namespace Dashboard._Web.ViewModels;
+namespace Dashboard.Application.Dtos;
 
-public class DashboardTableRowViewModel
+public class DashboardTableRowDto
 {
     public string Ticker { get; set; } = string.Empty;
     public decimal PortfolioPercentage { get; set; }

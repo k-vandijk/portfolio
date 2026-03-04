@@ -10,7 +10,6 @@ public class FilterHelperTests
     [Fact]
     public void FilterTransactions_ReturnsAll_WhenNoFilters()
     {
-        // Arrange
         var tx = new List<TransactionDto>
         {
             new TransactionDto { Ticker = "AAPL", Date = new DateOnly(2025, 1, 1) },
@@ -18,10 +17,8 @@ public class FilterHelperTests
             new TransactionDto { Ticker = "", Date = new DateOnly(2025, 3, 1) },
         };
 
-        // Act
         var result = FilterHelper.FilterTransactions(tx, tickers: null);
 
-        // Assert
         Assert.Equal(3, result.Count);
         Assert.Same(tx[0], result[0]);
         Assert.Same(tx[1], result[1]);

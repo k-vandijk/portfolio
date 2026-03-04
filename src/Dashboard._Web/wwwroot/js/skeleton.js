@@ -32,6 +32,11 @@ async function loadSkeletonSection(sectionEndpoint) {
         });
 
     } catch (err) {
-
+        if (skeleton) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger m-3';
+            alert.textContent = 'Failed to load content. Please refresh the page.';
+            skeleton.replaceWith(alert);
+        }
     }
 }
