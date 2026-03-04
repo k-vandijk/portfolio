@@ -285,4 +285,7 @@
   <data name="Delete" xml:space="preserve">
     <value>Verwijderen</value>
   </data>
+  <data name="SystemUrl_Analysis" xml:space="preserve">
+    <value>analyse</value>
+  </data>
 </root>

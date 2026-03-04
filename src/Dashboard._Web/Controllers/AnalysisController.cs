@@ -19,6 +19,7 @@ public class AnalysisController : Controller
     }
 
     [HttpGet("/analysis")]
+    [HttpGet("/analyse")]
     public IActionResult Index() => View();
 
     [HttpGet("/analysis/content")]

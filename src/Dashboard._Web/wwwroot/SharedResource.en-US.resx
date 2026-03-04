@@ -211,7 +211,7 @@
     <value>Year</value>
   </data>
   <data name="AiAdvisor" xml:space="preserve">
-    <value>AI advisor</value>
+    <value>AI-advisor</value>
   </data>
   <data name="MonthlyReport" xml:space="preserve">
     <value>Monthly report</value>
@@ -284,5 +284,8 @@
   </data>
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="SystemUrl_Analysis" xml:space="preserve">
+    <value>analysis</value>
   </data>
 </root>

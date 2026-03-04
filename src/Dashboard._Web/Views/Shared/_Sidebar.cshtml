@@ -57,7 +57,7 @@
             </a>
         </li>
         <li class="nav-item mt-2">
-            <a asp-controller="Analysis" asp-action="Index" class="nav-link @(IsActive("Analysis") ? "active" : "")">
+            <a href="@SharedLocalizer["SystemUrl_Analysis"]" class="nav-link @(IsActive("Analysis") ? "active" : "")">
                 <i class="fas fa-robot me-2"></i>
                 <span class="link-text">@SharedLocalizer["AiAdvisor"]</span>
             </a>
