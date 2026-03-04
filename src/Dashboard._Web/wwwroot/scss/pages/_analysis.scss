@@ -113,8 +113,33 @@
         font-weight: 500;
     }
 
-    &--monthly .fas {
+    &--monthly > .fas {
         color: var(--accent-1);
+    }
+}
+
+.archive-file-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0.125rem 0.25rem;
+    margin-left: 0.25rem;
+    font-size: 0.6rem;
+    border: none;
+    background: transparent;
+    color: transparent;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: color 0.1s, background-color 0.1s;
+
+    .archive-file:hover & {
+        color: var(--text-muted);
+    }
+
+    &:hover {
+        color: var(--bs-danger) !important;
+        background-color: rgba(220, 53, 69, 0.08);
     }
 }
 

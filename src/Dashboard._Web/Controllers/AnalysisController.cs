@@ -78,6 +78,21 @@ public class AnalysisController : Controller
         return Ok();
     }
 
+    [HttpDelete("/analysis/{rowKey}")]
+    public async Task<IActionResult> DeleteAnalysis(string rowKey)
+    {
+        try
+        {
+            await _analysisService.DeleteAnalysisAsync(rowKey);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete analysis {RowKey}", rowKey);
+            return StatusCode(500, "Failed to delete the analysis. Please try again.");
+        }
+    }
+
     [HttpPost("/analysis/run-weekly")]
     public async Task<IActionResult> RunWeeklyAnalysis()
     {

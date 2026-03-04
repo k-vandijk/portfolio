@@ -255,4 +255,34 @@
   <data name="GeneratingReport" xml:space="preserve">
     <value>Generating...</value>
   </data>
+  <data name="SelectFileToPreview" xml:space="preserve">
+    <value>Select a file to preview it</value>
+  </data>
+  <data name="ConfirmMonthlyReportTitle" xml:space="preserve">
+    <value>Generate monthly report?</value>
+  </data>
+  <data name="ConfirmMonthlyReportText" xml:space="preserve">
+    <value>This will generate a new monthly report based on the weekly analyses.</value>
+  </data>
+  <data name="ConfirmWeeklyAnalysisTitle" xml:space="preserve">
+    <value>Run weekly analysis?</value>
+  </data>
+  <data name="ConfirmWeeklyAnalysisText" xml:space="preserve">
+    <value>This will start a new AI analysis of your portfolio.</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve">
+    <value>Delete analysis?</value>
+  </data>
+  <data name="ConfirmDeleteText" xml:space="preserve">
+    <value>This document will be permanently deleted.</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
 </root>

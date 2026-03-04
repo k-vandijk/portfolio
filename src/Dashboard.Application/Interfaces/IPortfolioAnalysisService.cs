@@ -8,4 +8,5 @@ public interface IPortfolioAnalysisService
     Task<List<PortfolioAnalysisDto>> GetAllAnalysesAsync();
     Task RunWeeklyAnalysisAsync();
     Task<PortfolioAnalysisDto> GenerateMonthlyReportAsync();
+    Task DeleteAnalysisAsync(string rowKey);
 }
