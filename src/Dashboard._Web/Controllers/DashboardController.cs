@@ -2,9 +2,9 @@ using System.Diagnostics;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard._Web.ViewModels;
+using Dashboard.Application.HttpClientInterfaces;
 using Dashboard.Application.Mappers;
 using Dashboard.Application.RepositoryInterfaces;
-using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
 using kvandijk.Common.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -146,7 +146,7 @@ public class DashboardController : Controller
     private async Task<(string Ticker, MarketHistoryResponseDto? Data, Exception? Error)> GetMarketHistoryForTickerAsync(string ticker, string period)
     {
         using var scope = _scopeFactory.CreateScope();
-        var api = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
+        var api = scope.ServiceProvider.GetRequiredService<ITickerApiClient>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<DashboardController>>();
 
         try

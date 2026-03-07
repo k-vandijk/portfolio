@@ -1,6 +1,8 @@
 using Azure.Data.Tables;
+using Dashboard.Application.HttpClientInterfaces;
 using Dashboard.Application.RepositoryInterfaces;
 using Dashboard.Application.ServiceInterfaces;
+using Dashboard.Infrastructure.HttpClients;
 using Dashboard.Infrastructure.Repositories;
 using Dashboard.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +28,8 @@ public static class DependencyInjection
         services.AddScoped<ITransactionsRepository, TransactionsRepository>();
         services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
 
-        services.AddScoped<ITickerApiService, TickerApiService>();
+        services.AddScoped<ITickerApiClient, TickerApiClient>();
+
         services.AddScoped<IPushNotificationService, PushNotificationService>();
         services.AddScoped<IPortfolioValueService, PortfolioValueService>();
         services.AddScoped<IPortfolioAnalysisService, PortfolioAnalysisService>();

@@ -1,4 +1,5 @@
 using Dashboard.Application.Dtos;
+using Dashboard.Application.HttpClientInterfaces;
 using Dashboard.Application.Mappers;
 using Dashboard.Application.RepositoryInterfaces;
 using Dashboard.Application.ServiceInterfaces;
@@ -43,7 +44,7 @@ public class PortfolioValueService : IPortfolioValueService
         var fetchTasks = tickers.Select(async ticker =>
         {
             using var scope = _scopeFactory.CreateScope();
-            var api = scope.ServiceProvider.GetRequiredService<ITickerApiService>();
+            var api = scope.ServiceProvider.GetRequiredService<ITickerApiClient>();
 
             try
             {
