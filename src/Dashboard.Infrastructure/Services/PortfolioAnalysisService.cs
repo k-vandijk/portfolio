@@ -1,18 +1,19 @@
+using Azure;
+using Azure.AI.Projects;
+using Azure.AI.Projects.OpenAI;
+using Azure.Data.Tables;
+using Azure.Identity;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
-using System.Text;
-using System.Text.Json;
-using Azure.AI.Projects;
-using Azure.AI.Projects.OpenAI;
-using Azure.Data.Tables;
-using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenAI.Responses;
+using System.Text;
+using System.Text.Json;
 
 namespace Dashboard.Infrastructure.Services;
 
@@ -152,7 +153,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 
     public async Task DeleteAnalysisAsync(string rowKey)
     {
-        await _table.DeleteEntityAsync(StaticDetails.AiAnalysesPartitionKey, rowKey);
+        await _table.DeleteEntityAsync(StaticDetails.AiAnalysesPartitionKey, rowKey, ETag.All);
         _logger.LogInformation("Deleted analysis with RowKey {RowKey}", rowKey);
     }
 
