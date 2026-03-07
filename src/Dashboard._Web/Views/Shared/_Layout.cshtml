@@ -1,5 +1,7 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+
+<!DOCTYPE html>
+<html lang="@SharedLocalizer["SystemLanguageSymbol"]">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
