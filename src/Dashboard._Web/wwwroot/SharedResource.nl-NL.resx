@@ -297,4 +297,7 @@
   <data name="ChatError" xml:space="preserve">
     <value>Er is iets misgegaan. Probeer het opnieuw.</value>
   </data>
+  <data name="SystemLanguageSymbol" xml:space="preserve">
+    <value>nl</value>
+  </data>
 </root>
