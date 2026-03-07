@@ -1,6 +1,7 @@
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
 using Dashboard._Web.ViewModels;
+using Dashboard._Web.ViewModels.Investment;
 using Dashboard.Application.Mappers;
 using Dashboard.Application.RepositoryInterfaces;
 using Microsoft.AspNetCore.Mvc;

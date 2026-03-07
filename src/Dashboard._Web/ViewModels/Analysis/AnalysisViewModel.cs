@@ -1,6 +1,6 @@
 using Dashboard.Application.Dtos;
 
-namespace Dashboard._Web.ViewModels;
+namespace Dashboard._Web.ViewModels.Analysis;
 
 public class AnalysisViewModel
 {

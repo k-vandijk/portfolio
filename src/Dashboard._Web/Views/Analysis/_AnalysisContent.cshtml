@@ -1,6 +1,7 @@
-@model Dashboard._Web.ViewModels.AnalysisViewModel
+@model Dashboard._Web.ViewModels.Analysis.AnalysisViewModel
 @inject IStringLocalizer<SharedResource> SharedLocalizer
 @using System.Globalization
+@using Dashboard.Application.Helpers
 
 @{
     var today = DateOnly.FromDateTime(DateTime.Today);

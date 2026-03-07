@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Dashboard._Web.Helpers;
+namespace Dashboard.Application.Helpers;
 
 /// <summary>
 /// Converts AI-generated Markdown to safe HTML for display.

@@ -1,4 +1,5 @@
-@model Dashboard._Web.ViewModels.AnalysisViewModel
+@using Dashboard.Application.Helpers
+@model Dashboard._Web.ViewModels.Analysis.AnalysisViewModel
 
 @{
     var monthlyReport = Model.AllAnalyses.FirstOrDefault(a => a.AnalysisType == "monthly");

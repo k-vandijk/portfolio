@@ -1,6 +1,6 @@
 using Dashboard.Application.Dtos;
-using Dashboard._Web.Helpers;
-using Dashboard._Web.ViewModels;
+using Dashboard._Web.ViewModels.Analysis;
+using Dashboard.Application.Helpers;
 using Dashboard.Application.Mappers;
 using Dashboard.Application.RepositoryInterfaces;
 using Dashboard.Application.ServiceInterfaces;

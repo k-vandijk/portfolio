@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
-using Dashboard._Web.ViewModels;
+using Dashboard._Web.ViewModels.Dashboard;
 using Dashboard.Application.HttpClientInterfaces;
 using Dashboard.Application.Mappers;
 using Dashboard.Application.RepositoryInterfaces;
