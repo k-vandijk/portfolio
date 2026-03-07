@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portfolio-v6';
+const CACHE_NAME = 'portfolio-v9';
 const urlsToCache = [
   '/',
   '/css/site.css',
@@ -8,7 +8,11 @@ const urlsToCache = [
   '/js/push-notifications.js',
   '/icon-192x192.png',
   '/icon-512x512.png',
-  '/favicon.ico'
+  '/favicon-64.png',
+  '/favicon-32.png',
+  '/favicon.ico',
+  '/apple-touch-icon.png',
+  '/notification-badge.png'
 ];
 
 // Install event - cache static assets
@@ -154,7 +158,7 @@ self.addEventListener('push', event => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: '/icon-192x192.png',
-      badge: '/icon-192x192.png',
+      badge: '/notification-badge.png',
       vibrate: [200, 100, 200]
     })
   );

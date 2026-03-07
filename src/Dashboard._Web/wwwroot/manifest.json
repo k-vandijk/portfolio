@@ -1,6 +1,6 @@
 {
-  "name": "Ticker Dashboard",
-  "short_name": "Ticker Dashboard",
+  "name": "kvandijk's portfolio'",
+  "short_name": "kvandijk's portfolio",
   "description": "Track and visualize investment portfolio performance",
   "start_url": "/",
   "display": "standalone",
@@ -12,13 +12,13 @@
       "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
