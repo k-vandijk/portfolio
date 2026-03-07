@@ -45,7 +45,7 @@
 
             // Send subscription to server
             var subscriptionJson = subscription.toJSON();
-            await fetch('/notifications/subscribe', {
+            var subResponse = await fetch('/notifications/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -54,6 +54,10 @@
                     auth: subscriptionJson.keys.auth
                 })
             });
+            if (!subResponse.ok) {
+                console.error('Push subscription failed: server returned', subResponse.status);
+                return;
+            }
 
             console.log('Push notification subscription saved.');
         } catch (err) {

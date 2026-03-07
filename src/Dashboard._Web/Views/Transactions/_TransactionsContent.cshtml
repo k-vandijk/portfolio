@@ -187,42 +187,32 @@
         return parseFloat(value.replace(',', '.'));
     }
 
-    function postAddTransaction(transaction) {
-        fetch('@Url.Action("AddTransaction", "Transactions")', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(transaction)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-
+    async function postAddTransaction(transaction) {
+        try {
+            await apiFetch('@Url.Action("AddTransaction", "Transactions")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(transaction)
+            });
             clearInputs();
             location.reload();
-        })
-        .catch(error => {
+        } catch {
             showAlert('error', 'Error adding transaction.');
-        });
+        }
     }
 
     function postDeleteTransaction(rowKey) {
-        showConfirmationDialog('Are you sure you want to delete this transaction?', function() {
-            fetch('@Url.Action("DeleteTransaction", "Transactions")', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rowKey)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-
+        showConfirmationDialog('Are you sure you want to delete this transaction?', async function() {
+            try {
+                await apiFetch('@Url.Action("DeleteTransaction", "Transactions")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(rowKey)
+                });
                 location.reload();
-            })
-            .catch(error => {
+            } catch {
                 showAlert('error', 'Error deleting transaction.');
-            });
+            }
         });
     }
 </script>

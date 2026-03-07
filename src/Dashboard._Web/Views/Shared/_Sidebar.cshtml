@@ -90,11 +90,11 @@
         formData.set('collapsed', String(collapsed));
 
         const url = '@Url.Action("ToggleSidebarCollapsedState", "Sidebar")';
-        await fetch(url, {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        });
+        try {
+            await fetch(url, { method: 'POST', body: formData, credentials: 'same-origin' });
+        } catch {
+            // Fire-and-forget: sidebar state persistence failure is non-critical
+        }
     });
 
     document.getElementById('cultureSelectionForm').addEventListener('change', function () {

@@ -119,10 +119,7 @@ public class DashboardController : Controller
         // Log failures (if any)
         var failed = results.Where(r => r.Error is not null).ToList();
         if (failed.Count > 0)
-        {
-            TempData["ErrorMessage"] = $"Failed to fetch market data for {failed.Count} ticker(s): {string.Join(", ", failed.Select(f => f.Ticker))}. Please try again later.";
             _logger.LogWarning("Some tickers failed: {Tickers}", string.Join(", ", failed.Select(f => f.Ticker)));
-        }
 
         var allDataPoints = results
             .Where(r => r.Data is not null && r.Data.History.Any())
