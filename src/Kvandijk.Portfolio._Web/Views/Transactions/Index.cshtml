@@ -1,0 +1,56 @@
+﻿@inject IStringLocalizer<SharedResource> SharedLocalizer
+@model List<Kvandijk.Portfolio.Application.Dtos.TransactionDto>
+@{
+    ViewData["Title"] = SharedLocalizer["Transactions"];
+}
+
+<section id="skeleton-section">
+    <div class="row mb-3 h-95vh">
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-body p-0">
+                    <div class="table-responsive h-100 m-0">
+                        <table class="table table-sm table-transparent mb-0 w-100">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>@SharedLocalizer["Date"]</th>
+                                    <th>@SharedLocalizer["Ticker"]</th>
+                                    <th>@SharedLocalizer["Amount"]</th>
+                                    <th>@SharedLocalizer["PurchasePrice"]</th>
+                                    <th>@SharedLocalizer["TransactionCosts"]</th>
+                                    <th>@SharedLocalizer["TotalCosts"]</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="placeholder-glow">
+                                @for (int i = 0; i < 18; i++)
+                                {
+                                    <tr>
+                                        <td><span class="placeholder col-5"></span></td>
+                                        <td><span class="placeholder col-8"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-5"></span></td>
+                                        <td><span class="placeholder col-7"></span></td>
+                                        <td><span class="placeholder col-6"></span></td>
+                                        <td><span class="placeholder col-7"></span></td>
+                                        <td></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sectionUrl = `/transactions/content`;
+            loadSkeletonSection(sectionUrl);
+        });
+    </script>
+}

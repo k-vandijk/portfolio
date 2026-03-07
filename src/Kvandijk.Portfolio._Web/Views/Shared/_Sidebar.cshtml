@@ -1,0 +1,104 @@
+﻿@using System.Globalization
+@using System.Reflection
+@using Kvandijk.Portfolio.Domain.Utils
+@inject IStringLocalizer<SharedResource> SharedLocalizer
+@functions {
+    public bool IsActive(string controllerName)
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        return string.Equals(currentController, controllerName, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+@{
+    // Bepaal huidige UI-cultuur en bouw de select-items (geen inline C# in <option>)
+    var currentCulture = CultureInfo.CurrentUICulture.Name;
+    var cultureItems = new List<SelectListItem>
+    {
+        new() { Value = "nl-NL", Text = "🇳🇱  Nederlands", Selected = currentCulture == "nl-NL" },
+        new() { Value = "en-US", Text = "🇺🇸  English", Selected = currentCulture == "en-US" }
+    };
+
+    bool isCollapsed = Context.Request.Cookies[StaticDetails.SidebarStateCookie] == "true";
+
+    var rawVersion = Assembly.GetEntryAssembly()
+        ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+        ?.InformationalVersion ?? "dev";
+    var version = rawVersion.Split('+')[0];
+}
+
+<aside id="sidebar" class="p-3 position-relative d-flex flex-column @(isCollapsed ? "collapsed" : "")">
+    <button id="toggleSidebar" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="true" class="text-secondary">
+        <i class="fa-solid fa-angles-left"></i>
+    </button>
+
+    <a class="brand d-flex align-items-center mb-3 text-decoration-none fw-bold fs-5 text-brand">
+        <span class="brand-text">k-vandijk</span>
+    </a>
+
+    <ul class="nav nav-pills flex-column">
+
+        <li class="nav-item mb-2">
+            <a asp-controller="Dashboard" asp-action="Index" class="nav-link @(IsActive("Dashboard") ? "active" : "")">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                <span class="link-text">@SharedLocalizer["Dashboard"]</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="@SharedLocalizer["SystemUrl_Investment"]" class="nav-link @(IsActive("Investment") ? "active" : "")">
+                <i class="fas fa-chart-line me-2"></i>
+                <span class="link-text">@SharedLocalizer["Investment"]</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="@SharedLocalizer["SystemUrl_Transactions"]" class="nav-link @(IsActive("Transactions") ? "active" : "")">
+                <i class="fas fa-receipt me-2"></i>
+                <span class="link-text">@SharedLocalizer["Transactions"]</span>
+            </a>
+        </li>
+        <li class="nav-item mt-2">
+            <a href="@SharedLocalizer["SystemUrl_Analysis"]" class="nav-link @(IsActive("Analysis") ? "active" : "")">
+                <i class="fas fa-robot me-2"></i>
+                <span class="link-text">@SharedLocalizer["AiAdvisor"]</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="mt-auto pt-3 d-flex flex-column gap-3">
+        <small class="link-text text-secondary">@($"v{version}")</small>
+        <div class="language-selector">
+            <div class="label">@SharedLocalizer["Language"]</div>
+            <form asp-controller="Sidebar" asp-action="SetCulture" method="post" id="cultureSelectionForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <select id="uiLang" name="culture" class="form-select form-select-sm rounded-pill border-0" asp-items="cultureItems" aria-label="Language"></select>
+            </form>
+        </div>
+    </div>
+
+</aside>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+
+    toggleBtn.addEventListener('click', async () => {
+        const collapsed = sidebar.classList.toggle('collapsed');
+        toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+
+        const formData = new FormData();
+        formData.set('collapsed', String(collapsed));
+
+        const url = '@Url.Action("ToggleSidebarCollapsedState", "Sidebar")';
+        try {
+            await fetch(url, { method: 'POST', body: formData, credentials: 'same-origin' });
+        } catch {
+            // Fire-and-forget: sidebar state persistence failure is non-critical
+        }
+    });
+
+    document.getElementById('cultureSelectionForm').addEventListener('change', function () {
+        document.getElementById('cultureSelectionForm').submit();
+    });
+
+</script>

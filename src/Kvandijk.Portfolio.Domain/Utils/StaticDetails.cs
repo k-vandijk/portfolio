@@ -1,0 +1,86 @@
+﻿namespace Kvandijk.Portfolio.Domain.Utils;
+
+public static class StaticDetails
+{
+    public const string TransactionsTableName = "transactions";
+    public const string TransactionsPartitionKey = "transactions";
+
+    public const string PushSubscriptionsTableName = "pushsubscriptions";
+    public const string PushSubscriptionsPartitionKey = "pushsubscriptions";
+
+    public const string FirstTransactionDate = "2024-06-06";
+
+    public const int AbsoluteCacheExpirationMinutes = 5;
+    public const int SlidingCacheExpirationMinutes = 1;
+
+    public const string SidebarStateCookie = "SidebarState";
+    
+    /// <summary>
+    /// Specifies the number of overlapping days, the data is fetched for.
+    /// </summary>
+    public const int TickerApiBufferDays = 7;
+
+    /// <summary>
+    /// Specifies the interval, in minutes, at which the portfolio is checked for significant changes in value.
+    /// This is used by the PortfolioMonitorService to determine how frequently to perform checks.
+    /// </summary>
+    public const int PortfolioCheckIntervalMinutes = 60 * 3;
+
+    /// <summary>
+    /// The hour (0-23) when scheduled portfolio notifications should start being sent.
+    /// </summary>
+    public const int NotificationStartHour = 8;
+
+    /// <summary>
+    /// The hour (0-23) when scheduled portfolio notifications should stop being sent.
+    /// </summary>
+    public const int NotificationEndHour = 20;
+
+    /// <summary>
+    /// A collection of greeting phrases that can be randomly selected when sending portfolio updates or notifications.
+    /// </summary>
+    public const string UserSettingsTableName = "usersettings";
+    public const string UserSettingsPartitionKey = "usersettings";
+    public const string UserSettingsRowKey = "default";
+
+    public const string AiAnalysesTableName = "aianalyses";
+    public const string AiAnalysesPartitionKey = "aianalyses";
+
+    /// <summary>
+    /// Minimum number of days between two weekly AI portfolio analyses.
+    /// </summary>
+    public const int WeeklyAnalysisIntervalDays = 7;
+
+    /// <summary>
+    /// The hour (0-23) when the weekly analysis background service may run.
+    /// </summary>
+    public const int WeeklyAnalysisRunHour = 9;
+
+    public static readonly string[] NotificationGreetings =
+    [
+        "Market check-in",
+        "Your stocks called",
+        "Portfolio pulse",
+        "Numbers are in",
+        "Market moves",
+        "Here's the vibe",
+        "Stonks report",
+        "Daily digits",
+        "Chart check",
+        "Money moves"
+    ];
+
+    public static readonly string[] AnalysisNotificationGreetings =
+    [
+        "Analysis is in",
+        "Weekly digest ready",
+        "AI just weighed in",
+        "Your weekly read",
+        "Insights dropped",
+        "Report's ready",
+        "Weekly wrap-up",
+        "Brain dump complete",
+        "Fresh takes inside",
+        "Analyst mode: done"
+    ];
+}

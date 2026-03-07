@@ -1,10 +1,10 @@
 {
   "scripts": {
     "dev": "concurrently \"npm run sass:watch\" \"npm run dotnet:watch\"",
-    "dotnet:watch": "dotnet watch run --project src/Dashboard._Web/Dashboard._Web.csproj",
+    "dotnet:watch": "dotnet watch run --project src/Kvandijk.Portfolio._Web/Kvandijk.Portfolio._Web.csproj",
     "prepare": "husky",
-    "sass:build": "sass src/Dashboard._Web/wwwroot/scss/main.scss:src/Dashboard._Web/wwwroot/css/site.css",
-    "sass:watch": "sass --watch --source-map src/Dashboard._Web/wwwroot/scss/main.scss:src/Dashboard._Web/wwwroot/css/site.css"
+    "sass:build": "sass src/Kvandijk.Portfolio._Web/wwwroot/scss/main.scss:src/Kvandijk.Portfolio._Web/wwwroot/css/site.css",
+    "sass:watch": "sass --watch --source-map src/Kvandijk.Portfolio._Web/wwwroot/scss/main.scss:src/Kvandijk.Portfolio._Web/wwwroot/css/site.css"
   },
   "repository": {
     "type": "git",
