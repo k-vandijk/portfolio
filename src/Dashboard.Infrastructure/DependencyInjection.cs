@@ -27,15 +27,6 @@ public static class DependencyInjection
         services.AddScoped<ITransactionsRepository, TransactionsRepository>();
         services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
 
-        services.AddKeyedSingleton<TableClient>(StaticDetails.PushSubscriptionsTableName, (sp, _) =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
-            var connectionString = config.GetConnectionString("StorageAccount");
-            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.PushSubscriptionsTableName);
-            tableClient.CreateIfNotExists();
-            return tableClient;
-        });
-
         services.AddKeyedSingleton<TableClient>(StaticDetails.AiAnalysesTableName, (sp, _) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
@@ -46,7 +37,6 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ITickerApiService, TickerApiService>();
-        services.AddScoped<IPushSubscriptionService, PushSubscriptionService>();
         services.AddScoped<IPushNotificationService, PushNotificationService>();
         services.AddScoped<IPortfolioValueService, PortfolioValueService>();
         services.AddScoped<IPortfolioAnalysisService, PortfolioAnalysisService>();

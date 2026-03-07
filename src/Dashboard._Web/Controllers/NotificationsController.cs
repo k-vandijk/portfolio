@@ -1,19 +1,20 @@
 using Dashboard.Application.Dtos;
-using Dashboard.Application.ServiceInterfaces;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dashboard._Web.Controllers;
 
 public class NotificationsController : Controller
 {
-    private readonly IPushSubscriptionService _subscriptionService;
+    private readonly IPushSubscriptionsRepository _subscriptionsRepository;
     private readonly IConfiguration _config;
 
     public NotificationsController(
-        IPushSubscriptionService subscriptionService,
+        IPushSubscriptionsRepository subscriptionsRepository,
         IConfiguration config)
     {
-        _subscriptionService = subscriptionService;
+        _subscriptionsRepository = subscriptionsRepository;
         _config = config;
     }
 
@@ -36,7 +37,11 @@ public class NotificationsController : Controller
         if (string.IsNullOrWhiteSpace(subscription.Endpoint))
             return BadRequest(new { success = false, message = "Invalid subscription data." });
 
-        await _subscriptionService.AddSubscriptionAsync(subscription);
+        var all = await _subscriptionsRepository.GetAllAsync();
+        if (all.Any(e => e.Endpoint == subscription.Endpoint))
+            return Ok(new { success = true, message = "Subscription saved." });
+
+        await _subscriptionsRepository.AddAsync(subscription.ToEntity());
         return Ok(new { success = true, message = "Subscription saved." });
     }
 
@@ -46,7 +51,10 @@ public class NotificationsController : Controller
         if (string.IsNullOrWhiteSpace(endpoint))
             return BadRequest(new { success = false, message = "Invalid endpoint." });
 
-        await _subscriptionService.DeleteSubscriptionByEndpointAsync(endpoint);
+        var all = await _subscriptionsRepository.GetAllAsync();
+        foreach (var entity in all.Where(e => e.Endpoint == endpoint))
+            await _subscriptionsRepository.DeleteAsync(entity);
+
         return Ok(new { success = true, message = "Subscription removed." });
     }
 }

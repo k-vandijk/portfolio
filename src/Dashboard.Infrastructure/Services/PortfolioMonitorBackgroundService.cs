@@ -1,3 +1,5 @@
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
 using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,7 +70,7 @@ public class PortfolioMonitorBackgroundService : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var portfolioService = scope.ServiceProvider.GetRequiredService<IPortfolioValueService>();
-        var subscriptionService = scope.ServiceProvider.GetRequiredService<IPushSubscriptionService>();
+        var subscriptionsRepository = scope.ServiceProvider.GetRequiredService<IPushSubscriptionsRepository>();
         var notificationService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
 
         // Get top 3 holdings by value
@@ -117,22 +119,22 @@ public class PortfolioMonitorBackgroundService : BackgroundService
         _logger.LogInformation("Sending scheduled portfolio update notification");
 
         // Send notification to all subscribers
-        var subscriptions = await subscriptionService.GetSubscriptionsAsync();
+        var subscriptionEntities = await subscriptionsRepository.GetAllAsync();
 
-        foreach (var sub in subscriptions)
+        foreach (var entity in subscriptionEntities)
         {
             try
             {
-                await notificationService.SendNotificationAsync(sub, title, body);
+                await notificationService.SendNotificationAsync(entity.ToDto(), title, body);
             }
             catch (WebPushException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Gone)
             {
-                _logger.LogInformation("Removing expired subscription: {Endpoint}", sub.Endpoint);
-                await subscriptionService.DeleteSubscriptionByEndpointAsync(sub.Endpoint);
+                _logger.LogInformation("Removing expired subscription: {Endpoint}", entity.Endpoint);
+                await subscriptionsRepository.DeleteAsync(entity);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to send notification to {Endpoint}", sub.Endpoint);
+                _logger.LogWarning(ex, "Failed to send notification to {Endpoint}", entity.Endpoint);
             }
         }
     }
