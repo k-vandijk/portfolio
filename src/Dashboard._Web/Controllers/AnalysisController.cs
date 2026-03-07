@@ -1,6 +1,8 @@
 using Dashboard.Application.Dtos;
 using Dashboard._Web.Helpers;
 using Dashboard._Web.ViewModels;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
 using Dashboard.Application.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,12 +11,12 @@ namespace Dashboard._Web.Controllers;
 public class AnalysisController : Controller
 {
     private readonly IPortfolioAnalysisService _analysisService;
-    private readonly IUserSettingsService _userSettingsService;
+    private readonly IUserSettingsRepository _userSettingsRepository;
 
-    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsService userSettingsService)
+    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsRepository userSettingsRepository)
     {
         _analysisService = analysisService;
-        _userSettingsService = userSettingsService;
+        _userSettingsRepository = userSettingsRepository;
     }
 
     [HttpGet("/analysis")]
@@ -38,7 +40,8 @@ public class AnalysisController : Controller
             a.AnalysisDate.Year == today.Year &&
             a.AnalysisDate.Month == today.Month);
 
-        var settings = await _userSettingsService.GetSettingsAsync();
+        var settingsEntities = await _userSettingsRepository.GetAllAsync();
+        var settings = settingsEntities.FirstOrDefault()?.ToDto() ?? new UserSettingsDto();
 
         var viewModel = new AnalysisViewModel
         {
@@ -66,7 +69,7 @@ public class AnalysisController : Controller
         if (!validRisk.Contains(settings.RiskTolerance) || !validHorizon.Contains(settings.InvestmentHorizon))
             return BadRequest("Invalid settings values.");
 
-        await _userSettingsService.SaveSettingsAsync(settings);
+        await _userSettingsRepository.UpsertAsync(settings.ToEntity());
         return Ok();
     }
 

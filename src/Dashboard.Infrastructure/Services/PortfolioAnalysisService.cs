@@ -25,7 +25,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 {
     private readonly TableClient _table;
     private readonly IPortfolioValueService _portfolioValueService;
-    private readonly IUserSettingsService _userSettingsService;
+    private readonly IUserSettingsRepository _userSettingsRepository;
     private readonly IConfiguration _config;
     private readonly ILogger<PortfolioAnalysisService> _logger;
     private readonly ITransactionsRepository _transactionsRepository;
@@ -33,13 +33,14 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     public PortfolioAnalysisService(
         [FromKeyedServices(StaticDetails.AiAnalysesTableName)] TableClient table,
         IPortfolioValueService portfolioValueService,
-        IUserSettingsService userSettingsService,
+        IUserSettingsRepository userSettingsRepository,
         IConfiguration config,
-        ILogger<PortfolioAnalysisService> logger, ITransactionsRepository transactionsRepository)
+        ILogger<PortfolioAnalysisService> logger,
+        ITransactionsRepository transactionsRepository)
     {
         _table = table;
         _portfolioValueService = portfolioValueService;
-        _userSettingsService = userSettingsService;
+        _userSettingsRepository = userSettingsRepository;
         _config = config;
         _logger = logger;
         _transactionsRepository = transactionsRepository;
@@ -78,7 +79,9 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     {
         _logger.LogInformation("Starting weekly portfolio analysis");
 
-        var settings = await _userSettingsService.GetSettingsAsync();
+        var settingsEntities = await _userSettingsRepository.GetAllAsync();
+        var settings = settingsEntities.FirstOrDefault()?.ToDto() ?? new UserSettingsDto();
+        
         var holdings = await _portfolioValueService.GetAllHoldingsAsync();
 
         var transactionEntities = await _transactionsRepository.GetAllAsync();
@@ -122,7 +125,9 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     {
         _logger.LogInformation("Generating monthly portfolio report");
 
-        var settings = await _userSettingsService.GetSettingsAsync();
+        var settingsEntities = await _userSettingsRepository.GetAllAsync();
+        var settings = settingsEntities.FirstOrDefault()?.ToDto() ?? new UserSettingsDto();
+        
         var holdings = await _portfolioValueService.GetAllHoldingsAsync();
         var weeklyAnalyses = await GetWeeklyAnalysesForCurrentMonthAsync();
 
@@ -161,7 +166,9 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
 
     public async Task<string> ChatAsync(string userMessage)
     {
-        var settings = await _userSettingsService.GetSettingsAsync();
+        var settingsEntities = await _userSettingsRepository.GetAllAsync();
+        var settings = settingsEntities.FirstOrDefault()?.ToDto() ?? new UserSettingsDto();
+        
         var holdings = await _portfolioValueService.GetAllHoldingsAsync();
         var recentAnalyses = await GetRecentAnalysesAsync(3);
 
