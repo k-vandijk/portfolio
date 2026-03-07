@@ -10,13 +10,11 @@ public class AnalysisController : Controller
 {
     private readonly IPortfolioAnalysisService _analysisService;
     private readonly IUserSettingsService _userSettingsService;
-    private readonly ILogger<AnalysisController> _logger;
 
-    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsService userSettingsService, ILogger<AnalysisController> logger)
+    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsService userSettingsService)
     {
         _analysisService = analysisService;
         _userSettingsService = userSettingsService;
-        _logger = logger;
     }
 
     [HttpGet("/analysis")]
@@ -55,16 +53,8 @@ public class AnalysisController : Controller
     [HttpPost("/analysis/monthly")]
     public async Task<IActionResult> GenerateMonthly()
     {
-        try
-        {
-            await _analysisService.GenerateMonthlyReportAsync();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to generate monthly report");
-            return StatusCode(500, "Failed to generate the monthly report. Please try again.");
-        }
+        await _analysisService.GenerateMonthlyReportAsync();
+        return Ok();
     }
 
     [HttpPost("/analysis/settings")]
@@ -83,16 +73,8 @@ public class AnalysisController : Controller
     [HttpDelete("/analysis/{rowKey}")]
     public async Task<IActionResult> DeleteAnalysis(string rowKey)
     {
-        try
-        {
-            await _analysisService.DeleteAnalysisAsync(rowKey);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to delete analysis {RowKey}", rowKey);
-            return StatusCode(500, "Failed to delete the analysis. Please try again.");
-        }
+        await _analysisService.DeleteAnalysisAsync(rowKey);
+        return Ok();
     }
 
     [HttpPost("/analysis/chat")]
@@ -104,30 +86,14 @@ public class AnalysisController : Controller
         if (request.Message.Length > 2000)
             return BadRequest("Message cannot exceed 2000 characters.");
 
-        try
-        {
-            var response = await _analysisService.ChatAsync(request.Message);
-            return Ok(new { html = MarkdownHelper.ToHtml(response) });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to process chat message");
-            return StatusCode(500, "Failed to process your message. Please try again.");
-        }
+        var response = await _analysisService.ChatAsync(request.Message);
+        return Ok(new { html = MarkdownHelper.ToHtml(response) });
     }
 
     [HttpPost("/analysis/run-weekly")]
     public async Task<IActionResult> RunWeeklyAnalysis()
     {
-        try
-        {
-            await _analysisService.RunWeeklyAnalysisAsync();
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to run weekly analysis");
-            return StatusCode(500, "Failed to run the weekly analysis. Please try again.");
-        }
+        await _analysisService.RunWeeklyAnalysisAsync();
+        return Ok();
     }
 }

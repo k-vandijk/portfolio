@@ -299,23 +299,21 @@
             showCancelButton: true,
             confirmButtonText: '@SharedLocalizer["Confirm"]',
             cancelButtonText: '@SharedLocalizer["Cancel"]'
-        }).then((result) => {
+        }).then(async (result) => {
             if (!result.isConfirmed) return;
 
             const btn = document.getElementById('generateReportBtn');
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>@SharedLocalizer["GeneratingReport"]';
 
-            fetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } })
-                .then(response => {
-                    if (!response.ok) throw new Error('Generation failed');
-                    loadSkeletonSection('/analysis/content');
-                })
-                .catch(() => {
-                    showAlert('error', 'Failed to generate monthly report. Please try again.');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]';
-                });
+            try {
+                await apiFetch('/analysis/monthly', { method: 'POST', headers: { 'RequestVerificationToken': getAntiForgeryToken() } });
+                loadSkeletonSection('/analysis/content');
+            } catch {
+                showAlert('error', 'Failed to generate monthly report. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-file-alt me-2"></i>@SharedLocalizer["MonthlyReport"]';
+            }
         });
     }
 
@@ -327,23 +325,21 @@
             showCancelButton: true,
             confirmButtonText: '@SharedLocalizer["Confirm"]',
             cancelButtonText: '@SharedLocalizer["Cancel"]'
-        }).then((result) => {
+        }).then(async (result) => {
             if (!result.isConfirmed) return;
 
             const btn = document.getElementById('runWeeklyBtn');
             btn.disabled = true;
             btn.textContent = '...';
 
-            fetch('/analysis/run-weekly', { method: 'POST' })
-                .then(response => {
-                    if (!response.ok) throw new Error('Analysis failed');
-                    loadSkeletonSection('/analysis/content');
-                })
-                .catch(() => {
-                    showAlert('error', 'Failed to run weekly analysis. Please try again.');
-                    btn.disabled = false;
-                    btn.textContent = '@SharedLocalizer["RunWeeklyAnalysis"]';
-                });
+            try {
+                await apiFetch('/analysis/run-weekly', { method: 'POST' });
+                loadSkeletonSection('/analysis/content');
+            } catch {
+                showAlert('error', 'Failed to run weekly analysis. Please try again.');
+                btn.disabled = false;
+                btn.textContent = '@SharedLocalizer["RunWeeklyAnalysis"]';
+            }
         });
     }
 
@@ -356,38 +352,36 @@
             confirmButtonText: '@SharedLocalizer["Delete"]',
             cancelButtonText: '@SharedLocalizer["Cancel"]',
             confirmButtonColor: '#dc3545'
-        }).then((result) => {
+        }).then(async (result) => {
             if (!result.isConfirmed) return;
 
-            fetch('/analysis/' + rowKey, { method: 'DELETE' })
-                .then(response => {
-                    if (!response.ok) throw new Error('Delete failed');
+            try {
+                await apiFetch('/analysis/' + rowKey, { method: 'DELETE' });
 
-                    const fileEl = btn.closest('.archive-file');
-                    const wasActive = fileEl.classList.contains('active');
-                    const monthDiv = fileEl.closest('.archive-month');
-                    const archiveYear = monthDiv?.closest('.archive-year');
+                const fileEl = btn.closest('.archive-file');
+                const wasActive = fileEl.classList.contains('active');
+                const monthDiv = fileEl.closest('.archive-month');
+                const archiveYear = monthDiv?.closest('.archive-year');
 
-                    fileEl.remove();
+                fileEl.remove();
 
-                    if (monthDiv && !monthDiv.querySelector('.archive-file'))
-                        monthDiv.remove();
+                if (monthDiv && !monthDiv.querySelector('.archive-file'))
+                    monthDiv.remove();
 
-                    if (archiveYear && !archiveYear.querySelector('.archive-month'))
-                        archiveYear.remove();
+                if (archiveYear && !archiveYear.querySelector('.archive-month'))
+                    archiveYear.remove();
 
-                    if (wasActive) {
-                        document.getElementById('archiveA4Content').innerHTML = '';
-                        document.getElementById('archivePreview').classList.add('d-none');
-                        document.getElementById('archivePlaceholder').classList.remove('d-none');
-                    }
+                if (wasActive) {
+                    document.getElementById('archiveA4Content').innerHTML = '';
+                    document.getElementById('archivePreview').classList.add('d-none');
+                    document.getElementById('archivePlaceholder').classList.remove('d-none');
+                }
 
-                    if (!document.querySelector('.archive-year'))
-                        loadSkeletonSection('/analysis/content');
-                })
-                .catch(() => {
-                    showAlert('error', 'Failed to delete the analysis. Please try again.');
-                });
+                if (!document.querySelector('.archive-year'))
+                    loadSkeletonSection('/analysis/content');
+            } catch {
+                showAlert('error', 'Failed to delete the analysis. Please try again.');
+            }
         });
     }
 
@@ -419,26 +413,23 @@
         document.getElementById('chatMessages').appendChild(loadingEl);
         chatScrollToBottom();
 
-        fetch('/analysis/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Chat request failed');
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById(loadingId)?.remove();
-            chatAddMessage('agent', data.html, true);
-        })
-        .catch(() => {
-            document.getElementById(loadingId)?.remove();
-            chatAddMessage('agent', '<p class="text-danger mb-0">@SharedLocalizer["ChatError"]</p>', true);
-        })
-        .finally(() => {
-            sendBtn.disabled = false;
-        });
+        (async () => {
+            try {
+                const response = await apiFetch('/analysis/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                document.getElementById(loadingId)?.remove();
+                chatAddMessage('agent', data.html, true);
+            } catch {
+                document.getElementById(loadingId)?.remove();
+                chatAddMessage('agent', '<p class="text-danger mb-0">@SharedLocalizer["ChatError"]</p>', true);
+            } finally {
+                sendBtn.disabled = false;
+            }
+        })();
     }
 
     function chatAddMessage(role, content, isHtml = false) {
@@ -480,16 +471,18 @@
         const investmentHorizon = document.querySelector('input[name="investmentHorizon"]:checked')?.value ?? 'long';
         const customInstructions = document.getElementById('customInstructions').value.trim();
 
-        fetch('/analysis/settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ riskTolerance, investmentHorizon, customInstructions })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error();
-            showAdvisorSavedIndicator(true);
-        })
-        .catch(() => showAdvisorSavedIndicator(false));
+        (async () => {
+            try {
+                await apiFetch('/analysis/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ riskTolerance, investmentHorizon, customInstructions })
+                });
+                showAdvisorSavedIndicator(true);
+            } catch {
+                showAdvisorSavedIndicator(false);
+            }
+        })();
     }
 
     function showAdvisorSavedIndicator(success) {

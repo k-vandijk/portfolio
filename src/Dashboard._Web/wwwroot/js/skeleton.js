@@ -6,6 +6,10 @@ async function loadSkeletonSection(sectionEndpoint) {
     try {
         const response = await fetch(sectionEndpoint);
 
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+
         const html = await response.text();
 
         // Create a wrapper div to parse the HTML
@@ -32,11 +36,6 @@ async function loadSkeletonSection(sectionEndpoint) {
         });
 
     } catch (err) {
-        if (skeleton) {
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-danger m-3';
-            alert.textContent = 'Failed to load content. Please refresh the page.';
-            skeleton.replaceWith(alert);
-        }
+        // do nothing...
     }
 }

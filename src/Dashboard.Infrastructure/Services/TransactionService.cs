@@ -3,6 +3,7 @@ using Azure.Data.Tables;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
+using Dashboard.Domain.Exceptions;
 using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.Caching.Memory;
@@ -64,7 +65,7 @@ public class TransactionService : ITransactionService
     public async Task DeleteTransactionAsync(string rowKey)
     {
         if (string.IsNullOrWhiteSpace(rowKey))
-            throw new ArgumentException("rowKey is required to delete.");
+            throw new ValidationException("rowKey is required to delete.");
 
         // ETag.All = skip concurrency check; if you want optimistic concurrency,
         // fetch entity first and pass its ETag instead.

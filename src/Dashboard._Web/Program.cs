@@ -1,4 +1,5 @@
-﻿using Dashboard.Infrastructure;
+﻿using Dashboard._Web.Middleware;
+using Dashboard.Infrastructure;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Identity.Web;
@@ -36,6 +37,9 @@ builder.Services.AddControllersWithViews().AddViewLocalization();
 // Add application services
 builder.Services.AddInfrastructure();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 var nlNL = new CultureInfo("nl-NL");
@@ -65,6 +69,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
