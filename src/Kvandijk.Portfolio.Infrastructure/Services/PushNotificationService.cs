@@ -1,0 +1,34 @@
+using System.Text.Json;
+using Kvandijk.Portfolio.Application.Dtos;
+using Kvandijk.Portfolio.Application.ServiceInterfaces;
+using Microsoft.Extensions.Configuration;
+using WebPush;
+
+namespace Kvandijk.Portfolio.Infrastructure.Services;
+
+public class PushNotificationService : IPushNotificationService
+{
+    private readonly WebPushClient _client;
+    private readonly VapidDetails _vapidDetails;
+
+    public PushNotificationService(IConfiguration config)
+    {
+        _client = new WebPushClient();
+        _vapidDetails = new VapidDetails(
+            config["Vapid:Subject"],
+            config["Vapid:PublicKey"],
+            config["Vapid:PrivateKey"]);
+    }
+
+    public async Task SendNotificationAsync(PushSubscriptionDto subscription, string title, string body)
+    {
+        var pushSubscription = new PushSubscription(
+            subscription.Endpoint,
+            subscription.P256dh,
+            subscription.Auth);
+
+        var payload = JsonSerializer.Serialize(new { title, body });
+
+        await _client.SendNotificationAsync(pushSubscription, payload, _vapidDetails);
+    }
+}

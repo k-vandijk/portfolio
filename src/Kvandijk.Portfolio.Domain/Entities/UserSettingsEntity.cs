@@ -1,0 +1,16 @@
+using Azure;
+using Azure.Data.Tables;
+
+namespace Kvandijk.Portfolio.Domain.Entities;
+
+public class UserSettingsEntity : ITableEntity
+{
+    public string PartitionKey { get; set; } = string.Empty;
+    public string RowKey { get; set; } = string.Empty;
+    public DateTimeOffset? Timestamp { get; set; }
+    public ETag ETag { get; set; }
+
+    public string RiskTolerance { get; set; } = string.Empty;
+    public string InvestmentHorizon { get; set; } = string.Empty;
+    public string CustomInstructions { get; set; } = string.Empty;
+}

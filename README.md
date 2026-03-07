@@ -27,7 +27,7 @@ cd portfolio-insight-dashboard
 npm install
 npm run sass:build
 dotnet restore && dotnet build
-dotnet run --project src/Dashboard._Web/Dashboard._Web.csproj
+dotnet run --project src/Kvandijk.Portfolio._Web/Kvandijk.Portfolio._Web.csproj
 ```
 
 App starts at `https://localhost:61277`.

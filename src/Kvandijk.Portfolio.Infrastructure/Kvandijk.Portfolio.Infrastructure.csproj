@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.Projects" />
+    <PackageReference Include="Azure.Data.Tables" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="WebPush" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kvandijk.Portfolio.Application\Kvandijk.Portfolio.Application.csproj" />
+    <ProjectReference Include="..\Kvandijk.Portfolio.Domain\Kvandijk.Portfolio.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
