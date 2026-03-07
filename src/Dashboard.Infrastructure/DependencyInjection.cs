@@ -1,7 +1,6 @@
 using Azure.Data.Tables;
 using Dashboard.Application.RepositoryInterfaces;
 using Dashboard.Application.ServiceInterfaces;
-using Dashboard.Domain.Utils;
 using Dashboard.Infrastructure.Repositories;
 using Dashboard.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
@@ -26,15 +25,6 @@ public static class DependencyInjection
         services.AddScoped<IPushSubscriptionsRepository, PushSubscriptionsRepository>();
         services.AddScoped<ITransactionsRepository, TransactionsRepository>();
         services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
-
-        services.AddKeyedSingleton<TableClient>(StaticDetails.AiAnalysesTableName, (sp, _) =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
-            var connectionString = config.GetConnectionString("StorageAccount");
-            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.AiAnalysesTableName);
-            tableClient.CreateIfNotExists();
-            return tableClient;
-        });
 
         services.AddScoped<ITickerApiService, TickerApiService>();
         services.AddScoped<IPushNotificationService, PushNotificationService>();

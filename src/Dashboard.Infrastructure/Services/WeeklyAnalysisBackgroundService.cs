@@ -58,10 +58,13 @@ public class WeeklyAnalysisBackgroundService : BackgroundService
 
         using var scope = _scopeFactory.CreateScope();
         var analysisService = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysisService>();
+        var analysesRepository = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysesRepository>();
 
         // Fetch the most recent weekly analysis to see if 7 days have passed
-        var recent = await analysisService.GetRecentAnalysesAsync(1);
-        var lastAnalysis = recent.FirstOrDefault(a => a.AnalysisType == "weekly");
+        var recentAnalysesEntities = await analysesRepository.GetRecentAnalysesAsync(1);
+        var recentAnalysesDtos = recentAnalysesEntities.Select(e => e.ToDto()).ToList();
+
+        var lastAnalysis = recentAnalysesDtos.FirstOrDefault(a => a.AnalysisType == "weekly");
 
         if (lastAnalysis is not null)
         {
@@ -80,20 +83,21 @@ public class WeeklyAnalysisBackgroundService : BackgroundService
         _logger.LogInformation("Running weekly portfolio analysis");
         await analysisService.RunWeeklyAnalysisAsync();
 
-        await SendAnalysisNotificationAsync(scope);
+        await SendAnalysisNotificationAsync(scope, analysesRepository);
     }
 
-    private async Task SendAnalysisNotificationAsync(IServiceScope scope)
+    private async Task SendAnalysisNotificationAsync(IServiceScope scope, IPortfolioAnalysesRepository analysesRepository)
     {
         var subscriptionsRepository = scope.ServiceProvider.GetRequiredService<IPushSubscriptionsRepository>();
         var notificationService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
-        var analysisService = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysisService>();
 
         var subscriptionEntities = await subscriptionsRepository.GetAllAsync();
         if (subscriptionEntities.Count == 0) return;
 
-        var recent = await analysisService.GetRecentAnalysesAsync(1);
-        var weekNumber = recent.FirstOrDefault(a => a.AnalysisType == "weekly")?.WeekNumber ?? 0;
+        var recentAnalysesEntities = await analysesRepository.GetRecentAnalysesAsync(1);
+        var recentAnalysesDtos = recentAnalysesEntities.Select(e => e.ToDto()).ToList();
+
+        var weekNumber = recentAnalysesDtos.FirstOrDefault(a => a.AnalysisType == "weekly")?.WeekNumber ?? 0;
 
         var month = DateTime.Today.ToString("MMMM");
         var title = StaticDetails.AnalysisNotificationGreetings[

@@ -12,11 +12,13 @@ public class AnalysisController : Controller
 {
     private readonly IPortfolioAnalysisService _analysisService;
     private readonly IUserSettingsRepository _userSettingsRepository;
+    private readonly IPortfolioAnalysesRepository _analysesRepository;
 
-    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsRepository userSettingsRepository)
+    public AnalysisController(IPortfolioAnalysisService analysisService, IUserSettingsRepository userSettingsRepository, IPortfolioAnalysesRepository analysesRepository)
     {
         _analysisService = analysisService;
         _userSettingsRepository = userSettingsRepository;
+        _analysesRepository = analysesRepository;
     }
 
     [HttpGet("/analysis")]
@@ -26,16 +28,18 @@ public class AnalysisController : Controller
     [HttpGet("/analysis/content")]
     public async Task<IActionResult> AnalysisContent()
     {
-        var allAnalyses = await _analysisService.GetAllAnalysesAsync();
+        var analysesEntities = await _analysesRepository.GetAllAsync();
+        var analysesDtos = analysesEntities.Select(e => e.ToDto()).ToList();
+        var orderedAnalyses = analysesDtos.OrderByDescending(a => a.AnalysisDate).ToList();
 
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var hasWeeklyThisMonth = allAnalyses.Any(a =>
+        var hasWeeklyThisMonth = orderedAnalyses.Any(a =>
             a.AnalysisType == "weekly" &&
             a.AnalysisDate.Year == today.Year &&
             a.AnalysisDate.Month == today.Month);
 
-        var hasMonthlyThisMonth = allAnalyses.Any(a =>
+        var hasMonthlyThisMonth = orderedAnalyses.Any(a =>
             a.AnalysisType == "monthly" &&
             a.AnalysisDate.Year == today.Year &&
             a.AnalysisDate.Month == today.Month);
@@ -45,7 +49,7 @@ public class AnalysisController : Controller
 
         var viewModel = new AnalysisViewModel
         {
-            AllAnalyses = allAnalyses,
+            AllAnalyses = orderedAnalyses,
             CanGenerateMonthlyReport = hasWeeklyThisMonth && !hasMonthlyThisMonth,
             Settings = settings
         };
@@ -76,7 +80,7 @@ public class AnalysisController : Controller
     [HttpDelete("/analysis/{rowKey}")]
     public async Task<IActionResult> DeleteAnalysis(string rowKey)
     {
-        await _analysisService.DeleteAnalysisAsync(rowKey);
+        await _analysesRepository.DeleteByRowKeyAsync(rowKey);
         return Ok();
     }
 
