@@ -1,9 +1,9 @@
 using Azure;
 using Azure.Data.Tables;
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
-using Dashboard.Domain.Models;
+using Dashboard.Application.ServiceInterfaces;
+using Dashboard.Domain.Entities;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.DependencyInjection;
 

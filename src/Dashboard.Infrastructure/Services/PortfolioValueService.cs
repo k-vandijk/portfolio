@@ -1,5 +1,7 @@
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Interfaces;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -7,18 +9,18 @@ namespace Dashboard.Infrastructure.Services;
 
 public class PortfolioValueService : IPortfolioValueService
 {
-    private readonly ITransactionService _azureTableService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<PortfolioValueService> _logger;
+    private readonly ITransactionsRepository _transactionsRepository;
 
     public PortfolioValueService(
-        ITransactionService azureTableService,
         IServiceScopeFactory scopeFactory,
-        ILogger<PortfolioValueService> logger)
+        ILogger<PortfolioValueService> logger, 
+        ITransactionsRepository transactionsRepository)
     {
-        _azureTableService = azureTableService;
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _transactionsRepository = transactionsRepository;
     }
 
     public async Task<List<HoldingInfo>> GetTopHoldingsByValueAsync(int count = 3)
@@ -29,9 +31,10 @@ public class PortfolioValueService : IPortfolioValueService
 
     public async Task<List<HoldingInfo>> GetAllHoldingsAsync()
     {
-        var transactions = await _azureTableService.GetTransactionsAsync();
+        var transactionEntities = await _transactionsRepository.GetAllAsync();
+        var transactionDtos = transactionEntities.Select(e => e.ToModel()).ToList();
 
-        var tickers = transactions
+        var tickers = transactionDtos
             .Select(t => t.Ticker.ToUpperInvariant())
             .Distinct()
             .ToList();
@@ -60,7 +63,7 @@ public class PortfolioValueService : IPortfolioValueService
         var prices = await Task.WhenAll(fetchTasks);
         var priceMap = prices.ToDictionary(p => p.Ticker, p => (p.Price, p.PrevClose));
 
-        var holdings = transactions
+        var holdings = transactionDtos
             .GroupBy(t => t.Ticker.ToUpperInvariant())
             .Select(g =>
             {

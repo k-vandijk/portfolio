@@ -1,11 +1,12 @@
-﻿using Dashboard._Web.Middleware;
+﻿using Azure.Identity;
+using Dashboard._Web.Middleware;
 using Dashboard.Infrastructure;
+using kvandijk.Common.Middleware;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Globalization;
-using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +72,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
+
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseHttpsRedirection();
 

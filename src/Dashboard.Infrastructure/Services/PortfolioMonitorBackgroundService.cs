@@ -1,4 +1,4 @@
-using Dashboard.Application.Interfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,12 +7,12 @@ using WebPush;
 
 namespace Dashboard.Infrastructure.Services;
 
-public class PortfolioMonitorService : BackgroundService
+public class PortfolioMonitorBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<PortfolioMonitorService> _logger;
+    private readonly ILogger<PortfolioMonitorBackgroundService> _logger;
 
-    public PortfolioMonitorService(IServiceScopeFactory scopeFactory, ILogger<PortfolioMonitorService> logger)
+    public PortfolioMonitorBackgroundService(IServiceScopeFactory scopeFactory, ILogger<PortfolioMonitorBackgroundService> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;

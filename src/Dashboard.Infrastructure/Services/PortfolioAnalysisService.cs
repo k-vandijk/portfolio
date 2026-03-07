@@ -4,9 +4,7 @@ using Azure.AI.Projects.OpenAI;
 using Azure.Data.Tables;
 using Azure.Identity;
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Interfaces;
 using Dashboard.Application.Mappers;
-using Dashboard.Domain.Models;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +12,9 @@ using Microsoft.Extensions.Logging;
 using OpenAI.Responses;
 using System.Text;
 using System.Text.Json;
+using Dashboard.Application.RepositoryInterfaces;
+using Dashboard.Application.ServiceInterfaces;
+using Dashboard.Domain.Entities;
 
 namespace Dashboard.Infrastructure.Services;
 
@@ -23,26 +24,25 @@ namespace Dashboard.Infrastructure.Services;
 public class PortfolioAnalysisService : IPortfolioAnalysisService
 {
     private readonly TableClient _table;
-    private readonly ITransactionService _transactionService;
     private readonly IPortfolioValueService _portfolioValueService;
     private readonly IUserSettingsService _userSettingsService;
     private readonly IConfiguration _config;
     private readonly ILogger<PortfolioAnalysisService> _logger;
+    private readonly ITransactionsRepository _transactionsRepository;
 
     public PortfolioAnalysisService(
         [FromKeyedServices(StaticDetails.AiAnalysesTableName)] TableClient table,
-        ITransactionService transactionService,
         IPortfolioValueService portfolioValueService,
         IUserSettingsService userSettingsService,
         IConfiguration config,
-        ILogger<PortfolioAnalysisService> logger)
+        ILogger<PortfolioAnalysisService> logger, ITransactionsRepository transactionsRepository)
     {
         _table = table;
-        _transactionService = transactionService;
         _portfolioValueService = portfolioValueService;
         _userSettingsService = userSettingsService;
         _config = config;
         _logger = logger;
+        _transactionsRepository = transactionsRepository;
     }
 
     public async Task<List<PortfolioAnalysisDto>> GetAllAnalysesAsync()
@@ -79,8 +79,10 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         _logger.LogInformation("Starting weekly portfolio analysis");
 
         var settings = await _userSettingsService.GetSettingsAsync();
-        var transactions = await _transactionService.GetTransactionsAsync();
         var holdings = await _portfolioValueService.GetAllHoldingsAsync();
+
+        var transactionEntities = await _transactionsRepository.GetAllAsync();
+        var transactionDtos = transactionEntities.Select(e => e.ToModel()).ToList();
 
         if (holdings.Count == 0)
         {
@@ -91,7 +93,7 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
         var previousAnalyses = await GetWeeklyAnalysesForCurrentMonthAsync();
         var weekNumber = previousAnalyses.Count + 1;
 
-        var userPrompt = BuildWeeklyUserPrompt(holdings, transactions, settings, previousAnalyses, weekNumber);
+        var userPrompt = BuildWeeklyUserPrompt(holdings, transactionDtos, settings, previousAnalyses, weekNumber);
         var content = await InvokeAgentAsync(userPrompt);
 
         var portfolioSnapshot = JsonSerializer.Serialize(holdings.Select(h => new
@@ -160,11 +162,13 @@ public class PortfolioAnalysisService : IPortfolioAnalysisService
     public async Task<string> ChatAsync(string userMessage)
     {
         var settings = await _userSettingsService.GetSettingsAsync();
-        var transactions = await _transactionService.GetTransactionsAsync();
         var holdings = await _portfolioValueService.GetAllHoldingsAsync();
         var recentAnalyses = await GetRecentAnalysesAsync(3);
 
-        var prompt = BuildChatPrompt(holdings, transactions, settings, recentAnalyses, userMessage);
+        var transactionEntities = await _transactionsRepository.GetAllAsync();
+        var transactionDtos = transactionEntities.Select(e => e.ToModel()).ToList();
+
+        var prompt = BuildChatPrompt(holdings, transactionDtos, settings, recentAnalyses, userMessage);
         return await InvokeAgentAsync(prompt);
     }
 

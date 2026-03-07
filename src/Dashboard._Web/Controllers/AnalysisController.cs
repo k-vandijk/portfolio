@@ -1,7 +1,7 @@
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Interfaces;
 using Dashboard._Web.Helpers;
 using Dashboard._Web.ViewModels;
+using Dashboard.Application.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dashboard._Web.Controllers;

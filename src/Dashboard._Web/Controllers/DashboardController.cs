@@ -1,9 +1,12 @@
 using System.Diagnostics;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
-using Dashboard.Application.Interfaces;
 using Dashboard._Web.ViewModels;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
+using kvandijk.Common.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -11,22 +14,23 @@ namespace Dashboard._Web.Controllers;
 
 public class DashboardController : Controller
 {
-    private readonly ITransactionService _azureTableService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DashboardController> _logger;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly ITransactionsRepository _transactionsRepository;
 
-    public DashboardController(ITransactionService azureTableService, IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer)
+    public DashboardController(IServiceScopeFactory scopeFactory, ILogger<DashboardController> logger, IStringLocalizer<SharedResource> localizer, ITransactionsRepository transactionsRepository)
     {
-        _azureTableService = azureTableService;
         _scopeFactory = scopeFactory;
         _logger = logger;
         _localizer = localizer;
+        _transactionsRepository = transactionsRepository;
     }
 
     [HttpGet("/")]
     public IActionResult Index() => View();
 
+    [SkipRequestTiming]
     [HttpGet("/dashboard/content")]
     public async Task<IActionResult> DashboardContent(
         [FromQuery] string? mode = DashboardPresentationModes.Profit,
@@ -37,11 +41,13 @@ public class DashboardController : Controller
         var sw = Stopwatch.StartNew();
 
         var msBeforeTransactions = sw.ElapsedMilliseconds;
-        var transactions = await _azureTableService.GetTransactionsAsync();
         var msAfterTransactions = sw.ElapsedMilliseconds;
 
+        var transactionEntities = await _transactionsRepository.GetAllAsync();
+        var transactionDtos = transactionEntities.Select(e => e.ToModel()).ToList();
+
         // Named tx because tickers it already used as parameter name
-        var tx = transactions
+        var tx = transactionDtos
             .Select(t => t.Ticker.ToUpperInvariant())
             .Distinct()
             .ToList();
@@ -55,9 +61,9 @@ public class DashboardController : Controller
         var marketHistoryDataPoints = await GetMarketHistoryDataPoints(tx, period);
         var msAfterMarketHistory = sw.ElapsedMilliseconds;
 
-        var tableViewModel = PortfolioCalculationHelper.GetDashboardTableRows(tx, transactions, marketHistoryDataPoints);
+        var tableViewModel = PortfolioCalculationHelper.GetDashboardTableRows(tx, transactionDtos, marketHistoryDataPoints);
 
-        var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers);
+        var filteredTransactions = FilterHelper.FilterTransactions(transactionDtos, tickers);
 
         LineChartDto lineChartDto = mode switch
         {
@@ -97,7 +103,7 @@ public class DashboardController : Controller
         {
             TableRows = tableViewModel,
             LineChart = lineChartDto,
-            Years = transactions.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
+            Years = transactionDtos.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
         };
 
         sw.Stop();

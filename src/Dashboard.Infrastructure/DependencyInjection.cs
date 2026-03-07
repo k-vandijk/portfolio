@@ -1,9 +1,12 @@
 using Azure.Data.Tables;
-using Dashboard.Application.Interfaces;
+using Dashboard.Application.RepositoryInterfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
+using Dashboard.Infrastructure.Repositories;
 using Dashboard.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Dashboard.Infrastructure;
 
@@ -13,14 +16,17 @@ public static class DependencyInjection
     {
         services.AddMemoryCache();
 
-        services.AddKeyedSingleton<TableClient>(StaticDetails.TransactionsTableName, (sp, _) =>
+        services.AddSingleton<TableServiceClient>(sp =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var connectionString = config.GetConnectionString("StorageAccount");
-            var tableClient = new TableServiceClient(connectionString).GetTableClient(StaticDetails.TransactionsTableName);
-            tableClient.CreateIfNotExists();
-            return tableClient;
+            return new TableServiceClient(connectionString);
         });
+
+        services.AddScoped<IPortfolioAnalysesRepository, PortfolioAnalysesRepository>();
+        services.AddScoped<IPushSubscriptionsRepository, PushSubscriptionsRepository>();
+        services.AddScoped<ITransactionsRepository, TransactionsRepository>();
+        services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
 
         services.AddKeyedSingleton<TableClient>(StaticDetails.PushSubscriptionsTableName, (sp, _) =>
         {
@@ -49,7 +55,6 @@ public static class DependencyInjection
             return tableClient;
         });
 
-        services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<ITickerApiService, TickerApiService>();
         services.AddScoped<IPushSubscriptionService, PushSubscriptionService>();
         services.AddScoped<IPushNotificationService, PushNotificationService>();
@@ -57,7 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IUserSettingsService, UserSettingsService>();
         services.AddScoped<IPortfolioAnalysisService, PortfolioAnalysisService>();
 
-        services.AddHostedService<PortfolioMonitorService>();
+        services.AddHostedService<PortfolioMonitorBackgroundService>();
         services.AddHostedService<WeeklyAnalysisBackgroundService>();
 
         return services;

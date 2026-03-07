@@ -1,7 +1,7 @@
 using Azure;
 using Azure.Data.Tables;
 
-namespace Dashboard.Domain.Models;
+namespace Dashboard.Domain.Entities;
 
 public class UserSettingsEntity : ITableEntity
 {

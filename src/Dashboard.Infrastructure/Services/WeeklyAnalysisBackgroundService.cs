@@ -1,4 +1,4 @@
-using Dashboard.Application.Interfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
