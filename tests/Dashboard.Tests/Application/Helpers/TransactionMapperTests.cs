@@ -1,7 +1,7 @@
 ﻿using Azure;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Mappers;
-using Dashboard.Domain.Models;
+using Dashboard.Domain.Entities;
 using Dashboard.Domain.Utils;
 
 namespace Dashboard.Tests.Application.Helpers;

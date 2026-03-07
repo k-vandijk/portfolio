@@ -1,6 +1,6 @@
 using Dashboard.Application.Dtos;
 
-namespace Dashboard.Application.Interfaces;
+namespace Dashboard.Application.ServiceInterfaces;
 
 public interface IPortfolioValueService
 {

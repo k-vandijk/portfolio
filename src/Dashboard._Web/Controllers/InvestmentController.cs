@@ -1,7 +1,8 @@
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
-using Dashboard.Application.Interfaces;
 using Dashboard._Web.ViewModels;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -9,13 +10,13 @@ namespace Dashboard._Web.Controllers;
 
 public class InvestmentController : Controller
 {
-    private readonly ITransactionService _service;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly ITransactionsRepository _transactionsRepository;
 
-    public InvestmentController(ITransactionService service, IStringLocalizer<SharedResource> localizer)
+    public InvestmentController(IStringLocalizer<SharedResource> localizer, ITransactionsRepository transactionsRepository)
     {
-        _service = service;
         _localizer = localizer;
+        _transactionsRepository = transactionsRepository;
     }
 
     [HttpGet("/investment")]
@@ -27,9 +28,12 @@ public class InvestmentController : Controller
         [FromQuery] string? tickers,    
         [FromQuery] int? year)
     {
-        var transactions = await _service.GetTransactionsAsync();
+        //var transactions = await _service.GetTransactionsAsync();
+        var transactionEntities = await _transactionsRepository.GetAllAsync();
+        var transactionDtos = transactionEntities.Select(e => e.ToModel()).ToList();
+
         var (startDate, endDate) = FilterHelper.GetMinMaxDatesFromYear(year ?? DateTime.UtcNow.Year);
-        var filteredTransactions = FilterHelper.FilterTransactions(transactions, tickers, startDate, endDate);
+        var filteredTransactions = FilterHelper.FilterTransactions(transactionDtos, tickers, startDate, endDate);
 
         var pieChartViewModel = GetPieChartViewModel(filteredTransactions);
         var barChartViewModel = GetBarChartViewModel(filteredTransactions);
@@ -40,8 +44,8 @@ public class InvestmentController : Controller
             PieChart = pieChartViewModel,
             BarChart = barChartViewModel,
             LineChart = lineChartViewModel,
-            Tickers = transactions.Select(t => t.Ticker).Distinct().OrderBy(t => t).ToArray(),
-            Years = transactions.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
+            Tickers = transactionDtos.Select(t => t.Ticker).Distinct().OrderBy(t => t).ToArray(),
+            Years = transactionDtos.Select(t => t.Date.Year).Distinct().OrderBy(y => y).ToArray()
         };
 
         return PartialView("_InvestmentContent", viewModel);

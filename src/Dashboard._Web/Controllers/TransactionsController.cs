@@ -1,16 +1,17 @@
-﻿using Dashboard.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Dashboard.Application.Dtos;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
 
 namespace Dashboard._Web.Controllers;
 
 public class TransactionsController : Controller
 {
-    private readonly ITransactionService _service;
+    private readonly ITransactionsRepository _transactionsRepository;
 
-    public TransactionsController(ITransactionService service)
+    public TransactionsController(ITransactionsRepository transactionsRepository)
     {
-        _service = service;
+        _transactionsRepository = transactionsRepository;
     }
 
     [HttpGet("/transactions")]
@@ -20,9 +21,10 @@ public class TransactionsController : Controller
     [HttpGet("/transactions/content")]
     public async Task<IActionResult> TransactionsContent()
     {
-        var transactions = await _service.GetTransactionsAsync();
+        var transactionEntities = await _transactionsRepository.GetAllAsync();
+        var transactionDtos = transactionEntities.Select(e => e.ToModel()).ToList();
 
-        return PartialView("_TransactionsContent", transactions);
+        return PartialView("_TransactionsContent", transactionDtos);
     }
 
     [HttpPost]
@@ -31,7 +33,7 @@ public class TransactionsController : Controller
         if (!ModelState.IsValid)
             return BadRequest(new { success = false, message = "Invalid transaction data.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
-        await _service.AddTransactionAsync(transaction);
+        await _transactionsRepository.AddAsync(transaction.ToEntity());
         return Ok(new { success = true, message = "Transaction added" });
     }
 
@@ -41,7 +43,7 @@ public class TransactionsController : Controller
         if (string.IsNullOrWhiteSpace(rowKey))
             return BadRequest(new { success = false, message = "Invalid RowKey" });
 
-        await _service.DeleteTransactionAsync(rowKey);
+        await _transactionsRepository.DeleteByRowKeyAsync(rowKey);
         return Ok(new { success = true, message = "Transaction deleted" });
     }
 }

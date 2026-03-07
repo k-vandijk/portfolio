@@ -1,6 +1,6 @@
 using Azure;
 using Dashboard.Application.Dtos;
-using Dashboard.Domain.Models;
+using Dashboard.Domain.Entities;
 using Dashboard.Domain.Utils;
 
 namespace Dashboard.Application.Mappers;

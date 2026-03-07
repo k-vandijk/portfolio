@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Dashboard.Application.Dtos;
-using Dashboard.Application.Interfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Microsoft.Extensions.Configuration;
 using WebPush;
 

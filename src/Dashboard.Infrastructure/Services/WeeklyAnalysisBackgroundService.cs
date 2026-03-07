@@ -1,4 +1,6 @@
-using Dashboard.Application.Interfaces;
+using Dashboard.Application.Mappers;
+using Dashboard.Application.RepositoryInterfaces;
+using Dashboard.Application.ServiceInterfaces;
 using Dashboard.Domain.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -56,10 +58,13 @@ public class WeeklyAnalysisBackgroundService : BackgroundService
 
         using var scope = _scopeFactory.CreateScope();
         var analysisService = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysisService>();
+        var analysesRepository = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysesRepository>();
 
         // Fetch the most recent weekly analysis to see if 7 days have passed
-        var recent = await analysisService.GetRecentAnalysesAsync(1);
-        var lastAnalysis = recent.FirstOrDefault(a => a.AnalysisType == "weekly");
+        var recentAnalysesEntities = await analysesRepository.GetRecentAnalysesAsync(1);
+        var recentAnalysesDtos = recentAnalysesEntities.Select(e => e.ToDto()).ToList();
+
+        var lastAnalysis = recentAnalysesDtos.FirstOrDefault(a => a.AnalysisType == "weekly");
 
         if (lastAnalysis is not null)
         {
@@ -78,40 +83,41 @@ public class WeeklyAnalysisBackgroundService : BackgroundService
         _logger.LogInformation("Running weekly portfolio analysis");
         await analysisService.RunWeeklyAnalysisAsync();
 
-        await SendAnalysisNotificationAsync(scope);
+        await SendAnalysisNotificationAsync(scope, analysesRepository);
     }
 
-    private async Task SendAnalysisNotificationAsync(IServiceScope scope)
+    private async Task SendAnalysisNotificationAsync(IServiceScope scope, IPortfolioAnalysesRepository analysesRepository)
     {
-        var subscriptionService = scope.ServiceProvider.GetRequiredService<IPushSubscriptionService>();
+        var subscriptionsRepository = scope.ServiceProvider.GetRequiredService<IPushSubscriptionsRepository>();
         var notificationService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
-        var analysisService = scope.ServiceProvider.GetRequiredService<IPortfolioAnalysisService>();
 
-        var subscriptions = await subscriptionService.GetSubscriptionsAsync();
-        if (subscriptions.Count == 0) return;
+        var subscriptionEntities = await subscriptionsRepository.GetAllAsync();
+        if (subscriptionEntities.Count == 0) return;
 
-        var recent = await analysisService.GetRecentAnalysesAsync(1);
-        var weekNumber = recent.FirstOrDefault(a => a.AnalysisType == "weekly")?.WeekNumber ?? 0;
+        var recentAnalysesEntities = await analysesRepository.GetRecentAnalysesAsync(1);
+        var recentAnalysesDtos = recentAnalysesEntities.Select(e => e.ToDto()).ToList();
+
+        var weekNumber = recentAnalysesDtos.FirstOrDefault(a => a.AnalysisType == "weekly")?.WeekNumber ?? 0;
 
         var month = DateTime.Today.ToString("MMMM");
         var title = StaticDetails.AnalysisNotificationGreetings[
             Random.Shared.Next(StaticDetails.AnalysisNotificationGreetings.Length)];
         var body = $"Week {weekNumber} of {month} is ready\n━━━━━━━━━━━━━━━━━━\nYour portfolio has been reviewed and analysed.";
 
-        foreach (var sub in subscriptions)
+        foreach (var entity in subscriptionEntities)
         {
             try
             {
-                await notificationService.SendNotificationAsync(sub, title, body);
+                await notificationService.SendNotificationAsync(entity.ToDto(), title, body);
             }
             catch (WebPushException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Gone)
             {
-                _logger.LogInformation("Removing expired subscription: {Endpoint}", sub.Endpoint);
-                await subscriptionService.DeleteSubscriptionByEndpointAsync(sub.Endpoint);
+                _logger.LogInformation("Removing expired subscription: {Endpoint}", entity.Endpoint);
+                await subscriptionsRepository.DeleteAsync(entity);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to send analysis notification to {Endpoint}", sub.Endpoint);
+                _logger.LogWarning(ex, "Failed to send analysis notification to {Endpoint}", entity.Endpoint);
             }
         }
     }

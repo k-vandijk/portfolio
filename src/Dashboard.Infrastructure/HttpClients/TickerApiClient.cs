@@ -1,22 +1,22 @@
-﻿using Dashboard.Application.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 using Dashboard.Application.Dtos;
 using Dashboard.Application.Helpers;
+using Dashboard.Application.HttpClientInterfaces;
 using Dashboard.Domain.Utils;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
-namespace Dashboard.Infrastructure.Services;
+namespace Dashboard.Infrastructure.HttpClients;
 
-public class TickerApiService : ITickerApiService
+public class TickerApiClient : ITickerApiClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMemoryCache _cache;
     private readonly IConfiguration _config;
 
-    public TickerApiService(IHttpClientFactory httpFactory, IMemoryCache cache, IConfiguration config)
+    public TickerApiClient(IHttpClientFactory httpClientFactory, IMemoryCache cache, IConfiguration config)
     {
-        _httpClientFactory = httpFactory;
+        _httpClientFactory = httpClientFactory;
         _cache = cache;
         _config = config;
     }
