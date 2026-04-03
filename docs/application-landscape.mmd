@@ -4,19 +4,19 @@ flowchart LR
   subgraph RG1["rg-kvandijk-portfolio-dashboard"]
     direction TB
 
-    ASP1["ASP-rgkvandijkportfoliodashboard-8a2e<br>(App service plan)"]
+    ASP2["ASP-rgkvandijkportfoliodashboard-xxxx<br>(App service plan)"]
 
     AI1["ai-kvandijk-portfolio-dashboard<br>(Application insights)"]
-    AI2["ai-kvandijk-portfolio-dashboard-ticker-api<br>(Application insights)"]
+    AI2["ai-kvandijk-ticker-api<br>(Application insights)"]
 
     AS1["as-kvandijk-portfolio-dashboard<br>(App service)"]
 
-    FA1["fa-kvandijk-portfolio-dashboard-ticker-api<br>(Function app)"]
-    FA1S["fa-kvandijk-portfolio-dashboard-ticker-api/staging<br>(Function app)"]
+    FA1["fa-kvandijk-ticker-api<br>(Function app)"]
 
     KV1["kvkvandijkportfoliodashb<br>(Key vault)"]
     
     SA1["sakvandijkdashboard<br>(Storage account)"]
+    SA2["sakvandijktickerapi2<br>(Storage account)"]
 
     MF1["mf-kvandijk-portfolio-dashboard<br>(Microsoft Foundry)"]
 
@@ -25,13 +25,12 @@ flowchart LR
 
   subgraph RG2["rg-kvandijk-app-service-plan"]
     direction TB
-    ASP2["asp-kvandijk-linux<br>(App service plan)"]
+    ASP1["asp-kvandijk-linux<br>(App service plan)"]
   end
 
   %% Hosting relationship
-  AS1 -->|runs on| ASP2
-  FA1 -->|runs on| ASP1
-  FA1S -->|runs on| ASP1
+  AS1 -->|runs on| ASP1
+  FA1 -->|runs on| ASP2
 
   %% App-to-API calls
   AS1 -->|calls ticker api| FA1
@@ -39,12 +38,14 @@ flowchart LR
   %% Observability
   AS1 -->|telemetry| AI1
   FA1 -->|telemetry| AI2
-  FA1S -->|telemetry| AI2
 
   %% Secrets
   AS1 -->|uses secrets| KV1
 
   %% Storage account usage
-  FA1 -->|uses storage| SA1
-  FA1S -->|uses storage| SA1
   AS1 -->|stores transactions & push subscriptions| SA1
+  FA1 -->|uses storage| SA2
+
+  %% Microsoft Foundry
+  MFP1 -->|deployed via| MF1
+  AS1 -->|calls AI-agent| MFP1
